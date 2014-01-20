@@ -1,0 +1,11 @@
+# Eagle backup
+*.s#?
+*.b#?
+*.l#?
+
+# C files
+*.bin
+*.elf
+*.swp
+*.o
+*.d
