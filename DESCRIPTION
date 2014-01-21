@@ -1,3 +1,37 @@
 <h1>MINI ECU</h1>
 
-Gas model engine monitoring unit. 
+Gas model engine monitoring unit.
+
+<h3>Connectors</h3>
+<h4>XP1 Engine sensors</h4>
+<ul>
+<li> AVCC — +3.3 for analog sensors (if needed)
+<li> THERM — input for NTC 10k grounded to AGND
+<li> OIL_PRES — input for analog oil pressure sensor (resistance type, optional)
+<li> AGND — ground for analog sensors (connected to GND)
+<li> RPM_IN — signal from ignition hall sensor
+<li> STARTER — open drain output for starter relay (optional)
+</ul>
+
+<h4>XP2 Fuel flow sensor</h4>
+<ul>
+<li> PULSE — signal from flow sensor
+<li> VCC — +3.3V for supply hall sensor
+<li> GND — ground
+</ul>
+
+<h4>XP3 Data IO</h4>
+<ul>
+<li> VCC — +2.7 .. +5 V supply for isolator IC
+<li> TXD — isolated UART TX
+<li> RXD — isolated UART RX
+<li> GND — isolated from main ground
+</ul>
+
+<h4>XP4 Power/Kill switch</h4>
+<ul>
+<li> V_IGN — switch output for ignition module
+<li> GND_IGN — ground for ignition module
+<li> V_BAT — ignition battery positive terminal (+)
+<li> GND_BAT — battery negative terminal
+</ul> 
