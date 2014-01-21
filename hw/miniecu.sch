@@ -11778,7 +11778,6 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <part name="C4" library="resistor" deviceset="C-EU" device="C0603" value="0.1"/>
 <part name="VD1" library="usblc6" deviceset="USBLC6-2" device="SC6" value="USBLC6-2L"/>
 <part name="GND12" library="supply1" deviceset="GND" device=""/>
-<part name="+3V10" library="supply1" deviceset="+3V3" device=""/>
 <part name="DA2" library="power-ic" deviceset="VN5E025AJ" device="-E"/>
 <part name="R8" library="resistor" deviceset="R-EU_" device="R0603" value="100"/>
 <part name="GND13" library="supply1" deviceset="GND" device=""/>
@@ -11869,7 +11868,6 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <instance part="C4" gate="G$1" x="-5.08" y="-127"/>
 <instance part="VD1" gate="G$1" x="78.74" y="-101.6"/>
 <instance part="GND12" gate="1" x="53.34" y="-104.14"/>
-<instance part="+3V10" gate="G$1" x="88.9" y="-93.98" rot="R270"/>
 <instance part="DA2" gate="G$1" x="88.9" y="-137.16"/>
 <instance part="R8" gate="G$1" x="53.34" y="-124.46"/>
 <instance part="GND13" gate="1" x="63.5" y="-152.4"/>
@@ -12153,6 +12151,11 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <label x="5.08" y="-78.74" size="1.778" layer="95" xref="yes"/>
 <junction x="0" y="-78.74"/>
 </segment>
+<segment>
+<pinref part="VD1" gate="G$1" pin="VBUS"/>
+<wire x1="83.82" y1="-93.98" x2="86.36" y2="-93.98" width="0.1524" layer="91"/>
+<label x="86.36" y="-93.98" size="1.778" layer="95" xref="yes"/>
+</segment>
 </net>
 <net name="AGND" class="0">
 <segment>
@@ -12273,11 +12276,6 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <pinref part="+3V9" gate="G$1" pin="+3V3"/>
 <wire x1="25.4" y1="-101.6" x2="25.4" y2="-96.52" width="0.1524" layer="91"/>
 <junction x="25.4" y="-101.6"/>
-</segment>
-<segment>
-<pinref part="VD1" gate="G$1" pin="VBUS"/>
-<pinref part="+3V10" gate="G$1" pin="+3V3"/>
-<wire x1="86.36" y1="-93.98" x2="83.82" y2="-93.98" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="HL1" gate="G" pin="A"/>
