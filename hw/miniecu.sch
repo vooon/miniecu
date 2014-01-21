@@ -11956,26 +11956,26 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <part name="+3V2" library="supply1" deviceset="+3V3" device=""/>
 <part name="GND3" library="supply1" deviceset="GND" device=""/>
 <part name="C7" library="resistor" deviceset="C-EU" device="C0603" value="0.1"/>
-<part name="R5" library="resistor" deviceset="R-EU_" device="R0603" value="10k"/>
+<part name="R6" library="resistor" deviceset="R-EU_" device="R0603" value="10k"/>
 <part name="GND4" library="supply1" deviceset="GND" device=""/>
 <part name="+3V3" library="supply1" deviceset="+3V3" device=""/>
 <part name="GND5" library="supply1" deviceset="GND" device=""/>
 <part name="+3V4" library="supply1" deviceset="+3V3" device=""/>
 <part name="VT1" library="SparkFun-DiscreteSemi" deviceset="MOSFET-NCHANNEL" device="BSS123LT1G" value="BSS123LT1G"/>
 <part name="GND6" library="supply1" deviceset="GND" device=""/>
-<part name="R18" library="resistor" deviceset="R-EU_" device="R0603" value="5.1k"/>
-<part name="R14" library="resistor" deviceset="R-EU_" device="R0603" value="100"/>
-<part name="R10" library="resistor" deviceset="R-EU_" device="R0603" value="np"/>
+<part name="R19" library="resistor" deviceset="R-EU_" device="R0603" value="5.1k"/>
+<part name="R15" library="resistor" deviceset="R-EU_" device="R0603" value="100"/>
+<part name="R11" library="resistor" deviceset="R-EU_" device="R0603" value="np"/>
 <part name="C11" library="resistor" deviceset="C-EU" device="C0603" value="0.022"/>
-<part name="R16" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
-<part name="R12" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
-<part name="R13" library="resistor" deviceset="R-EU_" device="R0805" value="np"/>
-<part name="R17" library="resistor" deviceset="R-EU_" device="R0805" value="np"/>
+<part name="R17" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
+<part name="R13" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
+<part name="R14" library="resistor" deviceset="R-EU_" device="R0805" value="np"/>
+<part name="R18" library="resistor" deviceset="R-EU_" device="R0805" value="np"/>
 <part name="C14" library="resistor" deviceset="C-EU" device="C0603" value="0.1"/>
 <part name="C13" library="resistor" deviceset="C-EU" device="C0603" value="0.1"/>
 <part name="GND7" library="supply1" deviceset="GND" device=""/>
-<part name="R15" library="resistor" deviceset="R-EU_" device="R0603" value="100"/>
-<part name="R11" library="resistor" deviceset="R-EU_" device="R0603" value="np"/>
+<part name="R16" library="resistor" deviceset="R-EU_" device="R0603" value="100"/>
+<part name="R12" library="resistor" deviceset="R-EU_" device="R0603" value="np"/>
 <part name="C12" library="resistor" deviceset="C-EU" device="C0603" value="0.022"/>
 <part name="GND8" library="supply1" deviceset="GND" device=""/>
 <part name="VD2" library="usblc6" deviceset="USBLC6-2" device="SC6" value="USBLC6-2L"/>
@@ -11996,7 +11996,7 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <part name="GND10" library="supply1" deviceset="GND" device=""/>
 <part name="SW1" library="SparkFun-Electromechanical" deviceset="TAC_SWITCH" device="SMD"/>
 <part name="SW2" library="SparkFun-Electromechanical" deviceset="TAC_SWITCH" device="SMD"/>
-<part name="R6" library="resistor" deviceset="R-EU_" device="R0603" value="140"/>
+<part name="R7" library="resistor" deviceset="R-EU_" device="R0603" value="140"/>
 <part name="+3V8" library="supply1" deviceset="+3V3" device=""/>
 <part name="DA1" library="power-ic" deviceset="MCP1700" device="SOT-23"/>
 <part name="L2" library="SparkFun-Passives" deviceset="FB" device=""/>
@@ -12004,31 +12004,32 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <part name="C6" library="resistor" deviceset="C-EU" device="C0805" value="4.7"/>
 <part name="C8" library="resistor" deviceset="C-EU" device="C0805" value="4.7"/>
 <part name="+3V9" library="supply1" deviceset="+3V3" device=""/>
-<part name="R3" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
 <part name="R4" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
+<part name="R5" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
 <part name="C4" library="resistor" deviceset="C-EU" device="C0603" value="0.1"/>
 <part name="VD1" library="usblc6" deviceset="USBLC6-2" device="SC6" value="USBLC6-2L"/>
 <part name="GND12" library="supply1" deviceset="GND" device=""/>
 <part name="DA2" library="power-ic" deviceset="VN5E025AJ" device="-E"/>
-<part name="R8" library="resistor" deviceset="R-EU_" device="R0603" value="100"/>
+<part name="R9" library="resistor" deviceset="R-EU_" device="R0603" value="100"/>
 <part name="GND13" library="supply1" deviceset="GND" device=""/>
-<part name="R9" library="resistor" deviceset="R-EU_" device="R0603" value="10k"/>
-<part name="R7" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
+<part name="R10" library="resistor" deviceset="R-EU_" device="R0603" value="10k"/>
+<part name="R8" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
 <part name="C9" library="resistor" deviceset="C-EU" device="C0603" value="0.1"/>
 <part name="U$1" library="logo" deviceset="CREATIVE_COMMONS_BY-SA" device="">
 <attribute name="AUTHOR" value="Vladimir Ermakov &lt;vooon341@gmail.com&gt;"/>
 </part>
 <part name="FRAME1" library="SparkFun-Aesthetics" deviceset="FRAME-A3" device=""/>
-<part name="R19" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
+<part name="R20" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
 <part name="HL1" library="led2" deviceset="KAA-3528ESGC" device=""/>
 <part name="GND14" library="supply1" deviceset="GND" device=""/>
-<part name="H1" library="holes" deviceset="MOUNT-HOLE" device="3.2"/>
 <part name="H2" library="holes" deviceset="MOUNT-HOLE" device="3.2"/>
+<part name="H1" library="holes" deviceset="MOUNT-HOLE" device="3.2"/>
 <part name="H3" library="holes" deviceset="MOUNT-HOLE" device="3.2"/>
 <part name="H4" library="holes" deviceset="MOUNT-HOLE" device="3.2"/>
 <part name="R1" library="resistor" deviceset="R-EU_" device="R0603" value="10k"/>
 <part name="R2" library="resistor" deviceset="R-EU_" device="R0603" value="10k"/>
 <part name="+3V10" library="supply1" deviceset="+3V3" device=""/>
+<part name="R3" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
 </parts>
 <sheets>
 <sheet>
@@ -12051,26 +12052,26 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <instance part="+3V2" gate="G$1" x="15.24" y="-27.94"/>
 <instance part="GND3" gate="1" x="0" y="-63.5"/>
 <instance part="C7" gate="G$1" x="15.24" y="-53.34"/>
-<instance part="R5" gate="G$1" x="-2.54" y="-33.02"/>
+<instance part="R6" gate="G$1" x="-2.54" y="-33.02"/>
 <instance part="GND4" gate="1" x="147.32" y="-43.18"/>
 <instance part="+3V3" gate="G$1" x="147.32" y="-15.24"/>
 <instance part="GND5" gate="1" x="-43.18" y="-20.32"/>
 <instance part="+3V4" gate="G$1" x="-50.8" y="5.08"/>
 <instance part="VT1" gate="G$1" x="134.62" y="-7.62"/>
 <instance part="GND6" gate="1" x="134.62" y="-25.4"/>
-<instance part="R18" gate="G$1" x="127" y="-15.24" rot="R90"/>
-<instance part="R14" gate="G$1" x="114.3" y="2.54"/>
-<instance part="R10" gate="G$1" x="99.06" y="-5.08" rot="R90"/>
+<instance part="R19" gate="G$1" x="127" y="-15.24" rot="R90"/>
+<instance part="R15" gate="G$1" x="114.3" y="2.54"/>
+<instance part="R11" gate="G$1" x="99.06" y="-5.08" rot="R90"/>
 <instance part="C11" gate="G$1" x="104.14" y="-5.08"/>
-<instance part="R16" gate="G$1" x="119.38" y="30.48" rot="R90"/>
-<instance part="R12" gate="G$1" x="104.14" y="30.48" rot="R90"/>
-<instance part="R13" gate="G$1" x="104.14" y="12.7" rot="R90"/>
-<instance part="R17" gate="G$1" x="119.38" y="12.7" rot="R90"/>
+<instance part="R17" gate="G$1" x="119.38" y="30.48" rot="R90"/>
+<instance part="R13" gate="G$1" x="104.14" y="30.48" rot="R90"/>
+<instance part="R14" gate="G$1" x="104.14" y="12.7" rot="R90"/>
+<instance part="R18" gate="G$1" x="119.38" y="12.7" rot="R90"/>
 <instance part="C14" gate="G$1" x="124.46" y="12.7"/>
 <instance part="C13" gate="G$1" x="109.22" y="12.7"/>
 <instance part="GND7" gate="1" x="101.6" y="-15.24"/>
-<instance part="R15" gate="G$1" x="114.3" y="-33.02"/>
-<instance part="R11" gate="G$1" x="99.06" y="-40.64" rot="R90"/>
+<instance part="R16" gate="G$1" x="114.3" y="-33.02"/>
+<instance part="R12" gate="G$1" x="99.06" y="-40.64" rot="R90"/>
 <instance part="C12" gate="G$1" x="104.14" y="-40.64"/>
 <instance part="GND8" gate="1" x="101.6" y="-50.8"/>
 <instance part="VD2" gate="G$1" x="83.82" y="12.7"/>
@@ -12091,40 +12092,41 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <instance part="GND10" gate="1" x="-63.5" y="0"/>
 <instance part="SW1" gate="S" x="-78.74" y="33.02" rot="R90"/>
 <instance part="SW2" gate="S" x="-78.74" y="12.7" rot="R90"/>
-<instance part="R6" gate="G$1" x="50.8" y="-50.8" rot="R90"/>
+<instance part="R7" gate="G$1" x="50.8" y="-50.8" rot="R90"/>
 <instance part="+3V8" gate="G$1" x="76.2" y="-27.94"/>
 <instance part="DA1" gate="1" x="12.7" y="-101.6"/>
 <instance part="L2" gate="G$1" x="-20.32" y="-101.6"/>
-<instance part="GND11" gate="1" x="12.7" y="-139.7"/>
+<instance part="GND11" gate="1" x="12.7" y="-152.4"/>
 <instance part="C6" gate="G$1" x="0" y="-109.22"/>
 <instance part="C8" gate="G$1" x="25.4" y="-109.22"/>
 <instance part="+3V9" gate="G$1" x="25.4" y="-93.98"/>
-<instance part="R3" gate="G$1" x="-10.16" y="-111.76" rot="R90"/>
-<instance part="R4" gate="G$1" x="-10.16" y="-127" rot="R90"/>
-<instance part="C4" gate="G$1" x="-5.08" y="-127"/>
+<instance part="R4" gate="G$1" x="-10.16" y="-124.46" rot="R90"/>
+<instance part="R5" gate="G$1" x="-10.16" y="-139.7" rot="R90"/>
+<instance part="C4" gate="G$1" x="-5.08" y="-139.7"/>
 <instance part="VD1" gate="G$1" x="78.74" y="-101.6"/>
 <instance part="GND12" gate="1" x="53.34" y="-104.14"/>
 <instance part="DA2" gate="G$1" x="88.9" y="-137.16"/>
-<instance part="R8" gate="G$1" x="53.34" y="-124.46"/>
+<instance part="R9" gate="G$1" x="53.34" y="-124.46"/>
 <instance part="GND13" gate="1" x="63.5" y="-152.4"/>
-<instance part="R9" gate="G$1" x="58.42" y="-139.7" rot="R90"/>
-<instance part="R7" gate="G$1" x="50.8" y="-139.7" rot="MR270"/>
+<instance part="R10" gate="G$1" x="58.42" y="-139.7" rot="R90"/>
+<instance part="R8" gate="G$1" x="50.8" y="-139.7" rot="MR270"/>
 <instance part="C9" gate="G$1" x="43.18" y="-139.7"/>
 <instance part="U$1" gate="G$1" x="152.4" y="-157.48">
 <attribute name="AUTHOR" x="152.4" y="-157.48" size="1.778" layer="96" display="off"/>
 </instance>
 <instance part="FRAME1" gate="G$1" x="-137.16" y="-185.42"/>
-<instance part="R19" gate="G$1" x="142.24" y="-27.94" rot="R90"/>
+<instance part="R20" gate="G$1" x="142.24" y="-27.94" rot="R90"/>
 <instance part="HL1" gate="R" x="63.5" y="-48.26" rot="R90"/>
 <instance part="HL1" gate="G" x="66.04" y="-38.1" rot="MR90"/>
 <instance part="GND14" gate="1" x="76.2" y="-55.88"/>
-<instance part="H1" gate="G$1" x="-127" y="-175.26"/>
-<instance part="H2" gate="G$1" x="-127" y="-170.18"/>
+<instance part="H2" gate="G$1" x="-127" y="-175.26"/>
+<instance part="H1" gate="G$1" x="-127" y="-170.18"/>
 <instance part="H3" gate="G$1" x="-121.92" y="-170.18"/>
 <instance part="H4" gate="G$1" x="-121.92" y="-175.26"/>
 <instance part="R1" gate="G$1" x="-71.12" y="12.7" rot="R90"/>
 <instance part="R2" gate="G$1" x="-63.5" y="33.02" rot="R90"/>
 <instance part="+3V10" gate="G$1" x="88.9" y="-78.74"/>
+<instance part="R3" gate="G$1" x="-10.16" y="-111.76" rot="R90"/>
 </instances>
 <busses>
 <bus name="TXD,RXD,RPM_IN,FLOW_PULSE,STARTER,THERM,OIL_PRES,MISO,MOSI,SCK,FLASH_CS,IGN_EN,V_SENSE,I_SENSE,LED_RED">
@@ -12227,13 +12229,13 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <pinref part="VT1" gate="G$1" pin="S"/>
 <pinref part="GND6" gate="1" pin="GND"/>
 <wire x1="134.62" y1="-22.86" x2="134.62" y2="-20.32" width="0.1524" layer="91"/>
-<pinref part="R18" gate="G$1" pin="1"/>
+<pinref part="R19" gate="G$1" pin="1"/>
 <wire x1="134.62" y1="-20.32" x2="134.62" y2="-12.7" width="0.1524" layer="91"/>
 <wire x1="127" y1="-20.32" x2="134.62" y2="-20.32" width="0.1524" layer="91"/>
 <junction x="134.62" y="-20.32"/>
 </segment>
 <segment>
-<pinref part="R10" gate="G$1" pin="1"/>
+<pinref part="R11" gate="G$1" pin="1"/>
 <wire x1="99.06" y1="-10.16" x2="99.06" y2="-12.7" width="0.1524" layer="91"/>
 <pinref part="GND7" gate="1" pin="GND"/>
 <wire x1="99.06" y1="-12.7" x2="101.6" y2="-12.7" width="0.1524" layer="91"/>
@@ -12243,7 +12245,7 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <junction x="101.6" y="-12.7"/>
 </segment>
 <segment>
-<pinref part="R11" gate="G$1" pin="1"/>
+<pinref part="R12" gate="G$1" pin="1"/>
 <wire x1="99.06" y1="-45.72" x2="99.06" y2="-48.26" width="0.1524" layer="91"/>
 <pinref part="GND8" gate="1" pin="GND"/>
 <wire x1="99.06" y1="-48.26" x2="101.6" y2="-48.26" width="0.1524" layer="91"/>
@@ -12294,22 +12296,22 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <pinref part="GND11" gate="1" pin="GND"/>
 <wire x1="12.7" y1="-109.22" x2="12.7" y2="-116.84" width="0.1524" layer="91"/>
 <pinref part="C6" gate="G$1" pin="2"/>
-<wire x1="12.7" y1="-116.84" x2="12.7" y2="-134.62" width="0.1524" layer="91"/>
-<wire x1="12.7" y1="-134.62" x2="12.7" y2="-137.16" width="0.1524" layer="91"/>
+<wire x1="12.7" y1="-116.84" x2="12.7" y2="-147.32" width="0.1524" layer="91"/>
+<wire x1="12.7" y1="-147.32" x2="12.7" y2="-149.86" width="0.1524" layer="91"/>
 <wire x1="0" y1="-114.3" x2="0" y2="-116.84" width="0.1524" layer="91"/>
 <wire x1="0" y1="-116.84" x2="12.7" y2="-116.84" width="0.1524" layer="91"/>
 <pinref part="C8" gate="G$1" pin="2"/>
 <wire x1="12.7" y1="-116.84" x2="25.4" y2="-116.84" width="0.1524" layer="91"/>
 <wire x1="25.4" y1="-116.84" x2="25.4" y2="-114.3" width="0.1524" layer="91"/>
 <junction x="12.7" y="-116.84"/>
-<pinref part="R4" gate="G$1" pin="1"/>
-<wire x1="-10.16" y1="-132.08" x2="-10.16" y2="-134.62" width="0.1524" layer="91"/>
-<wire x1="-10.16" y1="-134.62" x2="-5.08" y2="-134.62" width="0.1524" layer="91"/>
-<junction x="12.7" y="-134.62"/>
+<pinref part="R5" gate="G$1" pin="1"/>
+<wire x1="-10.16" y1="-144.78" x2="-10.16" y2="-147.32" width="0.1524" layer="91"/>
+<wire x1="-10.16" y1="-147.32" x2="-5.08" y2="-147.32" width="0.1524" layer="91"/>
+<junction x="12.7" y="-147.32"/>
 <pinref part="C4" gate="G$1" pin="2"/>
-<wire x1="-5.08" y1="-134.62" x2="12.7" y2="-134.62" width="0.1524" layer="91"/>
-<wire x1="-5.08" y1="-132.08" x2="-5.08" y2="-134.62" width="0.1524" layer="91"/>
-<junction x="-5.08" y="-134.62"/>
+<wire x1="-5.08" y1="-147.32" x2="12.7" y2="-147.32" width="0.1524" layer="91"/>
+<wire x1="-5.08" y1="-144.78" x2="-5.08" y2="-147.32" width="0.1524" layer="91"/>
+<junction x="-5.08" y="-147.32"/>
 </segment>
 <segment>
 <pinref part="GND12" gate="1" pin="GND"/>
@@ -12322,14 +12324,14 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <pinref part="GND13" gate="1" pin="GND"/>
 <wire x1="68.58" y1="-121.92" x2="63.5" y2="-121.92" width="0.1524" layer="91"/>
 <wire x1="63.5" y1="-121.92" x2="63.5" y2="-147.32" width="0.1524" layer="91"/>
-<pinref part="R9" gate="G$1" pin="1"/>
+<pinref part="R10" gate="G$1" pin="1"/>
 <wire x1="63.5" y1="-147.32" x2="63.5" y2="-149.86" width="0.1524" layer="91"/>
 <wire x1="58.42" y1="-144.78" x2="58.42" y2="-147.32" width="0.1524" layer="91"/>
 <wire x1="58.42" y1="-147.32" x2="63.5" y2="-147.32" width="0.1524" layer="91"/>
 <junction x="63.5" y="-147.32"/>
 <wire x1="58.42" y1="-147.32" x2="50.8" y2="-147.32" width="0.1524" layer="91"/>
 <wire x1="50.8" y1="-147.32" x2="43.18" y2="-147.32" width="0.1524" layer="91"/>
-<pinref part="R7" gate="G$1" pin="2"/>
+<pinref part="R8" gate="G$1" pin="2"/>
 <wire x1="50.8" y1="-144.78" x2="50.8" y2="-147.32" width="0.1524" layer="91"/>
 <junction x="58.42" y="-147.32"/>
 <junction x="50.8" y="-147.32"/>
@@ -12375,10 +12377,10 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <wire x1="142.24" y1="38.1" x2="142.24" y2="12.7" width="0.1524" layer="91"/>
 <wire x1="142.24" y1="12.7" x2="149.86" y2="12.7" width="0.1524" layer="91"/>
 <label x="142.24" y="40.64" size="1.778" layer="95" rot="R90" xref="yes"/>
-<pinref part="R12" gate="G$1" pin="2"/>
+<pinref part="R13" gate="G$1" pin="2"/>
 <wire x1="104.14" y1="35.56" x2="104.14" y2="38.1" width="0.1524" layer="91"/>
 <wire x1="104.14" y1="38.1" x2="119.38" y2="38.1" width="0.1524" layer="91"/>
-<pinref part="R16" gate="G$1" pin="2"/>
+<pinref part="R17" gate="G$1" pin="2"/>
 <wire x1="119.38" y1="38.1" x2="142.24" y2="38.1" width="0.1524" layer="91"/>
 <wire x1="119.38" y1="35.56" x2="119.38" y2="38.1" width="0.1524" layer="91"/>
 <junction x="119.38" y="38.1"/>
@@ -12407,10 +12409,10 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <pinref part="C14" gate="G$1" pin="2"/>
 <wire x1="124.46" y1="7.62" x2="124.46" y2="5.08" width="0.1524" layer="91"/>
 <wire x1="124.46" y1="5.08" x2="119.38" y2="5.08" width="0.1524" layer="91"/>
-<pinref part="R17" gate="G$1" pin="1"/>
+<pinref part="R18" gate="G$1" pin="1"/>
 <wire x1="119.38" y1="5.08" x2="119.38" y2="7.62" width="0.1524" layer="91"/>
 <wire x1="124.46" y1="5.08" x2="58.42" y2="5.08" width="0.1524" layer="91"/>
-<pinref part="R13" gate="G$1" pin="1"/>
+<pinref part="R14" gate="G$1" pin="1"/>
 <wire x1="104.14" y1="7.62" x2="104.14" y2="5.08" width="0.1524" layer="91"/>
 <wire x1="104.14" y1="5.08" x2="109.22" y2="5.08" width="0.1524" layer="91"/>
 <pinref part="C13" gate="G$1" pin="2"/>
@@ -12459,7 +12461,7 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <junction x="15.24" y="-40.64"/>
 <pinref part="C7" gate="G$1" pin="1"/>
 <wire x1="15.24" y1="-43.18" x2="15.24" y2="-50.8" width="0.1524" layer="91"/>
-<pinref part="R5" gate="G$1" pin="2"/>
+<pinref part="R6" gate="G$1" pin="2"/>
 <wire x1="15.24" y1="-33.02" x2="2.54" y2="-33.02" width="0.1524" layer="91"/>
 <junction x="15.24" y="-33.02"/>
 <junction x="15.24" y="-43.18"/>
@@ -12469,7 +12471,7 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <pinref part="+3V3" gate="G$1" pin="+3V3"/>
 <wire x1="149.86" y1="-35.56" x2="147.32" y2="-35.56" width="0.1524" layer="91"/>
 <wire x1="147.32" y1="-35.56" x2="147.32" y2="-20.32" width="0.1524" layer="91"/>
-<pinref part="R19" gate="G$1" pin="2"/>
+<pinref part="R20" gate="G$1" pin="2"/>
 <wire x1="147.32" y1="-20.32" x2="147.32" y2="-17.78" width="0.1524" layer="91"/>
 <wire x1="142.24" y1="-22.86" x2="142.24" y2="-20.32" width="0.1524" layer="91"/>
 <wire x1="142.24" y1="-20.32" x2="147.32" y2="-20.32" width="0.1524" layer="91"/>
@@ -12613,16 +12615,16 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <pinref part="DD2" gate="G$1" pin="WP"/>
 <wire x1="-17.78" y1="-45.72" x2="-20.32" y2="-45.72" width="0.1524" layer="91"/>
 <wire x1="-20.32" y1="-45.72" x2="-20.32" y2="-33.02" width="0.1524" layer="91"/>
-<pinref part="R5" gate="G$1" pin="1"/>
+<pinref part="R6" gate="G$1" pin="1"/>
 <wire x1="-20.32" y1="-33.02" x2="-7.62" y2="-33.02" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$4" class="0">
 <segment>
 <pinref part="XP2" gate="G$1" pin="PULSE"/>
-<pinref part="R15" gate="G$1" pin="2"/>
+<pinref part="R16" gate="G$1" pin="2"/>
 <wire x1="149.86" y1="-33.02" x2="142.24" y2="-33.02" width="0.1524" layer="91"/>
-<pinref part="R19" gate="G$1" pin="1"/>
+<pinref part="R20" gate="G$1" pin="1"/>
 <wire x1="142.24" y1="-33.02" x2="119.38" y2="-33.02" width="0.1524" layer="91"/>
 <junction x="142.24" y="-33.02"/>
 </segment>
@@ -12631,7 +12633,7 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <segment>
 <pinref part="XP1" gate="G$1" pin="RPM_IN"/>
 <wire x1="149.86" y1="2.54" x2="119.38" y2="2.54" width="0.1524" layer="91"/>
-<pinref part="R14" gate="G$1" pin="2"/>
+<pinref part="R15" gate="G$1" pin="2"/>
 </segment>
 </net>
 <net name="STARTER_OUT" class="0">
@@ -12647,8 +12649,8 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <pinref part="XP1" gate="G$1" pin="OIL_PRES"/>
 <wire x1="149.86" y1="7.62" x2="132.08" y2="7.62" width="0.1524" layer="91"/>
 <wire x1="132.08" y1="7.62" x2="132.08" y2="20.32" width="0.1524" layer="91"/>
-<pinref part="R16" gate="G$1" pin="1"/>
-<pinref part="R17" gate="G$1" pin="2"/>
+<pinref part="R17" gate="G$1" pin="1"/>
+<pinref part="R18" gate="G$1" pin="2"/>
 <wire x1="119.38" y1="25.4" x2="119.38" y2="20.32" width="0.1524" layer="91"/>
 <pinref part="C14" gate="G$1" pin="1"/>
 <wire x1="119.38" y1="20.32" x2="119.38" y2="17.78" width="0.1524" layer="91"/>
@@ -12679,7 +12681,7 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <wire x1="35.56" y1="-22.86" x2="119.38" y2="-22.86" width="0.1524" layer="91"/>
 <wire x1="119.38" y1="-22.86" x2="119.38" y2="-7.62" width="0.1524" layer="91"/>
 <wire x1="119.38" y1="-7.62" x2="127" y2="-7.62" width="0.1524" layer="91"/>
-<pinref part="R18" gate="G$1" pin="2"/>
+<pinref part="R19" gate="G$1" pin="2"/>
 <wire x1="127" y1="-7.62" x2="127" y2="-10.16" width="0.1524" layer="91"/>
 <junction x="127" y="-7.62"/>
 <label x="38.1" y="-22.86" size="1.778" layer="95"/>
@@ -12695,8 +12697,8 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <pinref part="XP1" gate="G$1" pin="THERM"/>
 <wire x1="149.86" y1="10.16" x2="134.62" y2="10.16" width="0.1524" layer="91"/>
 <wire x1="134.62" y1="10.16" x2="134.62" y2="22.86" width="0.1524" layer="91"/>
-<pinref part="R12" gate="G$1" pin="1"/>
-<pinref part="R13" gate="G$1" pin="2"/>
+<pinref part="R13" gate="G$1" pin="1"/>
+<pinref part="R14" gate="G$1" pin="2"/>
 <wire x1="104.14" y1="25.4" x2="104.14" y2="22.86" width="0.1524" layer="91"/>
 <wire x1="104.14" y1="22.86" x2="104.14" y2="17.78" width="0.1524" layer="91"/>
 <wire x1="104.14" y1="22.86" x2="109.22" y2="22.86" width="0.1524" layer="91"/>
@@ -12733,8 +12735,8 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <label x="22.86" y="-5.08" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="R14" gate="G$1" pin="1"/>
-<pinref part="R10" gate="G$1" pin="2"/>
+<pinref part="R15" gate="G$1" pin="1"/>
+<pinref part="R11" gate="G$1" pin="2"/>
 <wire x1="99.06" y1="2.54" x2="104.14" y2="2.54" width="0.1524" layer="91"/>
 <wire x1="104.14" y1="2.54" x2="109.22" y2="2.54" width="0.1524" layer="91"/>
 <wire x1="99.06" y1="2.54" x2="99.06" y2="0" width="0.1524" layer="91"/>
@@ -12750,8 +12752,8 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 </net>
 <net name="FLOW_PULSE" class="0">
 <segment>
-<pinref part="R15" gate="G$1" pin="1"/>
-<pinref part="R11" gate="G$1" pin="2"/>
+<pinref part="R16" gate="G$1" pin="1"/>
+<pinref part="R12" gate="G$1" pin="2"/>
 <wire x1="99.06" y1="-33.02" x2="104.14" y2="-33.02" width="0.1524" layer="91"/>
 <wire x1="104.14" y1="-33.02" x2="109.22" y2="-33.02" width="0.1524" layer="91"/>
 <wire x1="99.06" y1="-33.02" x2="99.06" y2="-35.56" width="0.1524" layer="91"/>
@@ -12823,7 +12825,7 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 </net>
 <net name="N$2" class="0">
 <segment>
-<pinref part="R6" gate="G$1" pin="2"/>
+<pinref part="R7" gate="G$1" pin="2"/>
 <wire x1="50.8" y1="-38.1" x2="50.8" y2="-45.72" width="0.1524" layer="91"/>
 <pinref part="HL1" gate="G" pin="C"/>
 <wire x1="60.96" y1="-38.1" x2="58.42" y2="-38.1" width="0.1524" layer="91"/>
@@ -12836,7 +12838,7 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 </net>
 <net name="LED" class="0">
 <segment>
-<pinref part="R6" gate="G$1" pin="1"/>
+<pinref part="R7" gate="G$1" pin="1"/>
 <wire x1="35.56" y1="-55.88" x2="50.8" y2="-55.88" width="0.1524" layer="91"/>
 <label x="38.1" y="-55.88" size="1.778" layer="95"/>
 </segment>
@@ -12850,8 +12852,8 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <segment>
 <pinref part="L2" gate="G$1" pin="P$1"/>
 <pinref part="DA1" gate="1" pin="IN"/>
-<wire x1="-15.24" y1="-101.6" x2="-10.16" y2="-101.6" width="0.1524" layer="91"/>
 <pinref part="C6" gate="G$1" pin="1"/>
+<wire x1="-15.24" y1="-101.6" x2="-10.16" y2="-101.6" width="0.1524" layer="91"/>
 <wire x1="-10.16" y1="-101.6" x2="0" y2="-101.6" width="0.1524" layer="91"/>
 <wire x1="0" y1="-101.6" x2="5.08" y2="-101.6" width="0.1524" layer="91"/>
 <wire x1="0" y1="-101.6" x2="0" y2="-106.68" width="0.1524" layer="91"/>
@@ -12863,16 +12865,16 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 </net>
 <net name="V_SENSE" class="0">
 <segment>
-<pinref part="R3" gate="G$1" pin="1"/>
-<pinref part="R4" gate="G$1" pin="2"/>
-<wire x1="-10.16" y1="-116.84" x2="-10.16" y2="-119.38" width="0.1524" layer="91"/>
+<pinref part="R4" gate="G$1" pin="1"/>
+<pinref part="R5" gate="G$1" pin="2"/>
+<wire x1="-10.16" y1="-129.54" x2="-10.16" y2="-132.08" width="0.1524" layer="91"/>
 <pinref part="C4" gate="G$1" pin="1"/>
-<wire x1="-10.16" y1="-119.38" x2="-10.16" y2="-121.92" width="0.1524" layer="91"/>
-<wire x1="-10.16" y1="-119.38" x2="-5.08" y2="-119.38" width="0.1524" layer="91"/>
-<wire x1="-5.08" y1="-119.38" x2="-5.08" y2="-124.46" width="0.1524" layer="91"/>
-<wire x1="-10.16" y1="-119.38" x2="-15.24" y2="-119.38" width="0.1524" layer="91"/>
-<junction x="-10.16" y="-119.38"/>
-<label x="-15.24" y="-119.38" size="1.778" layer="95" rot="R180" xref="yes"/>
+<wire x1="-10.16" y1="-132.08" x2="-10.16" y2="-134.62" width="0.1524" layer="91"/>
+<wire x1="-10.16" y1="-132.08" x2="-5.08" y2="-132.08" width="0.1524" layer="91"/>
+<wire x1="-5.08" y1="-132.08" x2="-5.08" y2="-137.16" width="0.1524" layer="91"/>
+<wire x1="-10.16" y1="-132.08" x2="-15.24" y2="-132.08" width="0.1524" layer="91"/>
+<junction x="-10.16" y="-132.08"/>
+<label x="-15.24" y="-132.08" size="1.778" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
 <pinref part="VD1" gate="G$1" pin="I/O_2"/>
@@ -12893,7 +12895,7 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <net name="I_SENSE" class="0">
 <segment>
 <wire x1="43.18" y1="-129.54" x2="50.8" y2="-129.54" width="0.1524" layer="91"/>
-<pinref part="R7" gate="G$1" pin="1"/>
+<pinref part="R8" gate="G$1" pin="1"/>
 <wire x1="50.8" y1="-134.62" x2="50.8" y2="-129.54" width="0.1524" layer="91"/>
 <wire x1="50.8" y1="-129.54" x2="55.88" y2="-129.54" width="0.1524" layer="91"/>
 <wire x1="55.88" y1="-129.54" x2="55.88" y2="-127" width="0.1524" layer="91"/>
@@ -12951,14 +12953,14 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 </net>
 <net name="N$7" class="0">
 <segment>
-<pinref part="R8" gate="G$1" pin="2"/>
+<pinref part="R9" gate="G$1" pin="2"/>
 <pinref part="DA2" gate="G$1" pin="INPUT"/>
 <wire x1="58.42" y1="-124.46" x2="68.58" y2="-124.46" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="IGN_EN" class="0">
 <segment>
-<pinref part="R8" gate="G$1" pin="1"/>
+<pinref part="R9" gate="G$1" pin="1"/>
 <wire x1="35.56" y1="-124.46" x2="48.26" y2="-124.46" width="0.1524" layer="91"/>
 <label x="38.1" y="-124.46" size="1.778" layer="95"/>
 </segment>
@@ -12970,10 +12972,17 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 </net>
 <net name="N$9" class="0">
 <segment>
-<pinref part="R9" gate="G$1" pin="2"/>
+<pinref part="R10" gate="G$1" pin="2"/>
 <wire x1="58.42" y1="-129.54" x2="58.42" y2="-134.62" width="0.1524" layer="91"/>
 <pinref part="DA2" gate="G$1" pin="CS_DIS"/>
 <wire x1="68.58" y1="-129.54" x2="58.42" y2="-129.54" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$1" class="0">
+<segment>
+<pinref part="R4" gate="G$1" pin="2"/>
+<pinref part="R3" gate="G$1" pin="1"/>
+<wire x1="-10.16" y1="-116.84" x2="-10.16" y2="-119.38" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
