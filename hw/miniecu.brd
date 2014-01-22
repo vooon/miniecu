@@ -5004,19 +5004,15 @@ design rules under a new name.</description>
 </element>
 <element name="XP2" library="miniecu-con" package="B3B-XH" value="FLOW_SENS-B3B-XH-A" x="46" y="15" smashed="yes" rot="R90">
 <attribute name="NAME" x="41.5" y="18" size="1.27" layer="21" font="vector" rot="R90"/>
-<attribute name="VALUE" x="54.31" y="7.96" size="1.27" layer="21" rot="R90"/>
 </element>
 <element name="XP4" library="miniecu-con" package="B4B-XH" value="IGN_POWER-B4B-XH-A" x="4" y="16" smashed="yes" rot="R270">
 <attribute name="NAME" x="8.31" y="23.31" size="1.27" layer="21" font="vector" rot="R270"/>
-<attribute name="VALUE" x="-4.81" y="22.81" size="1.27" layer="21" rot="R270"/>
 </element>
 <element name="XP1" library="miniecu-con" package="B6B-XH" value="SENSORS-B6B-XH-A" x="4" y="32" smashed="yes" rot="R270">
 <attribute name="NAME" x="7.81" y="43.85" size="1.27" layer="21" font="vector" rot="R270"/>
-<attribute name="VALUE" x="-4.81" y="41.35" size="1.27" layer="21" rot="R270"/>
 </element>
 <element name="XP3" library="miniecu-con" package="B4B-XH" value="UART-B4B-XH-A" x="46" y="34" smashed="yes" rot="R90">
 <attribute name="NAME" x="41.5" y="27" size="1.27" layer="21" font="vector" rot="R90"/>
-<attribute name="VALUE" x="54.31" y="29.69" size="1.27" layer="21" rot="R90"/>
 </element>
 <element name="C15" library="resistor" package="C0603" value="0.1" x="40.5" y="38" smashed="yes" rot="R180">
 <attribute name="NAME" x="39.111" y="38.762" size="1.27" layer="25" font="vector"/>
@@ -5378,6 +5374,8 @@ design rules under a new name.</description>
 <via x="24.5" y="17.5" extent="1-16" drill="0.6"/>
 <wire x1="27.5" y1="30" x2="27.5" y2="30.635" width="0.5" layer="16"/>
 <wire x1="27.5" y1="30.635" x2="27.135" y2="31" width="0.5" layer="16"/>
+<wire x1="27.5" y1="31" x2="27.5" y2="32" width="0.8" layer="16"/>
+<wire x1="27.135" y1="31" x2="27.5" y2="31" width="0" layer="19" extent="16-16"/>
 </signal>
 <signal name="VBAT">
 <contactref element="XP4" pad="3"/>
@@ -5437,8 +5435,8 @@ design rules under a new name.</description>
 <vertex x="2" y="30"/>
 <vertex x="2" y="40.5"/>
 <vertex x="2.5" y="41"/>
-<vertex x="19.5" y="41"/>
-<vertex x="26" y="35"/>
+<vertex x="18.5" y="41"/>
+<vertex x="26" y="34"/>
 <vertex x="26" y="26.5"/>
 <vertex x="24.5" y="25"/>
 <vertex x="22" y="25"/>
@@ -5455,7 +5453,9 @@ design rules under a new name.</description>
 <wire x1="13" y1="36" x2="13" y2="34.85" width="0.8" layer="1"/>
 <wire x1="15.7" y1="36" x2="13" y2="36" width="0.5" layer="1"/>
 <via x="13" y="36" extent="1-16" drill="0.6"/>
-<wire x1="15.7" y1="36" x2="25.865" y2="31" width="0" layer="19" extent="1-16"/>
+<wire x1="25.5" y1="30" x2="25.5" y2="32" width="0.8" layer="16"/>
+<wire x1="25.5" y1="30" x2="25.865" y2="31" width="0" layer="19" extent="16-16"/>
+<wire x1="15.7" y1="36" x2="25.5" y2="32" width="0" layer="19" extent="1-16"/>
 </signal>
 <signal name="+3V3">
 <contactref element="DD3" pad="1"/>
@@ -5525,12 +5525,12 @@ design rules under a new name.</description>
 <wire x1="33.5" y1="17" x2="33.5" y2="17.5" width="0.8" layer="1"/>
 <wire x1="33.5" y1="17.5" x2="34" y2="18" width="0.8" layer="1"/>
 <wire x1="34" y1="18" x2="40.5" y2="18" width="0.8" layer="1"/>
-<wire x1="19.85" y1="41" x2="19.85" y2="42.35" width="0.8" layer="1"/>
-<wire x1="19.85" y1="42.35" x2="20" y2="42.5" width="0.8" layer="1"/>
-<via x="20" y="42.5" extent="1-16" drill="0.6"/>
-<wire x1="20" y1="42.5" x2="32" y2="42.5" width="0.8" layer="16"/>
+<wire x1="19.85" y1="41" x2="19.85" y2="41.85" width="0.8" layer="1"/>
+<wire x1="19.85" y1="41.85" x2="20.5" y2="42.5" width="0.8" layer="1"/>
+<via x="20.5" y="42.5" extent="1-16" drill="0.6"/>
+<wire x1="20.5" y1="42.5" x2="32" y2="42.5" width="0.8" layer="16"/>
 <wire x1="32" y1="42.5" x2="33.5" y2="41" width="0.8" layer="16"/>
-<wire x1="20" y1="42.5" x2="22" y2="42.5" width="0.8" layer="16"/>
+<wire x1="20.5" y1="42.5" x2="22" y2="42.5" width="0.8" layer="16"/>
 <wire x1="22" y1="42.5" x2="22.5" y2="43" width="0.8" layer="16"/>
 <via x="22.5" y="43" extent="1-16" drill="0.6"/>
 <wire x1="22.5" y1="43" x2="22.5" y2="46" width="0.5" layer="1"/>
@@ -6062,10 +6062,12 @@ design rules under a new name.</description>
 <approved hash="7,39,f0da86b8fc2bae31"/>
 <approved hash="7,39,4970e167e49c4b9b"/>
 <approved hash="7,39,fbf26b61918dfd66"/>
+<approved hash="19,16,d9feb68e7d99e54a"/>
 <approved hash="19,16,d9feb6709c47046a"/>
 <approved hash="19,16,6d5e70a87fb36245"/>
 <approved hash="19,16,18700a7793fe765a"/>
 <approved hash="19,16,daf878dc46b43794"/>
+<approved hash="19,16,fa5759fdc74d7ab7"/>
 <approved hash="5,16,fa3685aa5618cc08"/>
 </errors>
 </board>
