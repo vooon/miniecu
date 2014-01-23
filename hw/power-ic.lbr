@@ -285,6 +285,17 @@
 </devices>
 </deviceset>
 <deviceset name="VN5E025AJ" prefix="DA">
+<description>&lt;h1&gt;Single channel high-side driver with analog current sense
+for automotive applications&lt;/h1&gt;
+
+&lt;table width="100%"&gt;
+&lt;caption&gt;Features&lt;/caption&gt;
+&lt;tr&gt;&lt;th&gt;Max supply voltage&lt;td&gt;V&lt;sub&gt;CC&lt;td&gt;41 V
+&lt;tr&gt;&lt;th&gt;Operating voltage range&lt;td&gt;V&lt;sub&gt;CC&lt;td&gt;4.5 to 28 V
+&lt;tr&gt;&lt;th&gt;Max On-State resistance&lt;td&gt;R&lt;sub&gt;ON&lt;td&gt;25 mΩ
+&lt;tr&gt;&lt;th&gt;Current limitation (typ)&lt;td&gt;I&lt;sub&gt;LIMH&lt;td&gt;60 A
+&lt;tr&gt;&lt;th&gt;Off state supply current&lt;td&gt;I&lt;sub&gt;S&lt;td&gt;2 μA
+&lt;/table&gt;</description>
 <gates>
 <gate name="G$1" symbol="VN5E025" x="0" y="0"/>
 </gates>

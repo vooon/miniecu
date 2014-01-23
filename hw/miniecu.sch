@@ -6794,6 +6794,17 @@ We've spent an enormous amount of time creating and checking these footprints an
 </devices>
 </deviceset>
 <deviceset name="VN5E025AJ" prefix="DA">
+<description>&lt;h1&gt;Single channel high-side driver with analog current sense
+for automotive applications&lt;/h1&gt;
+
+&lt;table width="100%"&gt;
+&lt;caption&gt;Features&lt;/caption&gt;
+&lt;tr&gt;&lt;th&gt;Max supply voltage&lt;td&gt;V&lt;sub&gt;CC&lt;td&gt;41 V
+&lt;tr&gt;&lt;th&gt;Operating voltage range&lt;td&gt;V&lt;sub&gt;CC&lt;td&gt;4.5 to 28 V
+&lt;tr&gt;&lt;th&gt;Max On-State resistance&lt;td&gt;R&lt;sub&gt;ON&lt;td&gt;25 mΩ
+&lt;tr&gt;&lt;th&gt;Current limitation (typ)&lt;td&gt;I&lt;sub&gt;LIMH&lt;td&gt;60 A
+&lt;tr&gt;&lt;th&gt;Off state supply current&lt;td&gt;I&lt;sub&gt;S&lt;td&gt;2 μA
+&lt;/table&gt;</description>
 <gates>
 <gate name="G$1" symbol="VN5E025" x="0" y="0"/>
 </gates>
@@ -14057,10 +14068,10 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <part name="DD1" library="stm32f050" deviceset="STM32F050F" device=""/>
 <part name="DD2" library="SparkFun-DigitalIC" deviceset="SPI_FLASH-X25XX" device="SMD"/>
 <part name="DD3" library="texas" deviceset="ISO7221" device="" technology="A"/>
-<part name="XP2" library="miniecu-con" deviceset="FLOW_SENS" device="-B3B-XH-A"/>
-<part name="XP4" library="miniecu-con" deviceset="IGN_POWER" device="-B4B-XH-A"/>
-<part name="XP1" library="miniecu-con" deviceset="SENSORS" device="-B6B-XH-A"/>
-<part name="XP3" library="miniecu-con" deviceset="UART" device="-B4B-XH-A"/>
+<part name="XP2" library="miniecu-con" deviceset="FLOW_SENS" device="-B3B-XH-A" value="B3B-XH-A"/>
+<part name="XP4" library="miniecu-con" deviceset="IGN_POWER" device="-B4B-XH-A" value="B4B-XH-A"/>
+<part name="XP1" library="miniecu-con" deviceset="SENSORS" device="-B6B-XH-A" value="B6B-XH-A"/>
+<part name="XP3" library="miniecu-con" deviceset="UART" device="-B4B-XH-A" value="B4B-XH-A"/>
 <part name="C15" library="resistor" deviceset="C-EU" device="C0603" value="0.1"/>
 <part name="C10" library="resistor" deviceset="C-EU" device="C0603" value="0.1"/>
 <part name="+3V1" library="supply1" deviceset="+3V3" device=""/>
@@ -14077,17 +14088,17 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <part name="VT1" library="SparkFun-DiscreteSemi" deviceset="MOSFET-NCHANNEL" device="BSS123LT1G" value="BSS123LT1G"/>
 <part name="GND6" library="supply1" deviceset="GND" device=""/>
 <part name="R18" library="resistor" deviceset="R-EU_" device="R0603" value="5.1k"/>
-<part name="R14" library="resistor" deviceset="R-EU_" device="R0603" value="100"/>
+<part name="R14" library="resistor" deviceset="R-EU_" device="R0603" value="140"/>
 <part name="R10" library="resistor" deviceset="R-EU_" device="R0603" value="np"/>
 <part name="C11" library="resistor" deviceset="C-EU" device="C0603" value="0.022"/>
-<part name="R16" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
-<part name="R12" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
+<part name="R16" library="resistor" deviceset="R-EU_" device="R0805" value="10k 1%"/>
+<part name="R12" library="resistor" deviceset="R-EU_" device="R0805" value="10k 1%"/>
 <part name="R13" library="resistor" deviceset="R-EU_" device="R0805" value="np"/>
 <part name="R17" library="resistor" deviceset="R-EU_" device="R0805" value="np"/>
 <part name="C14" library="resistor" deviceset="C-EU" device="C0603" value="0.1"/>
 <part name="C13" library="resistor" deviceset="C-EU" device="C0603" value="0.1"/>
 <part name="GND7" library="supply1" deviceset="GND" device=""/>
-<part name="R15" library="resistor" deviceset="R-EU_" device="R0603" value="100"/>
+<part name="R15" library="resistor" deviceset="R-EU_" device="R0603" value="140"/>
 <part name="R11" library="resistor" deviceset="R-EU_" device="R0603" value="np"/>
 <part name="C12" library="resistor" deviceset="C-EU" device="C0603" value="0.022"/>
 <part name="GND8" library="supply1" deviceset="GND" device=""/>
@@ -14105,7 +14116,7 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <part name="AGND3" library="supply1" deviceset="AGND" device=""/>
 <part name="C5" library="resistor" deviceset="C-EU" device="C0603" value="0.1"/>
 <part name="+3V7" library="supply1" deviceset="+3V3" device=""/>
-<part name="C1" library="resistor" deviceset="C-EU" device="C0805" value="0.022"/>
+<part name="C1" library="resistor" deviceset="C-EU" device="C0603" value="0.022"/>
 <part name="GND10" library="supply1" deviceset="GND" device=""/>
 <part name="SW1" library="SparkFun-Electromechanical" deviceset="TAC_SWITCH" device="SMD"/>
 <part name="SW2" library="SparkFun-Electromechanical" deviceset="TAC_SWITCH" device="SMD"/>
@@ -14117,29 +14128,29 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <part name="C6" library="resistor" deviceset="C-EU" device="C0805" value="1.0"/>
 <part name="C8" library="resistor" deviceset="C-EU" device="C0805" value="1.0"/>
 <part name="+3V9" library="supply1" deviceset="+3V3" device=""/>
-<part name="R4" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
-<part name="R5" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
+<part name="R4" library="resistor" deviceset="R-EU_" device="R0805" value="10k 1%"/>
+<part name="R5" library="resistor" deviceset="R-EU_" device="R0805" value="10k 1%"/>
 <part name="C4" library="resistor" deviceset="C-EU" device="C0603" value="0.1"/>
 <part name="VD1" library="usblc6" deviceset="USBLC6-2" device="SC6" value="USBLC6-2L"/>
 <part name="GND12" library="supply1" deviceset="GND" device=""/>
 <part name="DA2" library="power-ic" deviceset="VN5E025AJ" device="-E"/>
-<part name="R8" library="resistor" deviceset="R-EU_" device="R0603" value="100"/>
+<part name="R8" library="resistor" deviceset="R-EU_" device="R0603" value="140"/>
 <part name="GND13" library="supply1" deviceset="GND" device=""/>
-<part name="R9" library="resistor" deviceset="R-EU_" device="R0603" value="10k"/>
-<part name="R7" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
+<part name="R9" library="resistor" deviceset="R-EU_" device="R0603" value="5.1k"/>
+<part name="R7" library="resistor" deviceset="R-EU_" device="R0805" value="10k 1%"/>
 <part name="C9" library="resistor" deviceset="C-EU" device="C0603" value="0.1"/>
 <part name="FRAME1" library="SparkFun-Aesthetics" deviceset="FRAME-A3" device=""/>
-<part name="R19" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
+<part name="R19" library="resistor" deviceset="R-EU_" device="R0805" value="10k 1%"/>
 <part name="HL1" library="led2" deviceset="KAA-3528ESGC" device=""/>
 <part name="GND14" library="supply1" deviceset="GND" device=""/>
 <part name="H2" library="holes" deviceset="MOUNT-HOLE" device="3.2"/>
 <part name="H1" library="holes" deviceset="MOUNT-HOLE" device="3.2"/>
 <part name="H3" library="holes" deviceset="MOUNT-HOLE" device="3.2"/>
 <part name="H4" library="holes" deviceset="MOUNT-HOLE" device="3.2"/>
-<part name="R1" library="resistor" deviceset="R-EU_" device="R0603" value="10k"/>
-<part name="R2" library="resistor" deviceset="R-EU_" device="R0603" value="10k"/>
+<part name="R1" library="resistor" deviceset="R-EU_" device="R0603" value="5.1k"/>
+<part name="R2" library="resistor" deviceset="R-EU_" device="R0603" value="5.1k"/>
 <part name="+3V10" library="supply1" deviceset="+3V3" device=""/>
-<part name="R3" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
+<part name="R3" library="resistor" deviceset="R-EU_" device="R0805" value="10k 1%"/>
 <part name="LOGO1" library="SparkFun-Aesthetics" deviceset="OSHW-LOGO" device="L"/>
 <part name="U$1" library="miniecu" deviceset="MINIECU_LOGO" device=""/>
 </parts>
