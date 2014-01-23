@@ -14111,11 +14111,11 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <part name="SW2" library="SparkFun-Electromechanical" deviceset="TAC_SWITCH" device="SMD"/>
 <part name="R6" library="resistor" deviceset="R-EU_" device="R0603" value="140"/>
 <part name="+3V8" library="supply1" deviceset="+3V3" device=""/>
-<part name="DA1" library="power-ic" deviceset="MCP1700" device="SOT-23"/>
+<part name="DA1" library="power-ic" deviceset="MCP1700" device="SOT-23" value="MCP1703"/>
 <part name="L2" library="SparkFun-Passives" deviceset="FB" device=""/>
 <part name="GND11" library="supply1" deviceset="GND" device=""/>
-<part name="C6" library="resistor" deviceset="C-EU" device="C0805" value="4.7"/>
-<part name="C8" library="resistor" deviceset="C-EU" device="C0805" value="4.7"/>
+<part name="C6" library="resistor" deviceset="C-EU" device="C0805" value="1.0"/>
+<part name="C8" library="resistor" deviceset="C-EU" device="C0805" value="1.0"/>
 <part name="+3V9" library="supply1" deviceset="+3V3" device=""/>
 <part name="R4" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
 <part name="R5" library="resistor" deviceset="R-EU_" device="R0805" value="10k"/>
@@ -14205,7 +14205,10 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <instance part="SW2" gate="S" x="-78.74" y="12.7" rot="R90"/>
 <instance part="R6" gate="G$1" x="50.8" y="-50.8" rot="R90"/>
 <instance part="+3V8" gate="G$1" x="76.2" y="-27.94"/>
-<instance part="DA1" gate="1" x="12.7" y="-101.6"/>
+<instance part="DA1" gate="1" x="12.7" y="-101.6" smashed="yes">
+<attribute name="NAME" x="7.62" y="-96.52" size="1.778" layer="95"/>
+<attribute name="VALUE" x="12.7" y="-109.22" size="1.778" layer="96"/>
+</instance>
 <instance part="L2" gate="G$1" x="-20.32" y="-101.6"/>
 <instance part="GND11" gate="1" x="12.7" y="-152.4"/>
 <instance part="C6" gate="G$1" x="0" y="-109.22"/>
