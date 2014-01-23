@@ -136,7 +136,7 @@
 <vertex x="50" y="40"/>
 </polygon>
 <text x="33" y="2.5" size="1.778" layer="21" font="vector">2014
-rev 1</text>
+rev.1b</text>
 <text x="42.5" y="25" size="1.778" layer="21" font="vector">UART</text>
 <text x="42.5" y="21" size="1.778" layer="21" font="vector">FLOW</text>
 <text x="12" y="20" size="1.778" layer="21" font="vector" rot="R90">PW</text>
@@ -163,7 +163,7 @@ rev 1</text>
 <text x="35" y="34.25" size="2" layer="22" font="vector" rot="MR0" align="bottom-right">RXD</text>
 <text x="35" y="31.75" size="2" layer="22" font="vector" rot="MR0" align="bottom-right">TXD</text>
 <text x="35" y="29.25" size="2" layer="22" font="vector" rot="MR0" align="bottom-right">VCCi</text>
-<text x="10.5" y="9.5" size="2" layer="22" font="fixed" rot="MR180">miniECU v1
+<text x="10.5" y="9.5" size="2" layer="22" font="fixed" rot="MR180">miniECU rev.1b
 engine monitoring
 with kill switch</text>
 </plain>
@@ -5202,7 +5202,7 @@ design rules under a new name.</description>
 <attribute name="VALUE" x="20.762" y="21.786" size="1.27" layer="27" rot="R180"/>
 </element>
 <element name="LOGO1" library="SparkFun-Aesthetics" package="OSHW-LOGO-L" value="OSHW-LOGOL" x="28" y="12"/>
-<element name="U$1" library="miniecu" package="MINIECU_LOGO" value="MINIECU_LOGO" x="11" y="2"/>
+<element name="LOGO2" library="miniecu" package="MINIECU_LOGO" value="MINIECU_LOGO" x="11" y="2"/>
 </elements>
 <signals>
 <signal name="IORXD">

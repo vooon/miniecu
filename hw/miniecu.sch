@@ -14152,7 +14152,7 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <part name="+3V10" library="supply1" deviceset="+3V3" device=""/>
 <part name="R3" library="resistor" deviceset="R-EU_" device="R0805" value="10k 1%"/>
 <part name="LOGO1" library="SparkFun-Aesthetics" deviceset="OSHW-LOGO" device="L"/>
-<part name="U$1" library="miniecu" deviceset="MINIECU_LOGO" device=""/>
+<part name="LOGO2" library="miniecu" deviceset="MINIECU_LOGO" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -14250,7 +14250,7 @@ Kingbright&lt;sup&gt;®&lt;/sup&gt; 3.5x2.8mm SURFACE MOUNT LED LAMPS</descripti
 <instance part="+3V10" gate="G$1" x="88.9" y="-78.74"/>
 <instance part="R3" gate="G$1" x="-10.16" y="-111.76" rot="R90"/>
 <instance part="LOGO1" gate="G$1" x="137.16" y="-170.18"/>
-<instance part="U$1" gate="G$1" x="109.22" y="-175.26"/>
+<instance part="LOGO2" gate="G$1" x="109.22" y="-175.26"/>
 </instances>
 <busses>
 <bus name="TXD,RXD,RPM_IN,FLOW_PULSE,STARTER,THERM,OIL_PRES,MISO,MOSI,SCK,FLASH_CS,IGN_EN,V_SENSE,I_SENSE,LED_RED">
