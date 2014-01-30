@@ -123,10 +123,14 @@
 </layers>
 <board>
 <plain>
-<wire x1="0" y1="0" x2="50" y2="0" width="0" layer="20"/>
-<wire x1="50" y1="0" x2="50" y2="50" width="0" layer="20"/>
-<wire x1="50" y1="50" x2="0" y2="50" width="0" layer="20"/>
-<wire x1="0" y1="50" x2="0" y2="0" width="0" layer="20"/>
+<wire x1="0" y1="2.5" x2="2.5" y2="0" width="0" layer="20" curve="90"/>
+<wire x1="2.5" y1="0" x2="47.5" y2="0" width="0" layer="20"/>
+<wire x1="47.5" y1="0" x2="50" y2="2.5" width="0" layer="20" curve="90"/>
+<wire x1="50" y1="2.5" x2="50" y2="47.5" width="0" layer="20"/>
+<wire x1="50" y1="47.5" x2="47.5" y2="50" width="0" layer="20" curve="90"/>
+<wire x1="47.5" y1="50" x2="2.5" y2="50" width="0" layer="20"/>
+<wire x1="2.5" y1="50" x2="0" y2="47.5" width="0" layer="20" curve="90"/>
+<wire x1="0" y1="47.5" x2="0" y2="2.5" width="0" layer="20"/>
 <polygon width="0.5" layer="42">
 <vertex x="50" y="28"/>
 <vertex x="38" y="28"/>
@@ -136,7 +140,7 @@
 <vertex x="50" y="40"/>
 </polygon>
 <text x="33" y="2.5" size="1.778" layer="21" font="vector">2014
-rev.1b</text>
+rev.1c</text>
 <text x="42.5" y="25" size="1.778" layer="21" font="vector">UART</text>
 <text x="42.5" y="21" size="1.778" layer="21" font="vector">FLOW</text>
 <text x="12" y="20" size="1.778" layer="21" font="vector" rot="R90">PW</text>
@@ -163,7 +167,7 @@ rev.1b</text>
 <text x="35" y="34.25" size="2" layer="22" font="vector" rot="MR0" align="bottom-right">RXD</text>
 <text x="35" y="31.75" size="2" layer="22" font="vector" rot="MR0" align="bottom-right">TXD</text>
 <text x="35" y="29.25" size="2" layer="22" font="vector" rot="MR0" align="bottom-right">VCCi</text>
-<text x="10.5" y="9.5" size="2" layer="22" font="fixed" rot="MR180">miniECU rev.1b
+<text x="10.5" y="9.5" size="2" layer="22" font="fixed" rot="MR180">miniECU rev.1c
 engine monitoring
 with kill switch</text>
 </plain>
@@ -5281,24 +5285,26 @@ design rules under a new name.</description>
 <contactref element="C9" pad="2"/>
 <contactref element="HL1" pad="1"/>
 <polygon width="0.5" layer="16" isolate="0.254" rank="2">
-<vertex x="0" y="50"/>
-<vertex x="50" y="50"/>
-<vertex x="50" y="0"/>
-<vertex x="0" y="0"/>
+<vertex x="2.5" y="50"/>
+<vertex x="47.5" y="50" curve="-90"/>
+<vertex x="50" y="47.5"/>
+<vertex x="50" y="2.5" curve="-90"/>
+<vertex x="47.5" y="0"/>
+<vertex x="2.5" y="0" curve="-90"/>
+<vertex x="0" y="2.5"/>
+<vertex x="0" y="47.5" curve="-90"/>
 </polygon>
 <contactref element="R1" pad="1"/>
 <contactref element="SW2" pad="1"/>
 <wire x1="14.15" y1="29" x2="14" y2="29.15" width="0.5" layer="1"/>
-<wire x1="12" y1="29.15" x2="12" y2="28" width="0.8" layer="1"/>
-<wire x1="12" y1="28" x2="12" y2="27.85" width="0.8" layer="1"/>
-<wire x1="12" y1="27.85" x2="11.1" y2="26.95" width="0.8" layer="1"/>
+<wire x1="12" y1="29.15" x2="12.5" y2="28" width="0.8" layer="1"/>
 <wire x1="11.1" y1="26.95" x2="12.9" y2="26.95" width="0.8" layer="1"/>
 <wire x1="12.9" y1="26.95" x2="13" y2="26.85" width="0.8" layer="1"/>
 <wire x1="12" y1="29.15" x2="14" y2="29.15" width="0.8" layer="1"/>
 <wire x1="13" y1="26.85" x2="13" y2="27" width="0.8" layer="1"/>
-<wire x1="13" y1="27" x2="12" y2="28" width="0.8" layer="1"/>
-<via x="12" y="28" extent="1-16" drill="0.6"/>
-<wire x1="12" y1="28" x2="11" y2="28" width="0.8" layer="16"/>
+<wire x1="13" y1="27" x2="12.5" y2="28" width="0.8" layer="1"/>
+<via x="12.5" y="28" extent="1-16" drill="0.6"/>
+<wire x1="12.5" y1="28" x2="11" y2="28" width="0.8" layer="16"/>
 <wire x1="19.15" y1="13" x2="19.15" y2="14.8" width="0.8" layer="1"/>
 <wire x1="19.15" y1="14.8" x2="19.05" y2="14.9" width="0.8" layer="1"/>
 <wire x1="19.05" y1="14.9" x2="17.25" y2="14.9" width="0.8" layer="1"/>
@@ -5375,6 +5381,11 @@ design rules under a new name.</description>
 <wire x1="27.5" y1="30" x2="27.5" y2="30.635" width="0.5" layer="16"/>
 <wire x1="27.5" y1="30.635" x2="27.135" y2="31" width="0.5" layer="16"/>
 <wire x1="27.5" y1="31" x2="27.5" y2="32" width="0.8" layer="16"/>
+<via x="11.5" y="28" extent="1-16" drill="0.6"/>
+<wire x1="11.5" y1="28" x2="11.5" y2="27" width="0.8" layer="1"/>
+<wire x1="11.5" y1="28" x2="12" y2="29" width="0.8" layer="1"/>
+<wire x1="11.5" y1="28" x2="12.5" y2="28" width="0.8" layer="1"/>
+<wire x1="11.5" y1="28" x2="13" y2="27" width="0.8" layer="1"/>
 <wire x1="27.135" y1="31" x2="27.5" y2="31" width="0" layer="19" extent="16-16"/>
 </signal>
 <signal name="VBAT">
@@ -5976,6 +5987,9 @@ design rules under a new name.</description>
 <approved hash="19,1,0a6d347d936a5a19"/>
 <approved hash="19,1,bd6c209a2ea4b352"/>
 <approved hash="19,1,653e286eaa071034"/>
+<approved hash="7,39,10b0d881de8e128f"/>
+<approved hash="7,39,aedd6622602cacec"/>
+<approved hash="7,39,ae53667c606dac2d"/>
 <approved hash="7,39,b9037c7949dbf2f2"/>
 <approved hash="7,39,7a7db6e0ace926d0"/>
 <approved hash="7,39,7028a96cd1ebd8ac"/>
@@ -6031,6 +6045,10 @@ design rules under a new name.</description>
 <approved hash="7,39,3c703cdaeddece70"/>
 <approved hash="7,39,39e8b7ee27eccfee"/>
 <approved hash="7,39,6bb0c3a7c5906987"/>
+<approved hash="7,39,7328b66cc706aaa4"/>
+<approved hash="7,39,a57a7a51bd8b1c71"/>
+<approved hash="7,39,1a7db6d8946454f0"/>
+<approved hash="7,39,a53f44b203289cf4"/>
 <approved hash="7,39,4a762cd87ddc7876"/>
 <approved hash="7,39,2af8001f9f2bce31"/>
 <approved hash="7,39,2af8645eadf11026"/>
@@ -6038,9 +6056,9 @@ design rules under a new name.</description>
 <approved hash="7,39,0543001fb094c831"/>
 <approved hash="7,39,9a55135318ba0383"/>
 <approved hash="7,39,64447cea7701fb94"/>
-<approved hash="7,39,10b0d881de8e128f"/>
-<approved hash="7,39,aedd6622602cacec"/>
-<approved hash="7,39,ae53667c606dac2d"/>
+<approved hash="7,39,1bd9fa518328a217"/>
+<approved hash="7,39,a374a53887e2ed99"/>
+<approved hash="7,39,663ea37c7cff115d"/>
 <approved hash="7,39,bdf86462464dcca9"/>
 <approved hash="7,39,ecfe0030cfb1931e"/>
 <approved hash="7,39,ecfeb4e61a6f7309"/>
