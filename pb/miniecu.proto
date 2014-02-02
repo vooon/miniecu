@@ -1,0 +1,69 @@
+//
+// MiniECU messages defenition file
+//
+// vim:set ft=proto noet
+
+package miniecu;
+
+message BatteryStatus {
+	// Ignition battery voltage [10^-2 V]
+	required fixed32 volatge = 1;
+	// Ignition battery consumption [10^-2 A]
+	optional fixed32 current = 2;
+	// Calculated battery remainning [10^-1 %]
+	optional fixed32 remaining = 3;
+};
+
+message TemperatureStatus {
+	// Current engine temperature [10^-2 degC]
+	required sfixed32 engine1 = 1;
+	// Second temperature sensor (if oil pressure not used)
+	optional sfixed32 engine2 = 2;
+	// Internal temperature [10^-2 degC]
+	optional sfixed32 internal = 3;
+};
+
+// TODO: check it
+message FuelFlowStatus {
+	required fixed32 flow_ml = 1;
+	optional fixed32 remaining = 2;
+	optional fixed32 total_used_ml = 3;
+};
+
+message EngineTimerStatus {
+	// Total elapsed time in minuts
+	required uint32 elapsed_time = 1;
+	// Current powered timer
+	required uint32 current_timer = 2;
+};
+
+message Status {
+	enum StateFlags {
+		ST_UNKNOWN = 0;
+		ST_ACTIVE = 1;
+		ST_TIME_KNOWN = 2;
+		ST_IGNITION_ENABLED = 4;
+		ST_STARTER_ENABLED = 8;
+		ST_ENGINE_RUNNING = 16;
+
+		ST_ERROR = 128;
+		ST_UNDERVOLTAGE = 256;
+		ST_OVERCURRENT = 512;
+		ST_OVERTEMP = 1024;
+	};
+
+	// Engine ID: 4-byte string identifying engine
+	required string engine_id = 1 [default="gas1"];
+	// Timestamp since unix epoch in milliseconds OR millis since startup
+	required uint64 timestamp_ms = 2 [default=0];
+	// use values from StateFlags
+	required uint32 status = 3 [default=0];
+	// Current RPM
+	required uint32 RPM = 4;
+	required BatteryStatus battery = 5;
+	required TemperatureStatus temperature = 6;
+	required EngineTimerStatus time = 7;
+	// Current OIL pressure [TODO]
+	optional sfixed32 oil_pressure = 8;
+	optional FuelFlowStatus fuel = 9;
+}
