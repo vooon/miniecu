@@ -5,6 +5,22 @@
 
 package miniecu;
 
+enum MessageId {
+	MSGID_STATUS = 1;
+	MSGID_TIME_REFRENCE = 2;
+	MSGID_COMMAND = 76;
+	MSGID_PARAM_REQUEST = 20;
+	MSGID_PARAM_SET = 23;
+	MSGID_PARAM_VALUE = 22;
+	MSGID_LOG_REQUEST = 117;
+	MSGID_LOG_FILE = 118;
+	MSGID_LOG_ENTRY = 119;
+};
+
+//
+//! Engine status message
+// @{
+
 message BatteryStatus {
 	// Ignition battery voltage [10^-2 V]
 	required fixed32 volatge = 1;
@@ -12,7 +28,7 @@ message BatteryStatus {
 	optional fixed32 current = 2;
 	// Calculated battery remainning [10^-1 %]
 	optional fixed32 remaining = 3;
-};
+}
 
 message TemperatureStatus {
 	// Current engine temperature [10^-2 degC]
@@ -21,21 +37,21 @@ message TemperatureStatus {
 	optional sfixed32 engine2 = 2;
 	// Internal temperature [10^-2 degC]
 	optional sfixed32 internal = 3;
-};
+}
 
 // TODO: check it
 message FuelFlowStatus {
 	required fixed32 flow_ml = 1;
 	optional fixed32 remaining = 2;
 	optional fixed32 total_used_ml = 3;
-};
+}
 
 message EngineTimerStatus {
 	// Total elapsed time in minuts
 	required uint32 elapsed_time = 1;
 	// Current powered timer
 	required uint32 current_timer = 2;
-};
+}
 
 message Status {
 	enum StateFlags {
@@ -67,3 +83,92 @@ message Status {
 	optional sfixed32 oil_pressure = 8;
 	optional FuelFlowStatus fuel = 9;
 }
+
+// @}
+
+//
+//! System commands
+// @{
+
+message Command {
+	enum Operation {
+		UNKNOWN = 0;
+		EMERGENCY_STOP = 1;
+		ENABLE_IGNITION = 2;
+		DISABLE_IGNITION = 3;
+		ENABLE_STARTER = 4;
+		DISABLE_STARTER = 5;
+
+		DO_ENGINE_START = 10;
+		STOP_ENGINE_START = 11;
+
+		DO_ERASE_CONFIG = 13373550;
+		DO_ERASE_LOG = 13373109;
+	};
+
+	required Operation operation = 1;
+	optional bool response = 2;
+}
+
+// Set ECU RTC time
+message TimeRefrence {
+	required uint64 timestamp_ms = 1;
+	optional uint32 system_time = 2;
+	optional int32 timediff = 3;
+}
+
+// @}
+
+//
+//! Parameter transfer
+//  inspired by MAVLink parameter protocol
+// @{
+
+// if param_id is not set: request list
+message ParamRequest {
+	optional string param_id = 1;
+}
+
+message ParamSet {
+	required string param_id = 1;
+	optional bool value_bool = 2;
+	optional int32 value_int32 = 3;
+	optional float value_float = 4;
+	optional string value_string = 5;
+}
+
+message ParamValue {
+	required string param_id = 1;
+	required uint32 param_index = 2;
+	required uint32 param_count = 3;
+	optional bool value_bool = 4;
+	optional int32 value_int32 = 5;
+	optional float value_float = 6;
+	optional string value_string = 7;
+}
+
+// @}
+
+//
+//! Log manipulation
+// @{
+
+// if log_id is not set: request list
+message LogRequest {
+	optional uint32 id = 1;
+	optional uint32 offset = 2;
+}
+
+message LogFile {
+	required uint32 id = 1;
+	required uint32 num_entries = 2;
+	required uint64 timestamp_utc = 3;
+}
+
+message LogEntry {
+	required uint32 id = 1;
+	required uint32 offset = 2;
+	repeated uint32 data32 = 3;
+}
+
+// @}

@@ -3,4 +3,6 @@
 //
 // vim:set ft=proto
 
+* max_size:16
+
 EngineStatus.engine_id max_size:4

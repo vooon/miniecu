@@ -9,3 +9,5 @@
 *.swp
 *.o
 *.d
+
+build/*
