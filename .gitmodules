@@ -1,3 +1,6 @@
 [submodule "ext/nanopb"]
 	path = ext/nanopb
 	url = https://code.google.com/p/nanopb/
+[submodule "ext/chibios"]
+	path = ext/chibios
+	url = https://github.com/ChibiOS-Upstream/ChibiOS-RT.git
