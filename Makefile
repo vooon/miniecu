@@ -1,11 +1,16 @@
 # -*- Makefile -*-
 #
 
-TARGETS = miniecu_v1
+TARGETS = miniecu_v1 miniecu_sim
 
 all: $(TARGETS)
 
 miniecu_v1:
+
+miniecu_sim:
+
+
+%: ./boards/%
 	make -C ./pb
 	make -C ./boards/$@
 

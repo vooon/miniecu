@@ -18,24 +18,6 @@
 #include "hal.h"
 
 /*
- * Blue LED blinker thread, times are in milliseconds.
- */
-static WORKING_AREA(waThread1, 128);
-static msg_t Thread1(void *arg) {
-
-  (void)arg;
-  chRegSetThreadName("blinker1");
-  while (TRUE) {
-    palClearPad(GPIOF, GPIOF_LED);
-    chThdSleepMilliseconds(500);
-    palSetPad(GPIOF, GPIOF_LED);
-    chThdSleepMilliseconds(500);
-  }
-
-  return 0;
-}
-
-/*
  * Application entry point.
  */
 int main(void) {
@@ -55,13 +37,6 @@ int main(void) {
    * PA9 and PA10 are routed to USART1.
    */
   sdStart(&SD1, NULL);
-  palSetPadMode(GPIOA, 9, PAL_MODE_ALTERNATE(1));       /* USART1 TX.       */
-  palSetPadMode(GPIOA, 10, PAL_MODE_ALTERNATE(1));      /* USART1 RX.       */
-
-  /*
-   * Creates the blinker threads.
-   */
-  chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
 
   /*
    * Normal main() thread activity, in this demo it does nothing except
@@ -70,8 +45,6 @@ int main(void) {
    * driver 1.
    */
   while (TRUE) {
-    //if (palReadPad(GPIOA, GPIOA_BUTTON))
-    //  TestThread(&SD1);
     chThdSleepMilliseconds(500);
   }
 }
