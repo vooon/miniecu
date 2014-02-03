@@ -6,6 +6,7 @@ TARGETS = miniecu_v1
 all: $(TARGETS)
 
 miniecu_v1:
+	make -C ./pb
 	make -C ./boards/$@
 
 clean:

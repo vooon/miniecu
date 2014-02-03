@@ -66,6 +66,7 @@ include $(CHIBIOS)/os/hal/platforms/STM32F0xx/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/ports/GCC/ARMCMx/STM32F0xx/port.mk
 include $(CHIBIOS)/os/kernel/kernel.mk
+include $(MINIECU)/pb/nanopb.mk
 include $(MINIECU)/fw/fw.mk
 
 # Define linker script file here
@@ -79,6 +80,7 @@ CSRC = $(PORTSRC) \
        $(HALSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
+       $(NANOPBSRC) \
        $(FWSRC)
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
@@ -109,7 +111,8 @@ TCPPSRC =
 ASMSRC = $(PORTASM)
 
 INCDIR = $(PORTINC) $(KERNINC) \
-         $(HALINC) $(PLATFORMINC) $(BOARDINC) $(FWINC) \
+         $(HALINC) $(PLATFORMINC) $(BOARDINC) \
+	 $(NANOPBINC) $(FWINC) \
          $(CHIBIOS)/os/various
 
 #
