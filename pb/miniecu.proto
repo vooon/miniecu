@@ -6,15 +6,15 @@
 package miniecu;
 
 enum MessageId {
-	MSGID_STATUS = 1;
-	MSGID_TIME_REFRENCE = 2;
-	MSGID_COMMAND = 76;
-	MSGID_PARAM_REQUEST = 20;
-	MSGID_PARAM_SET = 23;
-	MSGID_PARAM_VALUE = 22;
-	MSGID_LOG_REQUEST = 117;
-	MSGID_LOG_FILE = 118;
-	MSGID_LOG_ENTRY = 119;
+	STATUS = 1;
+	TIME_REFRENCE = 2;
+	COMMAND = 76;
+	PARAM_REQUEST = 20;
+	PARAM_SET = 23;
+	PARAM_VALUE = 22;
+	LOG_REQUEST = 117;
+	LOG_FILE = 118;
+	LOG_ENTRY = 119;
 };
 
 //
@@ -54,25 +54,26 @@ message EngineTimerStatus {
 }
 
 message Status {
-	enum StateFlags {
-		ST_UNKNOWN = 0;
-		ST_ACTIVE = 1;
-		ST_TIME_KNOWN = 2;
-		ST_IGNITION_ENABLED = 4;
-		ST_STARTER_ENABLED = 8;
-		ST_ENGINE_RUNNING = 16;
+	enum Flags {
+		UNKNOWN = 0;
+		ACTIVE = 1;
+		TIME_KNOWN = 2;
+		IGNITION_ENABLED = 4;
+		STARTER_ENABLED = 8;
+		ENGINE_RUNNING = 16;
 
-		ST_ERROR = 128;
-		ST_UNDERVOLTAGE = 256;
-		ST_OVERCURRENT = 512;
-		ST_OVERTEMP = 1024;
+		ERROR = 128;
+		UNDERVOLTAGE = 256;
+		OVERCURRENT = 512;
+		OVERTEMP = 1024;
+		LOW_FUEL = 2048;
 	};
 
 	// Engine ID: 4-byte string identifying engine
 	required string engine_id = 1 [default="gas1"];
 	// Timestamp since unix epoch in milliseconds OR millis since startup
 	required uint64 timestamp_ms = 2 [default=0];
-	// use values from StateFlags
+	// Bit flags from Flags
 	required uint32 status = 3 [default=0];
 	// Current RPM
 	required uint32 RPM = 4;
@@ -94,20 +95,32 @@ message Command {
 	enum Operation {
 		UNKNOWN = 0;
 		EMERGENCY_STOP = 1;
-		ENABLE_IGNITION = 2;
-		DISABLE_IGNITION = 3;
-		ENABLE_STARTER = 4;
-		DISABLE_STARTER = 5;
+		IGNITION_ENABLE = 2;
+		IGNITION_DISABLE = 3;
+		STARTER_ENABLE = 4;
+		STARTER_DISABLE = 5;
 
+		// start engine startup script
 		DO_ENGINE_START = 10;
 		STOP_ENGINE_START = 11;
 
+		// send after refueling
+		REFUEL_DONE = 20;
+
+		// some magic commands
 		DO_ERASE_CONFIG = 13373550;
 		DO_ERASE_LOG = 13373109;
+		DO_REBOOT = 1337438007;
+	};
+
+	enum Response {
+		NACK = 0;
+		ACK = 1;
+		IN_PROGRESS = 2;
 	};
 
 	required Operation operation = 1;
-	optional bool response = 2;
+	optional Response response = 2;
 }
 
 // Set ECU RTC time
@@ -153,22 +166,25 @@ message ParamValue {
 //! Log manipulation
 // @{
 
-// if log_id is not set: request list
 message LogRequest {
-	optional uint32 id = 1;
-	optional uint32 offset = 2;
+	optional uint32 offset = 1;
 }
 
-message LogFile {
-	required uint32 id = 1;
-	required uint32 num_entries = 2;
-	required uint64 timestamp_utc = 3;
-}
-
+// Log entry message: used for communication
+// and storing on flash.
 message LogEntry {
 	required uint32 id = 1;
-	required uint32 offset = 2;
-	repeated uint32 data32 = 3;
+	required uint64 timestamp_ms = 2;
+	required bool is_localtime = 3;
+	required bool is_running = 4;
+	required bool warn_fuel = 5;
+	required bool warn_temp = 6;
+	required uint32 engine_powered_time = 7;
+	required fixed32 batt_voltage = 8;
+	required fixed32 batt_remaining = 9;
+	required fixed32 temp_engine = 10;
+	required fixed32 temp_internal = 11;
+	required fixed32 fuel_remaining_ml = 12;
 }
 
 // @}
