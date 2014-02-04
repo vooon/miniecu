@@ -7,13 +7,12 @@ package miniecu;
 
 enum MessageId {
 	STATUS = 1;
-	TIME_REFRENCE = 2;
+	TIME_REFERENCE = 2;
 	COMMAND = 76;
 	PARAM_REQUEST = 20;
 	PARAM_SET = 23;
 	PARAM_VALUE = 22;
 	LOG_REQUEST = 117;
-	LOG_FILE = 118;
 	LOG_ENTRY = 119;
 };
 
@@ -124,7 +123,7 @@ message Command {
 }
 
 // Set ECU RTC time
-message TimeRefrence {
+message TimeReference {
 	required uint64 timestamp_ms = 1;
 	optional uint32 system_time = 2;
 	optional int32 timediff = 3;
