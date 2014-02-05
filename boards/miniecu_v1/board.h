@@ -21,6 +21,8 @@
  * Setup for miniECU board.
  */
 
+#include "fw_config.h"
+
 /*
  * Board identifier.
  */

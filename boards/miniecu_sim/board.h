@@ -17,6 +17,8 @@
 #ifndef _BOARD_H_
 #define _BOARD_H_
 
+#include "fw_config.h"
+
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus
 extern "C" {

@@ -17,34 +17,28 @@
 #include "ch.h"
 #include "hal.h"
 
+#include "pbstx.h"
+
 /*
  * Application entry point.
  */
 int main(void) {
 
-  /*
-   * System initializations.
-   * - HAL initialization, this also initializes the configured device drivers
-   *   and performs the board-specific initializations.
-   * - Kernel initialization, the main() function becomes a thread and the
-   *   RTOS is active.
-   */
-  halInit();
-  chSysInit();
+	/*
+	 * System initializations.
+	 * - HAL initialization, this also initializes the configured device drivers
+	 *   and performs the board-specific initializations.
+	 * - Kernel initialization, the main() function becomes a thread and the
+	 *   RTOS is active.
+	 */
+	halInit();
+	chSysInit();
 
-  /*
-   * Activates the serial driver 1 using the driver default configuration.
-   * PA9 and PA10 are routed to USART1.
-   */
-  sdStart(&SD1, NULL);
+	sdStart(&PBSTX_SD, NULL);
 
-  /*
-   * Normal main() thread activity, in this demo it does nothing except
-   * sleeping in a loop and check the button state, when the button is
-   * pressed the test procedure is launched with output on the serial
-   * driver 1.
-   */
-  while (TRUE) {
-    chThdSleepMilliseconds(500);
-  }
+	while (TRUE) {
+		// fake message. for testing only
+		pbstx_send(0, NULL, 0);
+		chThdSleepMilliseconds(500);
+	}
 }
