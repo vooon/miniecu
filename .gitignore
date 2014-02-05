@@ -11,3 +11,7 @@
 *.d
 
 build/*
+
+# Python files
+*.pyc
+tools/miniecu/miniecu_pb2.py
