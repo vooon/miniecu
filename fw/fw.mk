@@ -8,3 +8,4 @@ FWSRC = ${MINIECU}/fw/main.c \
 # Required include directories
 FWINC = ${MINIECU}/fw
 
+DDEFS += -DPB_BUFFER_ONLY -DPB_NO_ERRMSG
