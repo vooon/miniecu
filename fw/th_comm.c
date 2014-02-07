@@ -36,12 +36,17 @@
 static WORKING_AREA(wa_comm, 512);
 static msg_t thd_comm(void *arg __attribute__((unused)));
 static void send_status(void);
+static void recv_time_reference(uint8_t msg_len);
+static void recv_command(uint8_t msg_len);
+static void recv_param_request(uint8_t msg_len);
+static void recv_param_set(uint8_t msg_len);
+static void recv_log_request(uint8_t msg_len);
 
 /* Local varables */
 static EvTimer status_et;
 static uint8_t msg_buf[256];
 
-#define STATUS_TIMEOUT	MS2ST(1000)
+#define STATUS_TIMEOUT	MS2ST(10000) // TODO: make it settable
 
 
 void th_comm_init(void)
@@ -72,7 +77,27 @@ static msg_t thd_comm(void *arg __attribute__((unused)))
 
 		ret = pbstx_receive(&msgid, msg_buf, &in_msg_len);
 		if (ret == RDY_OK) {
-			/* TODO: respond to requests */
+			switch (msgid) {
+				case miniecu_MessageId_TIME_REFERENCE:
+					recv_time_reference(in_msg_len);
+					break;
+				case miniecu_MessageId_COMMAND:
+					recv_command(in_msg_len);
+					break;
+				case miniecu_MessageId_PARAM_REQUEST:
+					recv_param_request(in_msg_len);
+					break;
+				case miniecu_MessageId_PARAM_SET:
+					recv_param_set(in_msg_len);
+					break;
+				case miniecu_MessageId_LOG_REQUEST:
+					recv_log_request(in_msg_len);
+					break;
+
+				default:
+					/* ALARM? */
+					break;
+			}
 		}
 	}
 
@@ -90,9 +115,57 @@ static void send_status(void)
 
 	/* TODO: Fill status */
 
-	pb_encode(&outstream, miniecu_Status_fields, &status);
+	if (!pb_encode(&outstream, miniecu_Status_fields, &status)) {
+		/* ALERT */
+		return;
+	}
 
 	pbstx_send(miniecu_MessageId_STATUS,
 			msg_buf, outstream.bytes_written);
+}
+
+static void recv_time_reference(uint8_t msg_len)
+{
+	pb_istream_t instream = pb_istream_from_buffer(msg_buf, msg_len);
+	miniecu_TimeReference time_ref;
+
+	if (!pb_decode(&instream, miniecu_TimeReference_fields, &time_ref)) {
+		/* ALERT! */
+		return;
+	}
+
+	/* TODO: set RTC time, calculate diff, return current time */
+
+	pb_ostream_t outstream = pb_ostream_from_buffer(msg_buf, sizeof(msg_buf));
+
+	memcpy(time_ref.engine_id, "eng2", 4);
+	time_ref.has_system_time = true;
+	time_ref.system_time = chTimeNow() * 1000 / CH_FREQUENCY;
+	time_ref.has_timediff = true;
+	time_ref.timediff = 9000;
+
+	if (!pb_encode(&outstream, miniecu_TimeReference_fields, &time_ref)) {
+		/* ALERT! */
+		return;
+	}
+
+	pbstx_send(miniecu_MessageId_TIME_REFERENCE,
+			msg_buf, outstream.bytes_written);
+}
+
+static void recv_command(uint8_t msg_len)
+{
+}
+
+static void recv_param_request(uint8_t msg_len)
+{
+}
+
+static void recv_param_set(uint8_t msg_len)
+{
+}
+
+static void recv_log_request(uint8_t msg_len)
+{
 }
 
