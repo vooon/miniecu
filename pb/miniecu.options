@@ -1,8 +1,8 @@
 #
 # Special options for nanopb
 #
-# vim:set ft=proto
+# vim:set ft=proto et
 
-* max_size:16
-
-EngineStatus.engine_id max_size:4
+*.param_id      max_size:16
+*.value_string  max_size:16
+*.engine_id     max_size:4
