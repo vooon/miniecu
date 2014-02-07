@@ -1,7 +1,7 @@
 /**
- * @file       protocol.c
- * @brief      protocol thread functions
- * @author     Vladimir Ermakov Copyright (C) 2013.
+ * @file       pbstx.c
+ * @brief      PB sterial transfer functions
+ * @author     Vladimir Ermakov Copyright (C) 2014.
  * @see        The GNU Public License (GPL) Version 3
  */
 /*
@@ -46,14 +46,14 @@ enum rx_state {
 msg_t pbstx_receive(uint8_t *msgid, uint8_t *payload, uint8_t *payload_len)
 {
 	msg_t ret;
-	uint8_t seq = 0;
-	uint8_t pkt_crc = 0;
-	enum rx_state rx_state = PR_WAIT_START;
+	static uint8_t seq = 0;
+	static uint8_t pkt_crc = 0;
+	static enum rx_state rx_state = PR_WAIT_START;
 
 	while (!chThdShouldTerminate()) {
 		ret = sdGetTimeout(&PBSTX_SD, SER_TIMEOUT);
 		if (ret == Q_TIMEOUT || ret == Q_RESET)
-			continue;
+			return ret;
 
 		switch (rx_state) {
 		case PR_WAIT_START:
@@ -113,7 +113,7 @@ msg_t pbstx_receive(uint8_t *msgid, uint8_t *payload, uint8_t *payload_len)
 		}
 	}
 
-	return 0;
+	return RDY_RESET;
 }
 
 msg_t pbstx_send(uint8_t msgid, const uint8_t *payload, uint8_t payload_len)

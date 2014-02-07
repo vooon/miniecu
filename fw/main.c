@@ -17,7 +17,7 @@
 #include "ch.h"
 #include "hal.h"
 
-#include "pbstx.h"
+#include "th_comm.h"
 
 /*
  * Application entry point.
@@ -36,9 +36,10 @@ int main(void) {
 
 	sdStart(&PBSTX_SD, NULL);
 
+	/* Start threads */
+	th_comm_init();
+
 	while (TRUE) {
-		// fake message. for testing only
-		pbstx_send(0, NULL, 0);
 		chThdSleepMilliseconds(500);
 	}
 }

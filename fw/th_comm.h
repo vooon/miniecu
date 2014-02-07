@@ -1,6 +1,6 @@
 /**
- * @file       pbstx.h
- * @brief      PB sterial transfer functions
+ * @file       th_comm.h
+ * @brief      Communication thread
  * @author     Vladimir Ermakov Copyright (C) 2014.
  * @see        The GNU Public License (GPL) Version 3
  */
@@ -20,13 +20,11 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef PBSTX_H
-#define PBSTX_H
+#ifndef TH_COMM_H
+#define TH_COMM_H
 
 #include "ch.h"
-#include "miniecu.pb.h"
 
-extern msg_t pbstx_receive(uint8_t *msgid, uint8_t *payload, uint8_t *payload_len);
-extern msg_t pbstx_send(uint8_t msgid, const uint8_t *payload, uint8_t payload_len);
+extern void th_comm_init(void);
 
-#endif /* PBSTX_H */
+#endif /* TH_COMM_H */
