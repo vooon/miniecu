@@ -131,6 +131,7 @@ static void recv_time_reference(uint8_t msg_len)
 
 	if (!pb_decode(&instream, miniecu_TimeReference_fields, &time_ref)) {
 		/* ALERT! */
+		//printf("time ref decode error: len %d err: %s\n", msg_len, instream.errmsg);
 		return;
 	}
 
@@ -155,17 +156,53 @@ static void recv_time_reference(uint8_t msg_len)
 
 static void recv_command(uint8_t msg_len)
 {
+	pb_istream_t instream = pb_istream_from_buffer(msg_buf, msg_len);
+	miniecu_Command cmd;
+
+	if (!pb_decode(&instream, miniecu_Command_fields, &cmd)) {
+		/* ALERT! */
+		return;
+	}
+
+	/* TODO */
 }
 
 static void recv_param_request(uint8_t msg_len)
 {
+	pb_istream_t instream = pb_istream_from_buffer(msg_buf, msg_len);
+	miniecu_ParamRequest param_req;
+
+	if (!pb_decode(&instream, miniecu_ParamRequest_fields, &param_req)) {
+		/* ALERT! */
+		return;
+	}
+
+	/* TODO */
 }
 
 static void recv_param_set(uint8_t msg_len)
 {
+	pb_istream_t instream = pb_istream_from_buffer(msg_buf, msg_len);
+	miniecu_ParamSet param_set;
+
+	if (!pb_decode(&instream, miniecu_ParamSet_fields, &param_set)) {
+		/* ALERT! */
+		return;
+	}
+
+	/* TODO */
 }
 
 static void recv_log_request(uint8_t msg_len)
 {
+	pb_istream_t instream = pb_istream_from_buffer(msg_buf, msg_len);
+	miniecu_LogRequest log_req;
+
+	if (!pb_decode(&instream, miniecu_LogRequest_fields, &log_req)) {
+		/* ALERT! */
+		return;
+	}
+
+	/* TODO */
 }
 

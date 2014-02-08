@@ -89,6 +89,7 @@ msg_t pbstx_receive(uint8_t *msgid, uint8_t *payload, uint8_t *payload_len)
 					SER_PAYLOAD_TIMEOUT);
 			if (ret == Q_TIMEOUT || ret == Q_RESET) {
 				//ALERT_SET_FAIL(PROTO, protocol_status);
+				rx_state = PR_WAIT_START;
 				return ret;
 			}
 
@@ -97,6 +98,7 @@ msg_t pbstx_receive(uint8_t *msgid, uint8_t *payload, uint8_t *payload_len)
 			break;
 
 		case PR_CRC:
+			rx_state = PR_WAIT_START;
 			/* check crc && process pkt */
 			if (pkt_crc == ret) {
 				return RDY_OK;
@@ -104,8 +106,6 @@ msg_t pbstx_receive(uint8_t *msgid, uint8_t *payload, uint8_t *payload_len)
 				//ALERT_SET_FAIL(PROTO, protocol_status);
 				return RDY_RESET;
 			}
-
-			rx_state = PR_WAIT_START;
 			break;
 
 		default:
