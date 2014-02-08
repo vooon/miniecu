@@ -22,27 +22,27 @@ enum MessageId {
 
 message BatteryStatus {
 	// Ignition battery voltage [10^-2 V]
-	required fixed32 volatge = 1;
+	required uint32 volatge = 1;
 	// Ignition battery consumption [10^-2 A]
-	optional fixed32 current = 2;
+	optional uint32 current = 2;
 	// Calculated battery remainning [10^-1 %]
-	optional fixed32 remaining = 3;
+	optional uint32 remaining = 3;
 }
 
 message TemperatureStatus {
 	// Current engine temperature [10^-2 degC]
-	required sfixed32 engine1 = 1;
+	required int32 engine1 = 1;
 	// Second temperature sensor (if oil pressure not used)
-	optional sfixed32 engine2 = 2;
+	optional int32 engine2 = 2;
 	// Internal temperature [10^-2 degC]
-	optional sfixed32 internal = 3;
+	optional int32 internal = 3;
 }
 
 // TODO: check it
 message FuelFlowStatus {
-	required fixed32 flow_ml = 1;
-	optional fixed32 remaining = 2;
-	optional fixed32 total_used_ml = 3;
+	required uint32 flow_ml = 1;
+	optional uint32 remaining = 2;
+	optional uint32 total_used_ml = 3;
 }
 
 message EngineTimerStatus {
@@ -69,18 +69,18 @@ message Status {
 	};
 
 	// Engine ID: 4-byte string identifying engine
-	required string engine_id = 1 [default="gas1"];
+	required uint32 engine_id = 1;
 	// Timestamp since unix epoch in milliseconds OR millis since startup
-	required uint64 timestamp_ms = 2 [default=0];
+	required uint64 timestamp_ms = 2;
 	// Bit flags from Flags
-	required uint32 status = 3 [default=0];
+	required uint32 status = 3;
 	// Current RPM
 	required uint32 RPM = 4;
 	required BatteryStatus battery = 5;
 	required TemperatureStatus temperature = 6;
 	required EngineTimerStatus time = 7;
 	// Current OIL pressure [TODO]
-	optional sfixed32 oil_pressure = 8;
+	optional int32 oil_pressure = 8;
 	optional FuelFlowStatus fuel = 9;
 }
 
@@ -118,14 +118,14 @@ message Command {
 		IN_PROGRESS = 2;
 	};
 
-	required string engine_id = 1;
+	required uint32 engine_id = 1;
 	required Operation operation = 2;
 	optional Response response = 3;
 }
 
 // Set ECU RTC time
 message TimeReference {
-	required string engine_id = 1;
+	required uint32 engine_id = 1;
 	required uint64 timestamp_ms = 2;
 	optional uint32 system_time = 3;
 	optional int32 timediff = 4;
@@ -140,12 +140,12 @@ message TimeReference {
 
 // if param_id is not set: request list
 message ParamRequest {
-	required string engine_id = 1;
+	required uint32 engine_id = 1;
 	optional string param_id = 2;
 }
 
 message ParamSet {
-	required string engine_id = 1;
+	required uint32 engine_id = 1;
 	required string param_id = 2;
 	optional bool value_bool = 3;
 	optional int32 value_int32 = 4;
@@ -154,7 +154,7 @@ message ParamSet {
 }
 
 message ParamValue {
-	required string engine_id = 1;
+	required uint32 engine_id = 1;
 	required string param_id = 2;
 	required uint32 param_index = 3;
 	required uint32 param_count = 4;
@@ -171,21 +171,21 @@ message ParamValue {
 // @{
 
 message LogRequest {
-	required string engine_id = 1;
+	required uint32 engine_id = 1;
 	optional uint32 offset = 2;
 }
 
 // Log entry message: used for communication
 // and storing on flash.
 message LogEntry {
-	required string engine_id = 1;
-	required uint32 id = 2;
-	required uint64 timestamp_ms = 3;
+	required fixed32 engine_id = 1;
+	required fixed32 id = 2;
+	required fixed64 timestamp_ms = 3;
 	required bool is_localtime = 4;
 	required bool is_running = 5;
 	required bool warn_fuel = 6;
 	required bool warn_temp = 7;
-	required uint32 engine_powered_time = 8;
+	required fixed32 engine_powered_time = 8;
 	required fixed32 batt_voltage = 9;
 	required fixed32 batt_remaining = 10;
 	required fixed32 temp_engine = 11;

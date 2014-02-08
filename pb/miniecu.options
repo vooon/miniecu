@@ -5,4 +5,3 @@
 
 *.param_id      max_size:16
 *.value_string  max_size:16
-*.engine_id     max_size:4

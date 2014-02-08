@@ -110,7 +110,7 @@ static void send_status(void)
 	miniecu_Status status;
 
 	memset(&status, 0, sizeof(status));
-	memcpy(status.engine_id, "eng2", 4);
+	status.engine_id = 1;
 	status.timestamp_ms = chTimeNow() * 1000 / CH_FREQUENCY; /* systime -> msec */
 
 	/* TODO: Fill status */
@@ -139,7 +139,7 @@ static void recv_time_reference(uint8_t msg_len)
 
 	pb_ostream_t outstream = pb_ostream_from_buffer(msg_buf, sizeof(msg_buf));
 
-	memcpy(time_ref.engine_id, "eng2", 4);
+	time_ref.engine_id = 1;
 	time_ref.has_system_time = true;
 	time_ref.system_time = chTimeNow() * 1000 / CH_FREQUENCY;
 	time_ref.has_timediff = true;
