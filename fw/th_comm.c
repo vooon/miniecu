@@ -20,9 +20,6 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "ch.h"
-#include "hal.h"
-#include "evtimer.h"
 #include "th_comm.h"
 
 #include <string.h>
@@ -33,8 +30,6 @@
 
 
 /* Thread */
-static WORKING_AREA(wa_comm, 512);
-static msg_t thd_comm(void *arg __attribute__((unused)));
 static void send_status(void);
 static void recv_time_reference(uint8_t msg_len);
 static void recv_command(uint8_t msg_len);
@@ -43,40 +38,26 @@ static void recv_param_set(uint8_t msg_len);
 static void recv_log_request(uint8_t msg_len);
 
 /* Local varables */
-static EvTimer status_et;
 static uint8_t msg_buf[256];
 
 #define STATUS_TIMEOUT	MS2ST(10000) // TODO: make it settable
 
 
-void th_comm_init(void)
-{
-	chThdCreateStatic(wa_comm, sizeof(wa_comm), HIGHPRIO, thd_comm, NULL);
-}
-
-static msg_t thd_comm(void *arg __attribute__((unused)))
+THD_FUNCTION(th_comm, arg ATTR_UNUSED)
 {
 	msg_t ret;
 	uint8_t msgid;
 	uint8_t in_msg_len;
-	EventListener el0;
 
-	chRegSetThreadName("comm");
+	pbstx_init();
 
-	evtInit(&status_et, STATUS_TIMEOUT);
-	chEvtRegister(&status_et.et_es, &el0, 0);
-
-	evtStart(&status_et);
-
-	while (!chThdShouldTerminate()) {
-		eventmask_t mask = chEvtGetAndClearEvents(ALL_EVENTS);
-
-		if (mask & EVENT_MASK(0)) {
+	while (true /*!chThdShouldTerminate()*/) {
+		if (1 /* TODO use system time for timeout calculation */) {
 			send_status();
 		}
 
 		ret = pbstx_receive(&msgid, msg_buf, &in_msg_len);
-		if (ret == RDY_OK) {
+		if (ret == MSG_OK) {
 			switch (msgid) {
 				case miniecu_MessageId_TIME_REFERENCE:
 					recv_time_reference(in_msg_len);
@@ -100,8 +81,6 @@ static msg_t thd_comm(void *arg __attribute__((unused)))
 			}
 		}
 	}
-
-	return 0;
 }
 
 static void send_status(void)
@@ -111,7 +90,7 @@ static void send_status(void)
 
 	memset(&status, 0, sizeof(status));
 	status.engine_id = 1;
-	status.timestamp_ms = chTimeNow() * 1000 / CH_FREQUENCY; /* systime -> msec */
+	status.timestamp_ms = ST2MS(osalOsGetSystemTimeX());
 
 	/* TODO: Fill status */
 
@@ -141,7 +120,7 @@ static void recv_time_reference(uint8_t msg_len)
 
 	time_ref.engine_id = 1;
 	time_ref.has_system_time = true;
-	time_ref.system_time = chTimeNow() * 1000 / CH_FREQUENCY;
+	time_ref.system_time = ST2MS(osalOsGetSystemTimeX());
 	time_ref.has_timediff = true;
 	time_ref.timediff = 9000;
 

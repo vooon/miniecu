@@ -14,10 +14,22 @@
     limitations under the License.
 */
 
-#include "ch.h"
-#include "hal.h"
-
+#include "fw_common.h"
 #include "th_comm.h"
+
+static THD_WORKING_AREA(wa_comm, 512);
+
+#ifdef USE_NIL_KERNEL
+/*
+ * Threads static table, one entry per thread. The number of entries must
+ * match NIL_CFG_NUM_THREADS.
+ */
+THD_TABLE_BEGIN
+  THD_TABLE_ENTRY(wa_comm, "comm", th_comm, NULL)
+  //THD_TABLE_ENTRY(waThread2, "blinker2", Thread2, NULL)
+  //THD_TABLE_ENTRY(waThread3, "hello", Thread3, NULL)
+THD_TABLE_END
+#endif /* USE_NIL_KERNEL */
 
 /*
  * Application entry point.
@@ -37,7 +49,9 @@ int main(void) {
 	sdStart(&PBSTX_SD, NULL);
 
 	/* Start threads */
-	th_comm_init();
+#ifdef USE_RT_KERNEL
+	chThdCreateStatic(wa_comm, sizeof(wa_comm), NORMALPRIO, th_comm, NULL);
+#endif /* USE_RT_KERNEL */
 
 	while (TRUE) {
 		chThdSleepMilliseconds(500);

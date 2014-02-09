@@ -23,8 +23,8 @@
 #ifndef TH_COMM_H
 #define TH_COMM_H
 
-#include "ch.h"
+#include "fw_common.h"
 
-extern void th_comm_init(void);
+THD_FUNCTION(th_comm, arg ATTR_UNUSED);
 
 #endif /* TH_COMM_H */

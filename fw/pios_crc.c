@@ -7,7 +7,7 @@
  *
  */
 
-#include "ch.h"
+#include "fw_common.h"
 #include "pios_crc.h"
 
 // CRC lookup table

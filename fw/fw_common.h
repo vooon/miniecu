@@ -1,6 +1,6 @@
 /**
- * @file       pbstx.h
- * @brief      PB sterial transfer functions
+ * @file       fw_common.h
+ * @brief      common defenitions
  * @author     Vladimir Ermakov Copyright (C) 2014.
  * @see        The GNU Public License (GPL) Version 3
  */
@@ -20,14 +20,27 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef PBSTX_H
-#define PBSTX_H
+#ifndef FW_COMMON_H
+#define FW_COMMON_H
 
-#include "fw_common.h"
-#include "miniecu.pb.h"
+#include "fw_config.h"
 
-extern void pbstx_init(void);
-extern msg_t pbstx_receive(uint8_t *msgid, uint8_t *payload, uint8_t *payload_len);
-extern msg_t pbstx_send(uint8_t msgid, const uint8_t *payload, uint8_t payload_len);
+#if defined(USE_RT_KERNEL)
+# include "ch.h"
 
-#endif /* PBSTX_H */
+# define ST2MS(st) (st * 1000 / CH_FREQUENCY)
+
+#elif defined(USE_NIL_KERNEL)
+# include "nil.h"
+
+# define ST2MS(st) (st * 1000 / NIL_CFG_ST_FREQUENCY)
+
+#else
+# error "Please choose kernel: Nil or RT"
+#endif
+
+#include "hal.h"
+
+#define ATTR_UNUSED __attribute__((unused))
+
+#endif /* FW_COMMON_H */

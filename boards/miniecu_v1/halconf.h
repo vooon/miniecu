@@ -31,13 +31,6 @@
 #include "mcuconf.h"
 
 /**
- * @brief   Enables the TM subsystem.
- */
-#if !defined(HAL_USE_TM) || defined(__DOXYGEN__)
-#define HAL_USE_TM                  FALSE
-#endif
-
-/**
  * @brief   Enables the PAL subsystem.
  */
 #if !defined(HAL_USE_PAL) || defined(__DOXYGEN__)
@@ -83,7 +76,7 @@
  * @brief   Enables the ICU subsystem.
  */
 #if !defined(HAL_USE_ICU) || defined(__DOXYGEN__)
-#define HAL_USE_ICU                 TRUE
+#define HAL_USE_ICU                 FALSE /* Nil uses 32-bit timer */
 #endif
 
 /**
@@ -111,7 +104,7 @@
  * @brief   Enables the RTC subsystem.
  */
 #if !defined(HAL_USE_RTC) || defined(__DOXYGEN__)
-#define HAL_USE_RTC                 TRUE
+#define HAL_USE_RTC                 FALSE /* NOTE: not implemented in 3.0 now */
 #endif
 
 /**

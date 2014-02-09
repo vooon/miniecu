@@ -21,11 +21,10 @@
  */
 
 #include "pbstx.h"
-#include "hal.h"
 #include "pios_crc.h" /* use crc functions from OpenPilot */
 
 /* Local variables */
-static MUTEX_DECL(tx_mutex);
+static mutex_t tx_mutex;
 
 enum rx_state {
 	PR_WAIT_START = 0,
@@ -43,14 +42,19 @@ enum rx_state {
 #define SER_PAYLOAD_TIMEOUT	MS2ST(20)
 
 
+void pbstx_init(void)
+{
+	osalMutexObjectInit(&tx_mutex);
+}
+
 msg_t pbstx_receive(uint8_t *msgid, uint8_t *payload, uint8_t *payload_len)
 {
 	msg_t ret;
-	static uint8_t seq = 0;
+	static ATTR_UNUSED uint8_t seq = 0;
 	static uint8_t pkt_crc = 0;
 	static enum rx_state rx_state = PR_WAIT_START;
 
-	while (!chThdShouldTerminate()) {
+	while (true /*!chThdShouldTerminate()*/) {
 		ret = sdGetTimeout(&PBSTX_SD, SER_TIMEOUT);
 		if (ret == Q_TIMEOUT || ret == Q_RESET)
 			return ret;
@@ -101,10 +105,10 @@ msg_t pbstx_receive(uint8_t *msgid, uint8_t *payload, uint8_t *payload_len)
 			rx_state = PR_WAIT_START;
 			/* check crc && process pkt */
 			if (pkt_crc == ret) {
-				return RDY_OK;
+				return MSG_OK;
 			} else {
 				//ALERT_SET_FAIL(PROTO, protocol_status);
-				return RDY_RESET;
+				return MSG_RESET;
 			}
 			break;
 
@@ -113,7 +117,7 @@ msg_t pbstx_receive(uint8_t *msgid, uint8_t *payload, uint8_t *payload_len)
 		}
 	}
 
-	return RDY_RESET;
+	return MSG_RESET;
 }
 
 msg_t pbstx_send(uint8_t msgid, const uint8_t *payload, uint8_t payload_len)
@@ -123,7 +127,7 @@ msg_t pbstx_send(uint8_t msgid, const uint8_t *payload, uint8_t payload_len)
 	static uint8_t tx_seq = 0;
 	uint8_t header[] = { HDR_START, tx_seq++, msgid, payload_len };
 
-	chMtxLock(&tx_mutex);
+	osalMutexLock(&tx_mutex);
 
 	crc = PIOS_CRC_updateCRC(0, header + 1, sizeof(header) - 1);
 	ret = sdWriteTimeout(&PBSTX_SD, header, sizeof(header), SER_TIMEOUT);
@@ -141,7 +145,7 @@ msg_t pbstx_send(uint8_t msgid, const uint8_t *payload, uint8_t payload_len)
 	ret = sdPutTimeout(&PBSTX_SD, crc, SER_TIMEOUT);
 
 unlock_ret:
-	chMtxUnlock();
+	osalMutexUnlock(&tx_mutex);
 	return ret;
 }
 
