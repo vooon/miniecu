@@ -16,8 +16,6 @@ $(PROTODIR):
 	mkdir -p $(PROTODIR)
 	mkdir -p $(BUILDDIR)/obj
 	mkdir -p $(BUILDDIR)/lst
-	mkdir -p $(BUILDDIR)/obj-sim
-	mkdir -p $(BUILDDIR)/lst-sim
 
 $(PROTODIR)/%.pb.c: %.proto $(wildcard %.options) $(PROTODIR)
 ifeq ($(USE_VERBOSE_COMPILE),yes)

@@ -1,13 +1,11 @@
 # -*- Makefile -*-
 #
 
-TARGETS = miniecu_v1 miniecu_sim
+TARGETS = miniecu_v1
 
 all: $(TARGETS)
 
 miniecu_v1:
-
-miniecu_sim:
 
 
 %: ./boards/%
