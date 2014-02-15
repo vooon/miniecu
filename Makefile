@@ -1,12 +1,13 @@
 # -*- Makefile -*-
 #
 
-TARGETS = miniecu_v1
+TARGETS = miniecu_v1 vl_discovery
 
 all: $(TARGETS)
 
 miniecu_v1:
 
+vl_discovery:
 
 %: ./boards/%
 	make -C ./pb
