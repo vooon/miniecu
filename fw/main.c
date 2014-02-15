@@ -19,7 +19,6 @@
 
 static THD_WORKING_AREA(wa_comm, 512);
 
-#ifdef USE_NIL_KERNEL
 /*
  * Threads static table, one entry per thread. The number of entries must
  * match NIL_CFG_NUM_THREADS.
@@ -29,7 +28,6 @@ THD_TABLE_BEGIN
   //THD_TABLE_ENTRY(waThread2, "blinker2", Thread2, NULL)
   //THD_TABLE_ENTRY(waThread3, "hello", Thread3, NULL)
 THD_TABLE_END
-#endif /* USE_NIL_KERNEL */
 
 /*
  * Application entry point.
@@ -48,12 +46,10 @@ int main(void) {
 
 	sdStart(&PBSTX_SD, NULL);
 
-	/* Start threads */
-#ifdef USE_RT_KERNEL
-	chThdCreateStatic(wa_comm, sizeof(wa_comm), NORMALPRIO, th_comm, NULL);
-#endif /* USE_RT_KERNEL */
-
-	while (TRUE) {
-		chThdSleepMilliseconds(500);
+	/* This is now the idle thread loop, you may perform here a low priority
+	   task but you must never try to sleep or wait in this loop. Note that
+	   this tasks runs at the lowest priority level so any instruction added
+	   here will be executed after all other tasks have been started.*/
+	while (true) {
 	}
 }

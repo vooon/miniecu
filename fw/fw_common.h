@@ -27,8 +27,7 @@
 
 #if defined(USE_RT_KERNEL)
 # include "ch.h"
-
-# define ST2MS(st) (st * 1000 / CH_FREQUENCY)
+# error "RT kernel not supported!"
 
 #elif defined(USE_NIL_KERNEL)
 # include "nil.h"

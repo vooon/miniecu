@@ -51,7 +51,7 @@ THD_FUNCTION(th_comm, arg ATTR_UNUSED)
 
 	pbstx_init();
 
-	while (true /*!chThdShouldTerminate()*/) {
+	while (true) {
 		if (1 /* TODO use system time for timeout calculation */) {
 			send_status();
 		}
