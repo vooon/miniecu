@@ -14,8 +14,6 @@ all: $(PROTODIR)/miniecu.pb.c
 
 $(PROTODIR):
 	mkdir -p $(PROTODIR)
-	mkdir -p $(BUILDDIR)/obj
-	mkdir -p $(BUILDDIR)/lst
 
 $(PROTODIR)/%.pb.c: %.proto $(wildcard %.options) $(PROTODIR)
 ifeq ($(USE_VERBOSE_COMPILE),yes)

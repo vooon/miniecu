@@ -72,7 +72,7 @@ PROJECT = miniecu_v1
 # Imported source files and paths
 MINIECU ?= ../..
 CHIBIOS = $(MINIECU)/ext/chibios
-BUILDDIR = $(MINIECU)/build
+BUILDDIR = $(MINIECU)/build/miniecu_v1
 include $(CHIBIOS)/os/hal/hal.mk
 include $(MINIECU)/boards/miniecu_v1/board.mk
 include $(CHIBIOS)/os/hal/ports/STM32/STM32F0xx/platform.mk

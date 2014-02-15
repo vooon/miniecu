@@ -59,6 +59,9 @@
 
 /**
  * @brief   System tick frequency.
+ * @note    This value together with the @p NIL_CFG_ST_RESOLUTION
+ *          option defines the maximum amount of time allowed for
+ *          timeouts.
  */
 #define NIL_CFG_ST_FREQUENCY                50000
 

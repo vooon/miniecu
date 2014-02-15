@@ -1,7 +1,7 @@
 # Path to the nanopb root directory
 NANOPBDIR := $(MINIECU)/ext/nanopb
 
-PROTODIR = $(BUILDDIR)/pb
+PROTODIR = ${MINIECU}/build/pb
 
 # Files for the nanopb core
 NANOPBSRC = ${NANOPBDIR}/pb_encode.c \
