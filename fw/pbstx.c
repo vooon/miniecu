@@ -39,7 +39,7 @@ enum rx_state {
 #define MAX_PAYLOAD		255
 
 #define SER_TIMEOUT		MS2ST(10)
-#define SER_PAYLOAD_TIMEOUT	MS2ST(20)
+#define SER_PAYLOAD_TIMEOUT	MS2ST(200)
 
 
 void pbstx_init(void)
@@ -55,7 +55,7 @@ msg_t pbstx_receive(uint8_t *msgid, uint8_t *payload, uint8_t *payload_len)
 	static enum rx_state rx_state = PR_WAIT_START;
 
 	while (true /*!chThdShouldTerminate()*/) {
-		ret = sdGetTimeout(&PBSTX_SD, SER_TIMEOUT);
+		ret = chnGetTimeout(&PBSTX_SD, SER_TIMEOUT);
 		if (ret == Q_TIMEOUT || ret == Q_RESET)
 			return ret;
 
@@ -89,7 +89,7 @@ msg_t pbstx_receive(uint8_t *msgid, uint8_t *payload, uint8_t *payload_len)
 			/* fall through if payload exists */
 
 		case PR_PAYLOAD:
-			ret = sdReadTimeout(&PBSTX_SD, payload, *payload_len,
+			ret = chnReadTimeout(&PBSTX_SD, payload, *payload_len,
 					SER_PAYLOAD_TIMEOUT);
 			if (ret == Q_TIMEOUT || ret == Q_RESET) {
 				//ALERT_SET_FAIL(PROTO, protocol_status);
@@ -130,19 +130,19 @@ msg_t pbstx_send(uint8_t msgid, const uint8_t *payload, uint8_t payload_len)
 	osalMutexLock(&tx_mutex);
 
 	crc = PIOS_CRC_updateCRC(0, header + 1, sizeof(header) - 1);
-	ret = sdWriteTimeout(&PBSTX_SD, header, sizeof(header), SER_TIMEOUT);
+	ret = chnWriteTimeout(&PBSTX_SD, header, sizeof(header), SER_TIMEOUT);
 	if (ret == Q_TIMEOUT || ret == Q_RESET)
 		goto unlock_ret;
 
 	if (payload_len > 0) {
-		crc = PIOS_CRC_updateCRC(crc, payload, payload_len);
-		ret = sdWriteTimeout(&PBSTX_SD, payload, payload_len,
-				SER_PAYLOAD_TIMEOUT);
-		if (ret == Q_TIMEOUT || ret == Q_RESET)
-			goto unlock_ret;
+		//crc = PIOS_CRC_updateCRC(crc, payload, payload_len);
+		//ret = chnWriteTimeout(&PBSTX_SD, payload, payload_len,
+		//		SER_PAYLOAD_TIMEOUT);
+		//if (ret == Q_TIMEOUT || ret == Q_RESET)
+		//	goto unlock_ret;
 	}
 
-	ret = sdPutTimeout(&PBSTX_SD, crc, SER_TIMEOUT);
+	ret = chnPutTimeout(&PBSTX_SD, crc, SER_TIMEOUT);
 
 unlock_ret:
 	osalMutexUnlock(&tx_mutex);

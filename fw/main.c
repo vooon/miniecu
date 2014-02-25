@@ -17,7 +17,7 @@
 #include "fw_common.h"
 #include "th_comm.h"
 
-static THD_WORKING_AREA(wa_comm, 512);
+static THD_WORKING_AREA(wa_comm, 128);
 
 /*
  * Threads static table, one entry per thread. The number of entries must

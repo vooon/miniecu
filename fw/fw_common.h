@@ -28,17 +28,15 @@
 #if defined(USE_RT_KERNEL)
 # include "ch.h"
 # error "RT kernel not supported!"
-
 #elif defined(USE_NIL_KERNEL)
 # include "nil.h"
-
-# define ST2MS(st) (st * 1000 / NIL_CFG_ST_FREQUENCY)
-
 #else
 # error "Please choose kernel: Nil or RT"
 #endif
 
 #include "hal.h"
+
+#define ST2MS(st) (st * 1000 / OSAL_ST_FREQUENCY)
 
 #define ATTR_UNUSED __attribute__((unused))
 
