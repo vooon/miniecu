@@ -53,6 +53,9 @@ int main(void) {
 #ifdef USE_RT_KERNEL
 	chThdCreateStatic(wa_led, sizeof(wa_led), LOWPRIO, th_led, NULL);
 	chThdCreateStatic(wa_comm, sizeof(wa_comm), NORMALPRIO, th_comm, NULL);
+
+	/* we use main thread as idle */
+	chThdSetPriority(IDLEPRIO);
 #endif /* USE_RT_KERNEL */
 
 	/* This is now the idle thread loop, you may perform here a low priority
@@ -60,9 +63,5 @@ int main(void) {
 	   this tasks runs at the lowest priority level so any instruction added
 	   here will be executed after all other tasks have been started.*/
 	while (true) {
-#ifdef USE_RT_KERNEL
-		/* don't do anything in main thread for comtatibility with Nil */
-		chThdSleepMilliseconds(1000);
-#endif /* USE_RT_KERNEL */
 	}
 }

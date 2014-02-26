@@ -88,7 +88,7 @@
  *          enter a sleep state.
  */
 #if !defined(CH_NO_IDLE_THREAD) || defined(__DOXYGEN__)
-#define CH_NO_IDLE_THREAD               FALSE
+#define CH_NO_IDLE_THREAD               TRUE
 #endif
 
 /** @} */
