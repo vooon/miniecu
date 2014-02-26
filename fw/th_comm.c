@@ -45,24 +45,18 @@ THD_FUNCTION(th_comm, arg ATTR_UNUSED)
 	msg_t ret;
 	uint8_t msgid;
 	uint8_t in_msg_len;
-	systime_t start_time = 0;
+	systime_t send_time = 0;
 
-	palSetPadMode(GPIOF, GPIOF_LED, PAL_MODE_OUTPUT_PUSHPULL);
 	pbstx_init();
 
 	while (true) {
-		if (chVTTimeElapsedSinceX(start_time) >= STATUS_TIMEOUT) {
+		if (chTimeElapsedSince(send_time) >= STATUS_TIMEOUT) {
 			send_status();
-			start_time = chVTGetSystemTimeX();
-			palTogglePad(GPIOF, GPIOF_LED);
-			//chThdSleepMilliseconds(1000);
-			//chnWriteTimeout(&SD1, "hello world\nwery long message for testing purposes\n", 12+39, STATUS_TIMEOUT);
+			send_time = chTimeNow();
 		}
-		continue;
 
 		ret = pbstx_receive(&msgid, msg_buf, &in_msg_len);
 		if (ret == MSG_OK) {
-			palTogglePad(GPIOF, GPIOF_LED);
 			switch (msgid) {
 				case miniecu_MessageId_TIME_REFERENCE:
 					recv_time_reference(in_msg_len);
@@ -95,7 +89,7 @@ static void send_status(void)
 
 	memset(&status, 0, sizeof(status));
 	status.engine_id = 1;
-	status.timestamp_ms = ST2MS(osalOsGetSystemTimeX());
+	status.timestamp_ms = ST2MS(chTimeNow());
 
 	/* TODO: Fill status */
 
@@ -103,8 +97,6 @@ static void send_status(void)
 		/* ALERT */
 		return;
 	}
-
-	outstream.bytes_written = 0x15;
 
 	pbstx_send(miniecu_MessageId_STATUS,
 			msg_buf, outstream.bytes_written);
@@ -117,7 +109,6 @@ static void recv_time_reference(uint8_t msg_len)
 
 	if (!pb_decode(&instream, miniecu_TimeReference_fields, &time_ref)) {
 		/* ALERT! */
-		//printf("time ref decode error: len %d err: %s\n", msg_len, instream.errmsg);
 		return;
 	}
 
@@ -127,7 +118,7 @@ static void recv_time_reference(uint8_t msg_len)
 
 	time_ref.engine_id = 1;
 	time_ref.has_system_time = true;
-	time_ref.system_time = ST2MS(osalOsGetSystemTimeX());
+	time_ref.system_time = ST2MS(chTimeNow());
 	time_ref.has_timediff = true;
 	time_ref.timediff = 9000;
 

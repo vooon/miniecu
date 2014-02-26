@@ -27,9 +27,17 @@
 
 #if defined(USE_RT_KERNEL)
 # include "ch.h"
-# error "RT kernel not supported!"
+
+# define OSAL_ST_FREQUENCY		CH_FREQUENCY
+# define THD_FUNCTION(name, arg)	msg_t name(void *arg)
+# define THD_WORKING_AREA(name, size)	WORKING_AREA(name, size)
+# define MSG_OK				RDY_OK
+# define MSG_RESET			RDY_RESET
+
 #elif defined(USE_NIL_KERNEL)
 # include "nil.h"
+# error "ChibiOS/Nil not supported by now. "\
+	"(some strange bug on F050, so we switch back to stable ChibiOS 2"
 #else
 # error "Please choose kernel: Nil or RT"
 #endif

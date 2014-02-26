@@ -1,7 +1,7 @@
 # -*- Makefile -*-
 #
 
-TARGETS = miniecu_v1 # vl_discovery
+TARGETS = miniecu_v1 vl_discovery
 SERIAL = /dev/ttyUSB0
 
 all: $(TARGETS)

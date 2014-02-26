@@ -1,7 +1,7 @@
 #ifndef _FW_CONFIG_H_
 #define _FW_CONFIG_H_
 
-#define USE_NIL_KERNEL
+#define USE_RT_KERNEL
 
 #define PBSTX_SD	SD1
 
