@@ -22,6 +22,7 @@
 
 #include "pbstx.h"
 #include "pios_crc.h" /* use crc functions from OpenPilot */
+#include "alert_led.h"
 
 /* Local variables */
 static MUTEX_DECL(tx_mutex);
@@ -44,7 +45,6 @@ enum rx_state {
 
 void pbstx_init(void)
 {
-	//osalMutexObjectInit(&tx_mutex);
 }
 
 msg_t pbstx_receive(uint8_t *msgid, uint8_t *payload, uint8_t *payload_len)
@@ -92,7 +92,7 @@ msg_t pbstx_receive(uint8_t *msgid, uint8_t *payload, uint8_t *payload_len)
 			ret = sdReadTimeout(&PBSTX_SD, payload, *payload_len,
 					SER_PAYLOAD_TIMEOUT);
 			if (ret == Q_TIMEOUT || ret == Q_RESET) {
-				//ALERT_SET_FAIL(PROTO, protocol_status);
+				alert_component(ALS_COMM, AL_FAIL);
 				rx_state = PR_WAIT_START;
 				return ret;
 			}
@@ -105,9 +105,10 @@ msg_t pbstx_receive(uint8_t *msgid, uint8_t *payload, uint8_t *payload_len)
 			rx_state = PR_WAIT_START;
 			/* check crc && process pkt */
 			if (pkt_crc == ret) {
+				alert_component(ALS_COMM, AL_NORMAL);
 				return MSG_OK;
 			} else {
-				//ALERT_SET_FAIL(PROTO, protocol_status);
+				alert_component(ALS_COMM, AL_FAIL);
 				return MSG_RESET;
 			}
 			break;
@@ -127,7 +128,6 @@ msg_t pbstx_send(uint8_t msgid, const uint8_t *payload, uint8_t payload_len)
 	static uint8_t tx_seq = 0;
 	uint8_t header[] = { HDR_START, tx_seq++, msgid, payload_len };
 
-	//osalMutexLock(&tx_mutex);
 	chMtxLock(&tx_mutex);
 
 	crc = PIOS_CRC_updateCRC(0, header + 1, sizeof(header) - 1);
@@ -146,7 +146,6 @@ msg_t pbstx_send(uint8_t msgid, const uint8_t *payload, uint8_t payload_len)
 	ret = sdPutTimeout(&PBSTX_SD, crc, SER_TIMEOUT);
 
 unlock_ret:
-	//osalMutexUnlock(&tx_mutex);
 	chMtxUnlock();
 	return ret;
 }

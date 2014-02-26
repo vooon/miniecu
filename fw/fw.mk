@@ -2,6 +2,7 @@
 FWSRC = ${MINIECU}/fw/main.c \
 	${MINIECU}/fw/pios_crc.c \
 	${MINIECU}/fw/pbstx.c \
+	${MINIECU}/fw/alert_led.c \
 	${MINIECU}/fw/th_comm.c
 
 # Required include directories

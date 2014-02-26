@@ -20,6 +20,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+#include "alert_led.h"
 #include "th_comm.h"
 #include "pbstx.h"
 #include "pb_encode.h"
@@ -94,7 +95,7 @@ static void send_status(void)
 	/* TODO: Fill status */
 
 	if (!pb_encode(&outstream, miniecu_Status_fields, &status)) {
-		/* ALERT */
+		alert_component(ALS_COMM, AL_FAIL);
 		return;
 	}
 
@@ -108,7 +109,7 @@ static void recv_time_reference(uint8_t msg_len)
 	miniecu_TimeReference time_ref;
 
 	if (!pb_decode(&instream, miniecu_TimeReference_fields, &time_ref)) {
-		/* ALERT! */
+		alert_component(ALS_COMM, AL_FAIL);
 		return;
 	}
 
@@ -123,7 +124,7 @@ static void recv_time_reference(uint8_t msg_len)
 	time_ref.timediff = 9000;
 
 	if (!pb_encode(&outstream, miniecu_TimeReference_fields, &time_ref)) {
-		/* ALERT! */
+		alert_component(ALS_COMM, AL_FAIL);
 		return;
 	}
 
@@ -137,7 +138,7 @@ static void recv_command(uint8_t msg_len)
 	miniecu_Command cmd;
 
 	if (!pb_decode(&instream, miniecu_Command_fields, &cmd)) {
-		/* ALERT! */
+		alert_component(ALS_COMM, AL_FAIL);
 		return;
 	}
 
@@ -150,7 +151,7 @@ static void recv_param_request(uint8_t msg_len)
 	miniecu_ParamRequest param_req;
 
 	if (!pb_decode(&instream, miniecu_ParamRequest_fields, &param_req)) {
-		/* ALERT! */
+		alert_component(ALS_COMM, AL_FAIL);
 		return;
 	}
 
@@ -163,7 +164,7 @@ static void recv_param_set(uint8_t msg_len)
 	miniecu_ParamSet param_set;
 
 	if (!pb_decode(&instream, miniecu_ParamSet_fields, &param_set)) {
-		/* ALERT! */
+		alert_component(ALS_COMM, AL_FAIL);
 		return;
 	}
 
@@ -176,7 +177,7 @@ static void recv_log_request(uint8_t msg_len)
 	miniecu_LogRequest log_req;
 
 	if (!pb_decode(&instream, miniecu_LogRequest_fields, &log_req)) {
-		/* ALERT! */
+		alert_component(ALS_COMM, AL_FAIL);
 		return;
 	}
 

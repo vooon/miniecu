@@ -16,8 +16,10 @@
 
 #include "fw_common.h"
 #include "th_comm.h"
+#include "alert_led.h"
 
 static THD_WORKING_AREA(wa_comm, 512);
+static THD_WORKING_AREA(wa_led, 128);
 
 #ifdef USE_NIL_KERNEL
 /*
@@ -26,7 +28,7 @@ static THD_WORKING_AREA(wa_comm, 512);
  */
 THD_TABLE_BEGIN
   THD_TABLE_ENTRY(wa_comm, "comm", th_comm, NULL)
-  //THD_TABLE_ENTRY(waThread2, "blinker2", Thread2, NULL)
+  THD_TABLE_ENTRY(wa_led, "led", th_led, NULL)
   //THD_TABLE_ENTRY(waThread3, "hello", Thread3, NULL)
 THD_TABLE_END
 #endif /* USE_NIL_KERNEL */
@@ -49,6 +51,7 @@ int main(void) {
 	sdStart(&PBSTX_SD, NULL);
 
 #ifdef USE_RT_KERNEL
+	chThdCreateStatic(wa_led, sizeof(wa_led), LOWPRIO, th_led, NULL);
 	chThdCreateStatic(wa_comm, sizeof(wa_comm), NORMALPRIO, th_comm, NULL);
 #endif /* USE_RT_KERNEL */
 
