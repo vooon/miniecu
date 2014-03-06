@@ -4,3 +4,6 @@
 [submodule "ext/chibios"]
 	path = ext/chibios
 	url = https://github.com/ChibiOS-Upstream/ChibiOS-RT.git
+[submodule "ext/flash25"]
+	path = ext/flash25
+	url = https://github.com/vooon/chibios-flash.git
