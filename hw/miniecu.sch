@@ -14605,6 +14605,131 @@ LilyPad 1206- DIO-09912&lt;br&gt;
 </deviceset>
 </devicesets>
 </library>
+<library name="cstce-resonator">
+<description>&lt;b&gt;Murata Filters&lt;/b&gt;&lt;p&gt;
+Distributor RS Components&lt;p&gt;
+&lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
+<packages>
+<package name="CSTER12M">
+<description>Source: http://search.murata.co.jp/Ceramy/CatalogshowpageAction.do?sDirnm=A07X&amp;sFilnm=81G07006&amp;sType=2&amp;sLang=en&amp;sNHinnm=CSTCR6M00G53Z-R0&amp;sCapt=Standard_Land_Pattern_Dimensions</description>
+<wire x1="-2.2" y1="-0.95" x2="2.2" y2="-0.95" width="0.1016" layer="51"/>
+<wire x1="2.2" y1="-0.95" x2="2.2" y2="0.95" width="0.1016" layer="21"/>
+<wire x1="2.2" y1="0.95" x2="-2.2" y2="0.95" width="0.1016" layer="51"/>
+<wire x1="-2.2" y1="0.95" x2="-2.2" y2="-0.95" width="0.1016" layer="21"/>
+<smd name="1" x="-1.2" y="0" dx="0.4" dy="2.6" layer="1" stop="no" cream="no"/>
+<smd name="2" x="0" y="0" dx="0.4" dy="2.6" layer="1" stop="no" cream="no"/>
+<smd name="3" x="1.2" y="0" dx="0.4" dy="2.6" layer="1" stop="no" cream="no"/>
+<text x="-2.54" y="1.524" size="1.27" layer="25">&gt;NAME</text>
+<text x="-2.54" y="-2.794" size="1.27" layer="27">&gt;VALUE</text>
+<rectangle x1="-0.2" y1="-1.3" x2="0.2" y2="1.3" layer="31"/>
+<rectangle x1="-1.5" y1="-1.4" x2="-0.9" y2="1.4" layer="29"/>
+<rectangle x1="1" y1="-1.3" x2="1.4" y2="1.3" layer="31"/>
+<rectangle x1="-1.4" y1="-1.3" x2="-1" y2="1.3" layer="31"/>
+<rectangle x1="-0.3" y1="-1.4" x2="0.3" y2="1.4" layer="29"/>
+<rectangle x1="0.9" y1="-1.4" x2="1.5" y2="1.4" layer="29"/>
+</package>
+<package name="CSTCE">
+<description>&lt;p&gt;Small ceramic rezonator with capacitors
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://search.murata.co.jp/Ceramy/CatalogAction.do?sHinnm=?&amp;nbsp&amp;sNHinnm=CSTCE8M00G52-R0&amp;sNhin_key=CSTCE8M00G52-R0&amp;sLang=en&amp;sParam=CSTCE"&gt;Datasheet&lt;/a&gt;
+&lt;li&gt;&lt;a href="http://search.murata.co.jp/Ceramy/CatalogshowpageAction.do?sParam=CSTCE&amp;sKno=G002&amp;sTblid=A703&amp;sDirnm=A07X&amp;sFilnm=81G02002&amp;sType=2&amp;sLang=en&amp;sNHinnm=CSTCE8M00G52-R0&amp;sCapt=Dimensions"&gt;Dimensions&lt;/a&gt;
+&lt;li&gt;&lt;a href="http://search.murata.co.jp/Ceramy/CatalogshowpageAction.do?sParam=CSTCE&amp;sKno=G006&amp;sTblid=A703&amp;sDirnm=A07X&amp;sFilnm=81G07013&amp;sType=2&amp;sLang=en&amp;sNHinnm=CSTCE8M00G52-R0&amp;sCapt=Standard_Land_Pattern"&gt;Land pattern&lt;/a&gt;
+&lt;/ul&gt;</description>
+<text x="-2.54" y="1.524" size="1.27" layer="25">&gt;NAME</text>
+<text x="-2.54" y="-2.794" size="1.27" layer="27">&gt;VALUE</text>
+<smd name="1" x="-1.2" y="0" dx="0.4" dy="2.1" layer="1"/>
+<smd name="2" x="0" y="0" dx="0.4" dy="2.1" layer="1"/>
+<smd name="3" x="1.2" y="0" dx="0.4" dy="2.1" layer="1"/>
+<wire x1="-1.6" y1="0.7" x2="-1.6" y2="-0.7" width="0.1" layer="21"/>
+<wire x1="-1.6" y1="-0.7" x2="1.6" y2="-0.7" width="0.1" layer="21"/>
+<wire x1="1.6" y1="-0.7" x2="1.6" y2="0.7" width="0.1" layer="21"/>
+<wire x1="1.6" y1="0.7" x2="-1.6" y2="0.7" width="0.1" layer="21"/>
+</package>
+</packages>
+<symbols>
+<symbol name="CST">
+<wire x1="-5.08" y1="2.54" x2="5.08" y2="2.54" width="0.254" layer="94"/>
+<wire x1="5.08" y1="2.54" x2="5.08" y2="0" width="0.254" layer="94"/>
+<wire x1="5.08" y1="0" x2="5.08" y2="-5.08" width="0.254" layer="94"/>
+<wire x1="5.08" y1="-5.08" x2="0" y2="-5.08" width="0.254" layer="94"/>
+<wire x1="0" y1="-5.08" x2="-5.08" y2="-5.08" width="0.254" layer="94"/>
+<wire x1="-5.08" y1="-5.08" x2="-5.08" y2="0" width="0.254" layer="94"/>
+<wire x1="-5.08" y1="0" x2="-5.08" y2="2.54" width="0.254" layer="94"/>
+<wire x1="-5.08" y1="0" x2="-3.81" y2="0" width="0.1524" layer="94"/>
+<wire x1="-3.81" y1="0" x2="-1.27" y2="0" width="0.1524" layer="94"/>
+<wire x1="-1.27" y1="0" x2="-1.27" y2="1.27" width="0.1524" layer="94"/>
+<wire x1="-1.27" y1="0" x2="-1.27" y2="-1.27" width="0.1524" layer="94"/>
+<wire x1="-0.508" y1="1.27" x2="-0.508" y2="-1.27" width="0.1524" layer="94"/>
+<wire x1="-0.508" y1="-1.27" x2="0.508" y2="-1.27" width="0.1524" layer="94"/>
+<wire x1="0.508" y1="-1.27" x2="0.508" y2="1.27" width="0.1524" layer="94"/>
+<wire x1="0.508" y1="1.27" x2="-0.508" y2="1.27" width="0.1524" layer="94"/>
+<wire x1="1.27" y1="1.27" x2="1.27" y2="0" width="0.1524" layer="94"/>
+<wire x1="1.27" y1="0" x2="1.27" y2="-1.27" width="0.1524" layer="94"/>
+<wire x1="1.27" y1="0" x2="3.81" y2="0" width="0.1524" layer="94"/>
+<wire x1="3.81" y1="0" x2="5.08" y2="0" width="0.1524" layer="94"/>
+<wire x1="0" y1="-5.08" x2="0" y2="-3.302" width="0.1524" layer="94"/>
+<wire x1="0" y1="-3.302" x2="-1.778" y2="-3.302" width="0.1524" layer="94"/>
+<wire x1="0" y1="-3.302" x2="1.778" y2="-3.302" width="0.1524" layer="94"/>
+<wire x1="1.778" y1="-2.286" x2="1.778" y2="-4.318" width="0.1524" layer="94"/>
+<wire x1="2.54" y1="-2.286" x2="2.54" y2="-3.302" width="0.1524" layer="94"/>
+<wire x1="2.54" y1="-3.302" x2="2.54" y2="-4.318" width="0.1524" layer="94"/>
+<wire x1="2.54" y1="-3.302" x2="3.81" y2="-3.302" width="0.1524" layer="94"/>
+<wire x1="3.81" y1="-3.302" x2="3.81" y2="0" width="0.1524" layer="94"/>
+<wire x1="-1.778" y1="-2.286" x2="-1.778" y2="-4.318" width="0.1524" layer="94"/>
+<wire x1="-2.54" y1="-2.286" x2="-2.54" y2="-3.302" width="0.1524" layer="94"/>
+<wire x1="-2.54" y1="-3.302" x2="-2.54" y2="-4.318" width="0.1524" layer="94"/>
+<wire x1="-2.54" y1="-3.302" x2="-3.81" y2="-3.302" width="0.1524" layer="94"/>
+<wire x1="-3.81" y1="-3.302" x2="-3.81" y2="0" width="0.1524" layer="94"/>
+<circle x="-3.81" y="0" radius="0.254" width="0" layer="94"/>
+<circle x="3.81" y="0" radius="0.254" width="0" layer="94"/>
+<circle x="0" y="-3.302" radius="0.254" width="0" layer="94"/>
+<text x="-5.08" y="3.81" size="1.778" layer="95">&gt;NAME</text>
+<text x="2.54" y="-7.62" size="1.778" layer="96">&gt;VALUE</text>
+<pin name="1" x="-7.62" y="0" visible="pad" length="short" direction="pas"/>
+<pin name="2" x="0" y="-7.62" visible="pad" length="short" direction="pas" rot="R90"/>
+<pin name="3" x="7.62" y="0" visible="pad" length="short" direction="pas" rot="R180"/>
+</symbol>
+</symbols>
+<devicesets>
+<deviceset name="CSTC?" prefix="ZQ">
+<description>&lt;h1&gt;Resonator&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://search.murata.co.jp/Ceramy/CatalogAction.do?sHinnm=?&amp;nbsp&amp;sNHinnm=CSTCR6M00G53-R0&amp;sNhin_key=CSTCR6M00G53-R0&amp;sLang=en&amp;sParam=CSTCR"&gt;CSTCR ­- 2.0 x 4.5 mm&lt;/a&gt;
+&lt;li&gt;&lt;a href="http://search.murata.co.jp/Ceramy/CatalogAction.do?sHinnm=?&amp;nbsp&amp;sNHinnm=CSTCE8M00G52-R0&amp;sNhin_key=CSTCE8M00G52-R0&amp;sLang=en&amp;sParam=CSTCE"&gt;CSTCE ­- 1.3 x 3.2 mm&lt;/a&gt;
+&lt;/ul&gt;</description>
+<gates>
+<gate name="G$1" symbol="CST" x="0" y="0"/>
+</gates>
+<devices>
+<device name="R" package="CSTER12M">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+<connect gate="G$1" pin="3" pad="3"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="E" package="CSTCE">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+<connect gate="G$1" pin="3" pad="3"/>
+</connects>
+<technologies>
+<technology name="8M00G52-R0">
+<attribute name="FREQUENCY" value="8 MHz"/>
+<attribute name="OC_MOUSER" value="81-CSTCE8M00G52-R0" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+</devicesets>
+</library>
 </libraries>
 <attributes>
 </attributes>
@@ -14701,6 +14826,9 @@ LilyPad 1206- DIO-09912&lt;br&gt;
 <part name="R6" library="resistor" deviceset="R-EU_" device="R0603" value="10k"/>
 <part name="+3V8" library="supply1" deviceset="+3V3" device=""/>
 <part name="GND10" library="supply1" deviceset="GND" device=""/>
+<part name="R11" library="resistor" deviceset="R-EU_" device="R0603" value="1.5k"/>
+<part name="ZQ1" library="cstce-resonator" deviceset="CSTC?" device="E" technology="8M00G52-R0"/>
+<part name="GND12" library="supply1" deviceset="GND" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -14796,6 +14924,12 @@ LilyPad 1206- DIO-09912&lt;br&gt;
 <instance part="R6" gate="G$1" x="-101.6" y="25.4" rot="R90"/>
 <instance part="+3V8" gate="G$1" x="-114.3" y="53.34"/>
 <instance part="GND10" gate="1" x="-109.22" y="17.78"/>
+<instance part="R11" gate="G$1" x="106.68" y="-149.86" rot="MR270"/>
+<instance part="ZQ1" gate="G$1" x="-83.82" y="25.4" smashed="yes">
+<attribute name="NAME" x="-101.6" y="11.43" size="1.778" layer="95"/>
+<attribute name="VALUE" x="-101.6" y="7.62" size="1.778" layer="96"/>
+</instance>
+<instance part="GND12" gate="1" x="-83.82" y="15.24"/>
 </instances>
 <busses>
 <bus name="TXD,RXD,RPM_IN,STARTER,THERM,OIL_PRES,MISO,MOSI,SCK,FLASH_CS,IGN_EN,V_SENSE,USB_DP,USB_DM,USB_VBUS,FLOW">
@@ -15002,6 +15136,10 @@ LilyPad 1206- DIO-09912&lt;br&gt;
 <wire x1="-109.22" y1="22.86" x2="-109.22" y2="20.32" width="0.1524" layer="91"/>
 <junction x="-109.22" y="20.32"/>
 <pinref part="GND10" gate="1" pin="GND"/>
+</segment>
+<segment>
+<pinref part="ZQ1" gate="G$1" pin="2"/>
+<pinref part="GND12" gate="1" pin="GND"/>
 </segment>
 </net>
 <net name="VBAT" class="0">
@@ -15558,6 +15696,24 @@ LilyPad 1206- DIO-09912&lt;br&gt;
 <pinref part="R6" gate="G$1" pin="2"/>
 <wire x1="-101.6" y1="30.48" x2="-101.6" y2="35.56" width="0.1524" layer="91"/>
 <junction x="-101.6" y="35.56"/>
+</segment>
+</net>
+<net name="OSC_OUT" class="0">
+<segment>
+<pinref part="DD4" gate="G$1" pin="PF1/OSC_OUT"/>
+<pinref part="ZQ1" gate="G$1" pin="3"/>
+<wire x1="-66.04" y1="25.4" x2="-76.2" y2="25.4" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="OSC_IN" class="0">
+<segment>
+<pinref part="DD4" gate="G$1" pin="PF0/OSC_IN"/>
+<wire x1="-66.04" y1="27.94" x2="-71.12" y2="27.94" width="0.1524" layer="91"/>
+<wire x1="-71.12" y1="27.94" x2="-71.12" y2="30.48" width="0.1524" layer="91"/>
+<wire x1="-71.12" y1="30.48" x2="-93.98" y2="30.48" width="0.1524" layer="91"/>
+<wire x1="-93.98" y1="30.48" x2="-93.98" y2="25.4" width="0.1524" layer="91"/>
+<pinref part="ZQ1" gate="G$1" pin="1"/>
+<wire x1="-93.98" y1="25.4" x2="-91.44" y2="25.4" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
