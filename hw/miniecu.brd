@@ -165,6 +165,8 @@ engine monitoring
 with kill switch</text>
 <text x="9.7" y="43.5" size="1.27" layer="121" font="vector" rot="R90">B0</text>
 <text x="9.7" y="46.5" size="1.27" layer="121" font="vector" rot="R90">RS</text>
+<text x="26.5" y="50" size="1.778" layer="112" font="vector" rot="R270">EXT</text>
+<text x="26.5" y="25" size="1.9304" layer="21" font="vector">SWD</text>
 </plain>
 <libraries>
 <library name="SparkFun-DigitalIC">
@@ -5396,7 +5398,7 @@ design rules under a new name.</description>
 <element name="LOGO2" library="SparkFun-Aesthetics" package="OSHW-LOGO-L" value="OSHW-LOGOL" x="28" y="11"/>
 <element name="LOGO1" library="miniecu" package="MINIECU_LOGO" value="MINIECU_LOGO" x="10" y="1.5"/>
 <element name="DD1" library="stm32f373" package="LQFP48" value="STM32F373C" x="26.5" y="34.5" smashed="yes" rot="R180">
-<attribute name="NAME" x="29.04" y="33.23" size="0.8128" layer="25" font="vector" rot="R180"/>
+<attribute name="NAME" x="23.04" y="31.23" size="0.8128" layer="25" font="vector" rot="R180"/>
 <attribute name="VALUE" x="29.04" y="35.77" size="1.27" layer="27" rot="R180"/>
 </element>
 <element name="C6" library="resistor" package="C0603" value="0.1" x="20" y="38" smashed="yes" rot="R90">
@@ -5417,7 +5419,7 @@ design rules under a new name.</description>
 </element>
 <element name="XP3" library="SparkFun-Connectors" package="USB-B-MICRO-SMD_V03" value="USB_MICROB_PLUGCONN-11752" x="36" y="2" smashed="yes" rot="R90">
 <attribute name="PROD_ID" value="CONN-11752" x="36" y="2" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="NAME" x="30.031" y="0.73" size="0.8128" layer="25" font="vector" rot="R90"/>
+<attribute name="NAME" x="31.031" y="3.23" size="0.8128" layer="25" font="vector" rot="R90"/>
 <attribute name="VALUE" x="30.539" y="0.73" size="0.4064" layer="27" rot="R90"/>
 </element>
 <element name="DA3" library="microbuilder" package="SOP8-1351" value="MP3V5004DP" x="44" y="17.5" smashed="yes" rot="R270">
@@ -5496,16 +5498,19 @@ design rules under a new name.</description>
 <attribute name="NAME" x="15" y="49" size="0.8128" layer="25" font="vector"/>
 <attribute name="VALUE" x="17.532" y="46.611" size="1.27" layer="27" rot="R90"/>
 </element>
-<element name="XP1" library="miniecu-con" package="1X04-1.27MM" value="SWD" x="31" y="28" rot="R180"/>
+<element name="XP1" library="miniecu-con" package="1X04-1.27MM" value="SWD" x="31" y="28" smashed="yes" rot="R180">
+<attribute name="NAME" x="32" y="30" size="0.8128" layer="25" font="vector" rot="R180"/>
+<attribute name="VALUE" x="31.508" y="29.651" size="0.4064" layer="27" rot="R180"/>
+</element>
 <element name="ZQ1" library="crystal" package="FC-12M" value="FC-12M" x="27.5" y="41.5" smashed="yes" rot="R180">
 <attribute name="NAME" x="29.5" y="40.5" size="0.8128" layer="25" font="vector" rot="R180"/>
 <attribute name="VALUE" x="28.525" y="43.65" size="1.27" layer="27" rot="R180"/>
 </element>
-<element name="C2" library="resistor" package="C0603" value="10p" x="30" y="42.5" smashed="yes" rot="R90">
+<element name="C2" library="resistor" package="C0603" value="6p" x="30" y="42.5" smashed="yes" rot="R90">
 <attribute name="NAME" x="32" y="41.5" size="0.8128" layer="25" font="vector" rot="R90"/>
 <attribute name="VALUE" x="32.032" y="41.611" size="1.27" layer="27" rot="R90"/>
 </element>
-<element name="C3" library="resistor" package="C0603" value="10p" x="27.5" y="43" smashed="yes">
+<element name="C3" library="resistor" package="C0603" value="6p" x="27.5" y="43" smashed="yes">
 <attribute name="NAME" x="26.5" y="43.5" size="0.8128" layer="25" font="vector"/>
 <attribute name="VALUE" x="26.611" y="40.968" size="1.27" layer="27"/>
 </element>

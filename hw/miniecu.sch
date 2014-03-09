@@ -15481,8 +15481,8 @@ Source: Epson Toyocom FC-12M.pdf</description>
 <part name="GND16" library="supply1" deviceset="GND" device=""/>
 <part name="+3V11" library="supply1" deviceset="+3V3" device=""/>
 <part name="ZQ1" library="crystal" deviceset="FC-12M" device=""/>
-<part name="C2" library="resistor" deviceset="C-EU" device="C0603" value="10p"/>
-<part name="C3" library="resistor" deviceset="C-EU" device="C0603" value="10p"/>
+<part name="C2" library="resistor" deviceset="C-EU" device="C0603" value="6p"/>
+<part name="C3" library="resistor" deviceset="C-EU" device="C0603" value="6p"/>
 <part name="GND17" library="supply1" deviceset="GND" device=""/>
 <part name="XP2" library="SparkFun-Connectors" deviceset="M05X2" device="NO_SILK"/>
 <part name="+3V8" library="supply1" deviceset="+3V3" device=""/>
