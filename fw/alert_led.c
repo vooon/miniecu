@@ -54,15 +54,23 @@ static bool _led_state = false;
 	LED_NORMAL_ON();						\
 }
 
-#elif defined(BOARD_ST_STM32VL_DISCOVERY)
+#elif defined(BOARD_MINIECU_V2)
 
-# define LED_ALL_OFF()
+# define LED_ALL_OFF() do { \
+	palClearPad(GPIOA_LED_R); \
+	palClearPad(GPIOA_LED_G); \
+} while (0)
 
-# define LED_FAIL_ON()
-# define LED_FAIL_TOGGLE()
+# define _LED_op_xy(op, ledop, ledoff) do { \
+	palClearPad(GPIOA, ledoff); \
+	pal ## op ## Pad(GPIOA, ledop); \
+} while (0)
 
-# define LED_NORMAL_ON()
-# define LED_NORMAL_TOGGLE()
+# define LED_FAIL_ON()		_LED_op_xy(Set, GPIOA_LED_R, GPIOA_LED_G)
+# define LED_FAIL_TOGGLE()	_LED_op_xy(Toggle, GPIOA_LED_R, GPIOA_LED_G)
+
+# define LED_NORMAL_ON()	_LED_op_xy(Set, GPIOA_LED_G, GPIOA_LED_R)
+# define LED_NORMAL_TOGGLE()	_LED_op_xy(Toggle, GPIOA_LED_G, GPIOA_LED_R)
 
 #else
 # error "unknown board"
@@ -115,7 +123,7 @@ THD_FUNCTION(th_led, arg ATTR_UNUSED)
 
 		case AL_NORMAL:
 			LED_NORMAL_TOGGLE();
-			chThdSleepMilliseconds(1000);
+			chThdSleepMilliseconds(500);
 			break;
 		}
 
