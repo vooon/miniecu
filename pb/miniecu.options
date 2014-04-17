@@ -3,5 +3,6 @@
 #
 # vim:set ft=proto et
 
-*.param_id      max_size:16
-*.value_string  max_size:16
+*.param_id              max_size:16
+*.ParamType.u_string    max_size:16
+*.StatusText.text       max_size:50

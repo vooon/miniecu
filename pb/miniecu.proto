@@ -14,6 +14,7 @@ enum MessageId {
 	PARAM_VALUE = 22;
 	LOG_REQUEST = 117;
 	LOG_ENTRY = 119;
+	STATUS_TEXT = 253;
 };
 
 //
@@ -22,7 +23,7 @@ enum MessageId {
 
 message BatteryStatus {
 	// Ignition battery voltage [10^-2 V]
-	required uint32 volatge = 1;
+	required uint32 voltage = 1;
 	// Ignition battery consumption [10^-2 A]
 	optional uint32 current = 2;
 	// Calculated battery remainning [10^-1 %]
@@ -35,7 +36,7 @@ message TemperatureStatus {
 	// Second temperature sensor (if oil pressure not used)
 	optional int32 engine2 = 2;
 	// Internal temperature [10^-2 degC]
-	optional int32 internal = 3;
+	required int32 ecu = 3;
 }
 
 // TODO: check it
@@ -46,10 +47,10 @@ message FuelFlowStatus {
 }
 
 message EngineTimerStatus {
-	// Total elapsed time in minuts
-	required uint32 elapsed_time = 1;
-	// Current powered timer
-	required uint32 current_timer = 2;
+	// Total elapsed time in seconds (I think 68 years is enougth)
+	required uint32 total_elapsed = 1;
+	// Current powered timer in seconds
+	required uint32 current_powered = 2;
 }
 
 message Status {
@@ -63,7 +64,7 @@ message Status {
 
 		ERROR = 128;
 		UNDERVOLTAGE = 256;
-		OVERCURRENT = 512;
+		OVERCURRENT = 512; // not implemented in hw_v2
 		OVERTEMP = 1024;
 		LOW_FUEL = 2048;
 	};
@@ -75,7 +76,7 @@ message Status {
 	// Bit flags from Flags
 	required uint32 status = 3;
 	// Current RPM
-	required uint32 RPM = 4;
+	required uint32 rpm = 4;
 	required BatteryStatus battery = 5;
 	required TemperatureStatus temperature = 6;
 	required EngineTimerStatus time = 7;
@@ -105,6 +106,10 @@ message Command {
 
 		// send after refueling
 		REFUEL_DONE = 20;
+
+		// config operations
+		SAVE_CONFIG = 30;
+		LOAD_CONFIG = 31;
 
 		// some magic commands
 		DO_ERASE_CONFIG = 13373550;
@@ -138,6 +143,24 @@ message TimeReference {
 //  inspired by MAVLink parameter protocol
 // @{
 
+// common type for value union
+message ParamType {
+	optional bool u_bool = 1;
+	optional int32 u_int32 = 2;
+	optional float u_float = 3;
+	optional string u_string = 4;
+}
+
+// internal storage type
+message ParamStorage {
+	required string param_id = 1;
+	required ParamType value = 2;
+}
+
+message ParamStorageArray {
+	repeated ParamStorage vars = 1;
+}
+
 // if param_id is not set: request list
 message ParamRequest {
 	required uint32 engine_id = 1;
@@ -147,10 +170,7 @@ message ParamRequest {
 message ParamSet {
 	required uint32 engine_id = 1;
 	required string param_id = 2;
-	optional bool value_bool = 3;
-	optional int32 value_int32 = 4;
-	optional float value_float = 5;
-	optional string value_string = 6;
+	required ParamType value = 3;
 }
 
 message ParamValue {
@@ -158,10 +178,7 @@ message ParamValue {
 	required string param_id = 2;
 	required uint32 param_index = 3;
 	required uint32 param_count = 4;
-	optional bool value_bool = 5;
-	optional int32 value_int32 = 6;
-	optional float value_float = 7;
-	optional string value_string = 8;
+	required ParamType value = 5;
 }
 
 // @}
@@ -178,19 +195,37 @@ message LogRequest {
 // Log entry message: used for communication
 // and storing on flash.
 message LogEntry {
-	required fixed32 engine_id = 1;
-	required fixed32 id = 2;
-	required fixed64 timestamp_ms = 3;
-	required bool is_localtime = 4;
-	required bool is_running = 5;
-	required bool warn_fuel = 6;
-	required bool warn_temp = 7;
-	required fixed32 engine_powered_time = 8;
-	required fixed32 batt_voltage = 9;
-	required fixed32 batt_remaining = 10;
-	required fixed32 temp_engine = 11;
-	required fixed32 temp_internal = 12;
-	required fixed32 fuel_remaining_ml = 13;
+	required uint32 engine_id = 1;
+	required uint32 id = 2;
+	required uint64 timestamp_ms = 3;
+	required uint32 status = 4;
+	required uint32 engine_powered_time = 5;
+	required uint32 batt_voltage = 6;
+	required int32 batt_remaining = 7;
+	required int32 temp_engine = 8;
+	required int32 temp_internal = 9;
+	required int32 fuel_remaining_ml = 10;
+}
+
+// @}
+
+//
+//! Additional messages
+// @{
+
+// Status text message (debug print)
+message StatusText {
+	enum Severity {
+		DEBUG = 0;
+		INFO = 1;
+		WARN = 2;
+		ERROR = 3;
+		FAILURE = 4;
+	};
+
+	required uint32 engine_id = 1;
+	required Severity severity = 2;
+	required string text = 3;
 }
 
 // @}
