@@ -43,9 +43,23 @@
 #endif
 
 #include "hal.h"
+#include "chprintf.h"
+#include "memstreams.h"
 
 #define ST2MS(st) (st * 1000 / OSAL_ST_FREQUENCY)
 
 #define ATTR_UNUSED __attribute__((unused))
+
+/* NOTE same as in miniecu.proto */
+enum severity {
+	DP_DEBUG = 0,
+	DP_INFO,
+	DP_WARN,
+	DP_ERROR,
+	DP_FAIL
+};
+
+void debug_printf(enum severity severity, char *fmt, ...)
+	__attribute__((format (printf, 2, 3)));
 
 #endif /* FW_COMMON_H */

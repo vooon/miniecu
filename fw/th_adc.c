@@ -129,10 +129,10 @@ static const ADCConversionGroup sdadc3group = {
 THD_FUNCTION(th_adc, arg ATTR_UNUSED)
 {
 	/* ADC1 */
-	//adcStart(&ADCD1, NULL);
-	//adcSTM32Calibrate(&ADCD1);
-	//adcSTM32EnableTSVREFE(); /* enable sensor */
-	//adcSTM32EnableVBATE(); /* enable Vrtc bat */
+	adcStart(&ADCD1, NULL);
+	adcSTM32Calibrate(&ADCD1);
+	adcSTM32EnableTSVREFE(); /* enable sensor */
+	adcSTM32EnableVBATE(); /* enable Vrtc bat */
 
 	/* SDADC1 */
 	//adcStart(&SDADCD1, &sdadc1cfg);
@@ -151,7 +151,8 @@ THD_FUNCTION(th_adc, arg ATTR_UNUSED)
 	alert_component(ALS_ADC, AL_NORMAL);
 
 	while (true) {
-		chThdSleepMilliseconds(100);
+		chThdSleepMilliseconds(1100);
+		debug_printf(DP_DEBUG, "ADC value: %d", 10);
 	}
 }
 

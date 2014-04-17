@@ -90,7 +90,9 @@ CSRC = $(PORTSRC) \
        $(BOARDSRC) \
        $(NANOPBSRC) \
        $(FLASH25SRC) \
-       $(FWSRC)
+       $(FWSRC) \
+       $(CHIBIOS)/os/various/chprintf.c \
+       $(CHIBIOS)/os/various/memstreams.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.

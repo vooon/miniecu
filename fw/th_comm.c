@@ -26,7 +26,6 @@
 #include "pb_encode.h"
 #include "pb_decode.h"
 
-
 /* Thread */
 static void send_status(void);
 static void recv_time_reference(uint8_t msg_len);
@@ -81,6 +80,44 @@ THD_FUNCTION(th_comm, arg ATTR_UNUSED)
 			}
 		}
 	}
+}
+
+/**
+ * @brief Send STATUS_TEXT message
+ * @param severity message level
+ * @param fmt formatting string @a chprintf()
+ *
+ * NOTE: baed on @a chsnprintf()
+ */
+void debug_printf(enum severity severity, char *fmt, ...)
+{
+	va_list ap;
+	MemoryStream ms;
+	BaseSequentialStream *chp;
+	uint8_t local_msg_buf[68];
+	pb_ostream_t outstream = pb_ostream_from_buffer(local_msg_buf,
+			sizeof(local_msg_buf));
+	miniecu_StatusText st;
+
+	msObjectInit(&ms, (uint8_t *)st.text, sizeof(st.text), 0);
+	chp = (BaseSequentialStream *)&ms;
+
+	st.engine_id = 1; // TODO
+	st.severity = severity;
+	va_start(ap, fmt);
+	chvprintf(chp, fmt, ap);
+	va_end(ap);
+
+	/* final zero */
+	chSequentialStreamPut(chp, 0);
+
+	if (!pb_encode(&outstream, miniecu_StatusText_fields, &st)) {
+		alert_component(ALS_COMM, AL_FAIL);
+		return;
+	}
+
+	pbstx_send(miniecu_MessageId_STATUS_TEXT,
+			local_msg_buf, outstream.bytes_written);
 }
 
 static void send_status(void)
