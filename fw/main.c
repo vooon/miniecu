@@ -16,10 +16,12 @@
 
 #include "fw_common.h"
 #include "th_comm.h"
+#include "th_adc.h"
 #include "alert_led.h"
 
 static THD_WORKING_AREA(wa_comm, 512);
 static THD_WORKING_AREA(wa_led, 128);
+static THD_WORKING_AREA(wa_adc, 256);
 
 #ifdef USE_NIL_KERNEL
 /*
@@ -28,6 +30,7 @@ static THD_WORKING_AREA(wa_led, 128);
  */
 THD_TABLE_BEGIN
   THD_TABLE_ENTRY(wa_comm, "comm", th_comm, NULL)
+  THD_TABLE_ENTRY(wa_adc, "adc", th_adc, NULL)
   THD_TABLE_ENTRY(wa_led, "led", th_led, NULL)
   //THD_TABLE_ENTRY(waThread3, "hello", Thread3, NULL)
 THD_TABLE_END
@@ -53,6 +56,7 @@ int main(void) {
 #ifdef USE_RT_KERNEL
 	chThdCreateStatic(wa_led, sizeof(wa_led), LOWPRIO, th_led, NULL);
 	chThdCreateStatic(wa_comm, sizeof(wa_comm), NORMALPRIO, th_comm, NULL);
+	chThdCreateStatic(wa_adc, sizeof(wa_adc), NORMALPRIO, th_adc, NULL);
 
 	/* we use main thread as idle */
 	chThdSetPriority(IDLEPRIO);

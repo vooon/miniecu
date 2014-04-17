@@ -118,7 +118,7 @@ THD_FUNCTION(th_led, arg ATTR_UNUSED)
 
 		case AL_FAIL:
 			LED_FAIL_ON();
-			chThdSleepMilliseconds(250);
+			chThdSleepMilliseconds(500);
 			break;
 
 		case AL_NORMAL:

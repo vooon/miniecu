@@ -98,6 +98,9 @@ static void send_status(void)
 		alert_component(ALS_COMM, AL_FAIL);
 		return;
 	}
+	else {
+		alert_component(ALS_COMM, AL_NORMAL);
+	}
 
 	pbstx_send(miniecu_MessageId_STATUS,
 			msg_buf, outstream.bytes_written);
