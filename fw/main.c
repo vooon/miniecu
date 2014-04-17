@@ -21,20 +21,7 @@
 
 static THD_WORKING_AREA(wa_comm, 512);
 static THD_WORKING_AREA(wa_led, 128);
-static THD_WORKING_AREA(wa_adc, 256);
-
-#ifdef USE_NIL_KERNEL
-/*
- * Threads static table, one entry per thread. The number of entries must
- * match NIL_CFG_NUM_THREADS.
- */
-THD_TABLE_BEGIN
-  THD_TABLE_ENTRY(wa_comm, "comm", th_comm, NULL)
-  THD_TABLE_ENTRY(wa_adc, "adc", th_adc, NULL)
-  THD_TABLE_ENTRY(wa_led, "led", th_led, NULL)
-  //THD_TABLE_ENTRY(waThread3, "hello", Thread3, NULL)
-THD_TABLE_END
-#endif /* USE_NIL_KERNEL */
+static THD_WORKING_AREA(wa_adc, 512);
 
 /*
  * Application entry point.
@@ -52,15 +39,14 @@ int main(void) {
 	chSysInit();
 
 	sdStart(&PBSTX_SD, NULL);
+	alert_init();
 
-#ifdef USE_RT_KERNEL
 	chThdCreateStatic(wa_led, sizeof(wa_led), LOWPRIO, th_led, NULL);
 	chThdCreateStatic(wa_comm, sizeof(wa_comm), NORMALPRIO, th_comm, NULL);
 	chThdCreateStatic(wa_adc, sizeof(wa_adc), NORMALPRIO, th_adc, NULL);
 
 	/* we use main thread as idle */
 	chThdSetPriority(IDLEPRIO);
-#endif /* USE_RT_KERNEL */
 
 	/* This is now the idle thread loop, you may perform here a low priority
 	   task but you must never try to sleep or wait in this loop. Note that

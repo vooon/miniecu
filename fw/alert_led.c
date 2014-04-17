@@ -76,16 +76,6 @@ static bool _led_state = false;
 # error "unknown board"
 #endif
 
-
-/* local functions */
-static void alert_init(void)
-{
-	for (int i = 0; i < ALS_MAX; i++)
-		al_status[i] = AL_INIT;
-
-	LED_FAIL_ON();
-}
-
 /* public interface */
 
 void alert_component(enum alert_source src, enum alert_status st)
@@ -96,10 +86,18 @@ void alert_component(enum alert_source src, enum alert_status st)
 	/* TODO: signall led thread */
 }
 
+void alert_init(void)
+{
+	for (int i = 0; i < ALS_MAX; i++)
+		al_status[i] = AL_INIT;
+
+	LED_FAIL_ON();
+}
+
 /* local functions */
 THD_FUNCTION(th_led, arg ATTR_UNUSED)
 {
-	alert_init();
+	//alert_init();
 
 	while (true) {
 		enum alert_status st = AL_NORMAL;

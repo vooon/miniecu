@@ -39,6 +39,7 @@ enum alert_source {
 };
 
 THD_FUNCTION(th_led, arg ATTR_UNUSED);
+void alert_init(void);
 void alert_component(enum alert_source src, enum alert_status st);
 
 #endif /* ALERT_LED_H */
