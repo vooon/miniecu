@@ -242,7 +242,7 @@
                                      PIN_OSPEED_100M(GPIOA_SWDIO) |         \
                                      PIN_OSPEED_100M(GPIOA_SWCLK) |         \
                                      PIN_OSPEED_2M(GPIOA_PIN15))
-#define VAL_GPIOA_PUPDR             (PIN_PUPDR_PULLUP(GPIOA_RPM_IN) |       \
+#define VAL_GPIOA_PUPDR             (PIN_PUPDR_PULLDOWN(GPIOA_RPM_IN) |     \
                                      PIN_PUPDR_PULLUP(GPIOA_XP2_PA1) |      \
                                      PIN_PUPDR_PULLUP(GPIOA_XP2_PA2) |      \
                                      PIN_PUPDR_FLOATING(GPIOA_LED_R) |      \
@@ -251,8 +251,8 @@
                                      PIN_PUPDR_PULLUP(GPIOA_PIN6) |         \
                                      PIN_PUPDR_PULLUP(GPIOA_PIN7) |         \
                                      PIN_PUPDR_PULLUP(GPIOA_PIN8) |         \
-                                     PIN_PUPDR_PULLUP(GPIOA_USART1_TX) |    \
-                                     PIN_PUPDR_PULLUP(GPIOA_USART1_RX) |    \
+                                     PIN_PUPDR_FLOATING(GPIOA_USART1_TX) |  \
+                                     PIN_PUPDR_FLOATING(GPIOA_USART1_RX) |  \
                                      PIN_PUPDR_FLOATING(GPIOA_USB_DM) |     \
                                      PIN_PUPDR_FLOATING(GPIOA_USB_DP) |     \
                                      PIN_PUPDR_PULLUP(GPIOA_SWDIO) |        \
@@ -262,7 +262,7 @@
                                      PIN_ODR_HIGH(GPIOA_XP2_PA1) |          \
                                      PIN_ODR_HIGH(GPIOA_XP2_PA2) |          \
                                      PIN_ODR_HIGH(GPIOA_LED_R) |            \
-                                     PIN_ODR_HIGH(GPIOA_LED_G) |            \
+                                     PIN_ODR_LOW(GPIOA_LED_G) |             \
                                      PIN_ODR_HIGH(GPIOA_PIN5) |             \
                                      PIN_ODR_HIGH(GPIOA_PIN6) |             \
                                      PIN_ODR_HIGH(GPIOA_PIN7) |             \
@@ -474,7 +474,7 @@
                                      PIN_OSPEED_2M(GPIOC_PIN11) |           \
                                      PIN_OSPEED_2M(GPIOC_PIN12) |           \
                                      PIN_OSPEED_2M(GPIOC_XP2_PC13) |        \
-                                     PIN_OSPEED_100M(GPIOC_OSC32_IN) |       \
+                                     PIN_OSPEED_100M(GPIOC_OSC32_IN) |      \
                                      PIN_OSPEED_100M(GPIOC_OSC32_OUT))
 #define VAL_GPIOC_PUPDR             (PIN_PUPDR_PULLUP(GPIOC_PIN0) |         \
                                      PIN_PUPDR_PULLUP(GPIOC_PIN1) |         \
@@ -670,8 +670,8 @@
                                      PIN_MODE_INPUT(GPIOE_PIN5) |           \
                                      PIN_MODE_INPUT(GPIOE_PIN6) |           \
                                      PIN_MODE_INPUT(GPIOE_PIN7) |           \
-                                     PIN_MODE_INPUT(GPIOE_STARTER) |        \
-                                     PIN_MODE_INPUT(GPIOE_IGN_EN) |         \
+                                     PIN_MODE_OUTPUT(GPIOE_STARTER) |       \
+                                     PIN_MODE_OUTPUT(GPIOE_IGN_EN) |        \
                                      PIN_MODE_INPUT(GPIOE_PIN10) |          \
                                      PIN_MODE_INPUT(GPIOE_PIN11) |          \
                                      PIN_MODE_INPUT(GPIOE_PIN12) |          \
