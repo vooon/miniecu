@@ -256,7 +256,7 @@
                                      PIN_PUPDR_FLOATING(GPIOA_USB_DM) |     \
                                      PIN_PUPDR_FLOATING(GPIOA_USB_DP) |     \
                                      PIN_PUPDR_PULLUP(GPIOA_SWDIO) |        \
-                                     PIN_PUPDR_PULLUP(GPIOA_SWCLK) |        \
+                                     PIN_PUPDR_PULLDOWN(GPIOA_SWCLK) |      \
                                      PIN_PUPDR_PULLUP(GPIOA_PIN15))
 #define VAL_GPIOA_ODR               (PIN_ODR_HIGH(GPIOA_RPM_IN) |           \
                                      PIN_ODR_HIGH(GPIOA_XP2_PA1) |          \

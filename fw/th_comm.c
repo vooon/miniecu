@@ -37,7 +37,7 @@ static void recv_log_request(uint8_t msg_len);
 /* Local varables */
 static uint8_t msg_buf[256];
 
-#define STATUS_TIMEOUT	MS2ST(1000) // TODO: make it settable
+#define STATUS_TIMEOUT	MS2ST(10000) // TODO: make it settable
 
 
 THD_FUNCTION(th_comm, arg ATTR_UNUSED)
