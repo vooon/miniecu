@@ -22,49 +22,105 @@
 
 #include "alert_led.h"
 #include "th_adc.h"
-#include "moving_average.h"
 
 #ifndef BOARD_MINIECU_V2
 # error "unsupported board"
 #endif
 
+/* -*- global parameters -*- */
+
+float g_vbat_vd1_voltage_drop = 0.450; // [V]
+
 /* -*- private vars -*- */
 
-static adcsample_t int_term_vrtc_samples[2];
-static adcsample_t term_oilp_vbat_samples[3];
-static adcsample_t flow_samples[1];
+static adcsample_t p_int_temp_vrtc_samples[2];
+static adcsample_t p_temp_oilp_vbat_samples[3];
+static adcsample_t p_flow_samples[1];
 
-STATIC_SMA_BUFFER_DECL(m_int_term, 4);
-STATIC_SMA_BUFFER_DECL(m_vrtc, 4);
-STATIC_SMA_BUFFER_DECL(m_term, 4);
-STATIC_SMA_BUFFER_DECL(m_oilp, 4);
-STATIC_SMA_BUFFER_DECL(m_vbat, 4);
-STATIC_SMA_BUFFER_DECL(m_flow, 4);
+static float m_int_temp;	// [C°]
+static float m_vrtc;		// [V]
+static float m_temp_volt;	// [V] before conversion to temp
+static float m_oilp_volt;	// [V] raw voltage on OIL_P
+static float m_vbat;		// [V]
+static float m_flow_volt;	// [V] before conversion to FLOW
+
+static Thread *thdp_adc = NULL;
+#define EVT_TIMEOUT	MS2ST(1000)
+#define ADC1_EVMASK	EVENT_MASK(1)
+#define SDADC1_EVMASK	EVENT_MASK(2)
+#define SDADC3_EVMASK	EVENT_MASK(3)
+
+/* -*- conversion functions -*- */
+
+#define ADC_VREF	3.3
+#define SDADC_VREF	3.3
+#define SDADC_GAIN	1
+/* given in DM00046749.pdf table 66. */
+#define TEMP_V25	1.43	/* [V] */
+#define TEMP_AVG_SLOPE	4.3	/* [mV/C°] */
+
+/** convert sample to voltage (ADC)
+ */
+static float adc_to_voltage(adcsample_t adc)
+{
+	return ADC_VREF * adc / ((1 << 12) - 1);
+}
+
+static float adc_to_int_temp(adcsample_t adc)
+{
+	float temp_voltage = adc_to_voltage(adc);
+	return (TEMP_V25 - temp_voltage) * 1000. / TEMP_AVG_SLOPE + 25.;
+}
+
+/** convert sample to voltage (SDADC in SE Zero)
+ * @note see @a DM0007480.pdf Application Note
+ */
+static float sdadc_sez_to_voltage(adcsample_t adc)
+{
+	return (((int16_t) adc) + 32767) * SDADC_VREF / (SDADC_GAIN * 65535);
+}
 
 /* -*- private functions -*- */
 
-static void adc_int_term_vrtc_cb(ADCDriver *adcp ATTR_UNUSED,
+static void adc_int_temp_vrtc_cb(ADCDriver *adcp ATTR_UNUSED,
 		adcsample_t *buffer, size_t n ATTR_UNUSED)
 {
-	//sma_insert(&m_int_term, buffer[0]);
-	//sma_insert(&m_vrtc, buffer[1]);
-	/* TODO: send event */
+	m_int_temp = adc_to_int_temp(buffer[0]);
+	m_vrtc = 2 * adc_to_voltage(buffer[1]);
+
+	if (thdp_adc != NULL) {
+		chSysLockFromIsr();
+		chEvtSignalI(thdp_adc, ADC1_EVMASK);
+		chSysUnlockFromIsr();
+	}
 }
 
-static void adc_term_oilp_vbat_cb(ADCDriver *adcp ATTR_UNUSED,
+static void adc_temp_oilp_vbat_cb(ADCDriver *adcp ATTR_UNUSED,
 		adcsample_t *buffer, size_t n ATTR_UNUSED)
 {
-	//sma_insert(&m_vbat, buffer[0]);	// AIN4P
-	//sma_insert(&m_oilp, buffer[1]);	// AIN5P
-	//sma_insert(&m_term, buffer[2]);	// AIN6P
-	/* SAME */
+	// note: Vbat source after VD1, we add voltage drop
+	m_vbat = g_vbat_vd1_voltage_drop +
+		3 * sdadc_sez_to_voltage(buffer[0]);	// AIN4P
+	m_oilp_volt = sdadc_sez_to_voltage(buffer[1]);	// AIN5P
+	m_temp_volt = sdadc_sez_to_voltage(buffer[2]);	// AIN6P
+
+	if (thdp_adc != NULL) {
+		chSysLockFromIsr();
+		chEvtSignalI(thdp_adc, SDADC1_EVMASK);
+		chSysUnlockFromIsr();
+	}
 }
 
 static void adc_flow_cb(ADCDriver *adcp ATTR_UNUSED,
 		adcsample_t *buffer, size_t n ATTR_UNUSED)
 {
-	//sma_insert(&m_flow, buffer[0]);	// AIN6P
-	/* same... */
+	m_flow_volt = sdadc_sez_to_voltage(buffer[0]);	// AIN6P
+
+	if (thdp_adc != NULL) {
+		chSysLockFromIsr();
+		chEvtSignalI(thdp_adc, SDADC3_EVMASK);
+		chSysUnlockFromIsr();
+	}
 }
 
 static void adc_error_cb(ADCDriver *adcd ATTR_UNUSED, adcerror_t err ATTR_UNUSED)
@@ -78,7 +134,7 @@ static void adc_error_cb(ADCDriver *adcd ATTR_UNUSED, adcerror_t err ATTR_UNUSED
 static const ADCConversionGroup adc1group = {
 	.circular = TRUE,
 	.num_channels = 2,
-	.end_cb = adc_int_term_vrtc_cb,
+	.end_cb = adc_int_temp_vrtc_cb,
 	.error_cb = adc_error_cb,
 	.u.adc = {
 		.cr1 = 0,
@@ -86,8 +142,8 @@ static const ADCConversionGroup adc1group = {
 		.ltr = 0,
 		.htr = 0,
 		.smpr = {
-			ADC_SMPR1_SMP_SENSOR(ADC_SAMPLE_41P5) |
-				ADC_SMPR1_SMP_VBAT(ADC_SAMPLE_41P5),
+			ADC_SMPR1_SMP_SENSOR(ADC_SAMPLE_239P5) |
+				ADC_SMPR1_SMP_VBAT(ADC_SAMPLE_239P5),
 			0
 		},
 		.sqr = {
@@ -112,7 +168,7 @@ static const ADCConfig sdadc1cfg = {
 static const ADCConversionGroup sdadc1group = {
 	.circular = TRUE,
 	.num_channels = 3,
-	.end_cb = adc_term_oilp_vbat_cb,
+	.end_cb = adc_temp_oilp_vbat_cb,
 	.error_cb = adc_error_cb,
 	.u.sdadc = {
 		.cr2 = SDADC_CR2_JSWSTART,
@@ -154,39 +210,11 @@ static const ADCConversionGroup sdadc3group = {
 
 /* -*- module thread -*- */
 
-/** helper function: convert average to voltage (ADC) */
-static float sma_get_adc_voltage(struct sma_buffer *obj)
-{
-	return 3.3 * sma_get(obj) / ((1 << 12) - 1);
-}
-
-/** helper function: convert average to voltage (SDADC in SE Zero)
- * @note see @a DM0007480.pdf Application Note
- */
-static float sma_get_sdadc_voltage(struct sma_buffer *obj)
-{
-	int16_t sdadc_val = (int16_t) sma_get(obj);
-	return (sdadc_val + 32767) * 3.3 / (1 * 65535); // for GAIN = 1
-}
-
-static float get_internal_temp(void)
-{
-	/* TODO: use TS_CAL? */
-	/* given in DM00046749.pdf table 66. */
-#define STM32_TEMP_V25		1.43	/* [V] */
-#define STM32_TEMP_AVG_SLOPE	4.3	/* [mV/C°] */
-
-	float temp_voltage = sma_get_adc_voltage(&m_int_term);
-	return (STM32_TEMP_V25 - temp_voltage) * 1000. / STM32_TEMP_AVG_SLOPE + 25.;
-}
-
-static int get_v(adcsample_t adc)
-{
-	return (((int16_t) adc) + 32767) * 3.3 / (1 * 65535) * 1000;
-}
-
 THD_FUNCTION(th_adc, arg ATTR_UNUSED)
 {
+	/* set listening thread */
+	thdp_adc = currp;
+
 	/* ADC1 */
 	adcStart(&ADCD1, NULL);
 	adcSTM32Calibrate(&ADCD1);
@@ -202,28 +230,36 @@ THD_FUNCTION(th_adc, arg ATTR_UNUSED)
 	adcSTM32Calibrate(&SDADCD3);
 
 	/* Start continous conversions */
-	adcStartConversion(&ADCD1, &adc1group, int_term_vrtc_samples, 1);
-	adcStartConversion(&SDADCD1, &sdadc1group, term_oilp_vbat_samples, 1);
-	adcStartConversion(&SDADCD3, &sdadc3group, flow_samples, 1);
+	adcStartConversion(&ADCD1, &adc1group, p_int_temp_vrtc_samples, 1);
+	adcStartConversion(&SDADCD1, &sdadc1group, p_temp_oilp_vbat_samples, 1);
+	adcStartConversion(&SDADCD3, &sdadc3group, p_flow_samples, 1);
 
 	while (true) {
+		eventmask_t mask = chEvtWaitAnyTimeout(ALL_EVENTS, EVT_TIMEOUT);
+
+		if (!(mask & (ADC1_EVMASK | SDADC1_EVMASK | SDADC3_EVMASK))) {
+			/* notify ADC timed out */
+			alert_component(ALS_ADC, AL_FAIL);
+		}
+		else {
+			/* notify ADC running */
+			alert_component(ALS_ADC, AL_NORMAL);
+		}
+
+		if (mask & ADC1_EVMASK) {
+			debug_printf(DP_INFO, "ECU Temp: %3d", (int)(m_int_temp * 1000));
+			debug_printf(DP_DEBUG, "V_rtc: %3d", (int)(m_vrtc * 1000));
+		}
+		if (mask & SDADC1_EVMASK) {
+			debug_printf(DP_INFO, "V_bat: %3d", (int)(m_vbat * 1000));
+			debug_printf(DP_DEBUG, "Temp V: %3d", (int)(m_temp_volt * 1000));
+			debug_printf(DP_DEBUG, "Oilp V: %3d", (int)(m_oilp_volt * 1000));
+		}
+		if (mask & SDADC3_EVMASK) {
+			debug_printf(DP_DEBUG, "Flow V: %3d", (int)(m_flow_volt * 1000));
+		}
+
 		chThdSleepMilliseconds(1000);
-		//debug_printf(DP_INFO, "temperature: %3d V_rtc: %3d",
-		//		(int)(get_internal_temp() * 1000),
-		//		(int)(sma_get_adc_voltage(&m_vrtc) * 1000 * 2));
-		//debug_printf(DP_INFO, "V_bat: %d", (int)(sma_get_sdadc_voltage(&m_vbat) * 1000));
-		//debug_printf(DP_INFO, "term: %d", (int)(sma_get_sdadc_voltage(&m_term) * 1000));
-		//debug_printf(DP_INFO, "oilp: %d", (int)(sma_get_sdadc_voltage(&m_oilp) * 1000));
-		//debug_printf(DP_INFO, "flow: %d", (int)(sma_get_sdadc_voltage(&m_flow) * 1000));
-
-		debug_printf(DP_INFO, "raw_v: %6d %6d %6d %6d",
-				get_v(term_oilp_vbat_samples[0]),
-				get_v(term_oilp_vbat_samples[1]),
-				get_v(term_oilp_vbat_samples[2]),
-				get_v(flow_samples[0]));
-
-		/* notify ADC running */
-		alert_component(ALS_ADC, AL_NORMAL);
 	}
 }
 

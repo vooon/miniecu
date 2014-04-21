@@ -4,8 +4,7 @@ FWSRC = ${MINIECU}/fw/main.c \
 	${MINIECU}/fw/pbstx.c \
 	${MINIECU}/fw/alert_led.c \
 	${MINIECU}/fw/th_comm.c \
-	${MINIECU}/fw/th_adc.c \
-	${MINIECU}/fw/moving_average.c
+	${MINIECU}/fw/th_adc.c
 
 # Required include directories
 FWINC = ${MINIECU}/fw
