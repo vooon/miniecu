@@ -247,19 +247,19 @@ THD_FUNCTION(th_adc, arg ATTR_UNUSED)
 		}
 
 		if (mask & ADC1_EVMASK) {
-			debug_printf(DP_INFO, "ECU Temp: %3d", (int)(m_int_temp * 1000));
-			debug_printf(DP_DEBUG, "V_rtc: %3d", (int)(m_vrtc * 1000));
+			//debug_printf(DP_INFO, "ECU Temp: %3d", (int)(m_int_temp * 1000));
+			//debug_printf(DP_DEBUG, "V_rtc: %3d", (int)(m_vrtc * 1000));
 		}
 		if (mask & SDADC1_EVMASK) {
-			debug_printf(DP_INFO, "V_bat: %3d", (int)(m_vbat * 1000));
-			debug_printf(DP_DEBUG, "Temp V: %3d", (int)(m_temp_volt * 1000));
-			debug_printf(DP_DEBUG, "Oilp V: %3d", (int)(m_oilp_volt * 1000));
+			//debug_printf(DP_INFO, "V_bat: %3d", (int)(m_vbat * 1000));
+			//debug_printf(DP_DEBUG, "Temp V: %3d", (int)(m_temp_volt * 1000));
+			//debug_printf(DP_DEBUG, "Oilp V: %3d", (int)(m_oilp_volt * 1000));
 		}
 		if (mask & SDADC3_EVMASK) {
-			debug_printf(DP_DEBUG, "Flow V: %3d", (int)(m_flow_volt * 1000));
+			//debug_printf(DP_DEBUG, "Flow V: %3d", (int)(m_flow_volt * 1000));
 		}
 
-		chThdSleepMilliseconds(1000);
+		//chThdSleepMilliseconds(1000);
 	}
 }
 

@@ -48,7 +48,60 @@ static void _pr_set(const struct param_entry *obj, void *val)
 	};
 }
 
-static const struct param_entry *_pt_find(const char *id, size_t *idx)
+static msg_t _pr_set_bool(const struct param_entry *obj, miniecu_ParamType *value)
+{
+	if (value->has_u_bool) {
+		_pr_set(obj, &value->u_bool);
+		return PARAM_OK;
+	}
+	else if (value->has_u_int32) {
+		bool b_val = value->u_int32 != 0;
+		_pr_set(obj, &b_val);
+		return PARAM_OK;
+	}
+
+	return PARAM_ETYPE;
+}
+
+static msg_t _pr_set_int32(const struct param_entry *obj, miniecu_ParamType *value)
+{
+	if (value->has_u_int32) {
+		if (obj->min.i > value->u_int32 || value->u_int32 > obj->max.i)
+			return PARAM_LIMIT;
+
+		_pr_set(obj, &value->u_int32);
+		return PARAM_OK;
+	}
+
+	return PARAM_ETYPE;
+}
+
+static msg_t _pr_set_float(const struct param_entry *obj, miniecu_ParamType *value)
+{
+	if (value->has_u_float) {
+		if (obj->min.f > value->u_float || value->u_float > obj->max.f)
+			return PARAM_LIMIT;
+
+		_pr_set(obj, &value->u_float);
+		return PARAM_OK;
+	}
+
+	return PARAM_ETYPE;
+
+}
+
+static msg_t _pr_set_string(const struct param_entry *obj, miniecu_ParamType *value)
+{
+	if (value->has_u_string) {
+		_pr_set(obj, &value->u_string);
+		return PARAM_OK;
+	}
+
+	return PARAM_ETYPE;
+
+}
+
+static const struct param_entry *_prt_find(const char *id, size_t *idx)
 {
 	const struct param_entry *p = parameter_table;
 	*idx = 0;
@@ -97,31 +150,61 @@ static void _pr_set_ParamType(miniecu_ParamType *value, const struct param_entry
 
 /* -*- global -*- */
 
-msg_t param_set(const char *id, const miniecu_ParamType *value)
+msg_t param_set(const char *id, miniecu_ParamType *value)
 {
-	return MSG_OK;
+	msg_t ret;
+	size_t idx;
+	const struct param_entry *p = _prt_find(id, &idx);
+
+	if (p == NULL)
+		return PARAM_NOTEXIST;
+
+	switch (p->type) {
+	case PT_BOOL:
+		ret = _pr_set_bool(p, value);
+		break;
+	case PT_INT32:
+		ret = _pr_set_int32(p, value);
+		break;
+	case PT_FLOAT:
+		ret = _pr_set_float(p, value);
+		break;
+	case PT_STRING:
+		ret = _pr_set_string(p, value);
+		break;
+	}
+
+	if (ret == PARAM_OK && p->change_cb != NULL)
+		p->change_cb(p);
+
+	if (ret == PARAM_ETYPE)
+		debug_printf(DP_ERROR, "wrong type: %s", p->id);
+	else if (ret == PARAM_LIMIT)
+		debug_printf(DP_ERROR, "out of range: %s", p->id);
+
+	return ret;
 }
 
 msg_t param_get(const char *id, miniecu_ParamType *value, size_t *idx)
 {
-	const struct param_entry *p = _pt_find(id, idx);
+	const struct param_entry *p = _prt_find(id, idx);
 
 	if (p == NULL)
-		return MSG_RESET;
+		return PARAM_NOTEXIST;
 
 	_pr_set_ParamType(value, p);
-	return MSG_OK;
+	return PARAM_OK;
 }
 
 msg_t param_get_by_idx(size_t idx, char *id, miniecu_ParamType *value)
 {
 	if (idx >= ARRAY_SIZE(parameter_table))
-		return MSG_RESET;
+		return PARAM_NOTEXIST;
 
 	strncpy(id, parameter_table[idx].id, PT_ID_SIZE);
 	_pr_set_ParamType(value, &parameter_table[idx]);
 
-	return MSG_OK;
+	return PARAM_OK;
 }
 
 size_t param_count(void)

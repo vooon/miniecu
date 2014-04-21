@@ -16,7 +16,7 @@ static const struct param_entry parameter_table[] = {
 	PARAM_STRING("ENGINE_NAME", l_engine_name, "mfg & name", NULL),
 	PARAM_STRING("ENGINE_SERIAL", l_engine_serial_no, "serial no", NULL),
 	PARAM_STRING("ECU_SERIAL", l_ecu_serial_no, "TBD", NULL), // TODO make it read only
-	PARAM_INT32("ENGINE_ID", g_engine_id, 1, 0, 255, NULL),
+	PARAM_INT32("ENGINE_ID", g_engine_id, 1, 1, 255, NULL),
 	PARAM_INT32("SERIAL1_BAUD", g_serial_baud, 57600, 9600, 115200, on_serial1_change),
 	PARAM_FLOAT("VBAT_VD1_VD", g_vbat_vd1_voltage_drop, 0.450, 0.0, 1.0, NULL)
 };

@@ -222,8 +222,14 @@ static void recv_param_request(uint8_t msg_len)
 		return;
 	}
 
+	/* we answer to broadcast reqest too */
+	if (param_req.engine_id != (unsigned)g_engine_id &&
+			param_req.engine_id != 0)
+		return;
+
 	if (param_req.has_param_id) {
-		if (param_get(param_req.param_id, &param_value.value, &idx) != MSG_OK)
+		/* request one param */
+		if (param_get(param_req.param_id, &param_value.value, &idx) != PARAM_OK)
 			return;
 
 		param_value.engine_id = g_engine_id;
@@ -234,8 +240,9 @@ static void recv_param_request(uint8_t msg_len)
 		send_param_value(&param_value);
 	}
 	else {
+		/* request all */
 		for (idx = 0; idx < count; idx++) {
-			if (param_get_by_idx(idx, param_value.param_id, &param_value.value) != MSG_OK)
+			if (param_get_by_idx(idx, param_value.param_id, &param_value.value) != PARAM_OK)
 				continue;
 
 			param_value.engine_id = g_engine_id;
@@ -250,14 +257,31 @@ static void recv_param_request(uint8_t msg_len)
 static void recv_param_set(uint8_t msg_len)
 {
 	pb_istream_t instream = pb_istream_from_buffer(msg_buf, msg_len);
-	miniecu_ParamSet param_set;
+	miniecu_ParamSet _param_set;
+	miniecu_ParamValue param_value;
+	size_t idx, count = param_count();
 
-	if (!pb_decode(&instream, miniecu_ParamSet_fields, &param_set)) {
+	if (!pb_decode(&instream, miniecu_ParamSet_fields, &_param_set)) {
 		alert_component(ALS_COMM, AL_FAIL);
 		return;
 	}
 
-	/* TODO */
+	if (_param_set.engine_id != (unsigned)g_engine_id)
+		return;
+
+	msg_t ret = param_set(_param_set.param_id, &_param_set.value);
+	if (ret != PARAM_OK && ret != PARAM_LIMIT)
+		return;
+
+	if (param_get(_param_set.param_id, &param_value.value, &idx) != PARAM_OK)
+		return;
+
+	param_value.engine_id = g_engine_id;
+	param_value.param_index = idx;
+	param_value.param_count = count;
+	strncpy(param_value.param_id, _param_set.param_id, PT_ID_SIZE);
+
+	send_param_value(&param_value);
 }
 
 static void recv_log_request(uint8_t msg_len)

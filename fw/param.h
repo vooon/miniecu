@@ -25,6 +25,11 @@
 
 #include "fw_common.h"
 
+#define PARAM_OK	RDY_OK
+#define PARAM_NOTEXIST	-4
+#define PARAM_ETYPE	-5
+#define PARAM_LIMIT	-6
+
 #define PT_ID_SIZE	16
 #define PT_STRING_SIZE	16
 
@@ -81,7 +86,7 @@ struct _miniecu_ParamType;
 typedef struct _miniecu_Paramtype miniecu_ParamType;
 #endif /* _PB_MINIECU_PB_H_ */
 
-msg_t param_set(const char *id, const miniecu_ParamType *value);
+msg_t param_set(const char *id, miniecu_ParamType *value);
 msg_t param_get(const char *id, miniecu_ParamType *value, size_t *idx);
 msg_t param_get_by_idx(size_t idx, char *id, miniecu_ParamType *value);
 size_t param_count(void);

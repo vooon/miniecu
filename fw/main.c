@@ -43,7 +43,7 @@ int main(void) {
 
 	chThdCreateStatic(wa_led, sizeof(wa_led), LOWPRIO, th_led, NULL);
 	chThdCreateStatic(wa_comm, sizeof(wa_comm), NORMALPRIO, th_comm, NULL);
-	chThdCreateStatic(wa_adc, sizeof(wa_adc), NORMALPRIO, th_adc, NULL);
+	chThdCreateStatic(wa_adc, sizeof(wa_adc), NORMALPRIO + 1, th_adc, NULL);
 
 	/* we use main thread as idle */
 	chThdSetPriority(IDLEPRIO);
