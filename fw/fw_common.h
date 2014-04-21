@@ -50,6 +50,8 @@
 
 #define ATTR_UNUSED __attribute__((unused))
 
+#define ARRAY_SIZE(_arr)	(sizeof((_arr)) / sizeof((_arr)[0]))
+
 /* NOTE same as in miniecu.proto */
 enum severity {
 	DP_DEBUG = 0,

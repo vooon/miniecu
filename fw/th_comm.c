@@ -25,6 +25,12 @@
 #include "pbstx.h"
 #include "pb_encode.h"
 #include "pb_decode.h"
+#include "param.h"
+
+/* global parameters */
+
+int32_t g_engine_id;
+int32_t g_serial_baud;
 
 /* Thread */
 static void send_status(void);
@@ -47,6 +53,7 @@ THD_FUNCTION(th_comm, arg ATTR_UNUSED)
 	uint8_t in_msg_len;
 	systime_t send_time = 0;
 
+	param_init();
 	pbstx_init();
 
 	while (true) {
@@ -102,7 +109,7 @@ void debug_printf(enum severity severity, char *fmt, ...)
 	msObjectInit(&ms, (uint8_t *)st.text, sizeof(st.text), 0);
 	chp = (BaseSequentialStream *)&ms;
 
-	st.engine_id = 1; // TODO
+	st.engine_id = g_engine_id;
 	st.severity = severity;
 	va_start(ap, fmt);
 	chvprintf(chp, fmt, ap);
@@ -120,13 +127,18 @@ void debug_printf(enum severity severity, char *fmt, ...)
 			local_msg_buf, outstream.bytes_written);
 }
 
+void on_serial1_change(const struct param_entry *p ATTR_UNUSED)
+{
+	debug_printf(DP_DEBUG, "serial1 baud change: %d", g_serial_baud);
+}
+
 static void send_status(void)
 {
 	pb_ostream_t outstream = pb_ostream_from_buffer(msg_buf, sizeof(msg_buf));
 	miniecu_Status status;
 
 	memset(&status, 0, sizeof(status));
-	status.engine_id = 1;
+	status.engine_id = g_engine_id;
 	status.timestamp_ms = ST2MS(chTimeNow());
 
 	/* TODO: Fill status */
@@ -157,7 +169,7 @@ static void recv_time_reference(uint8_t msg_len)
 
 	pb_ostream_t outstream = pb_ostream_from_buffer(msg_buf, sizeof(msg_buf));
 
-	time_ref.engine_id = 1;
+	time_ref.engine_id = g_engine_id;
 	time_ref.has_system_time = true;
 	time_ref.system_time = ST2MS(chTimeNow());
 	time_ref.has_timediff = true;
@@ -185,17 +197,54 @@ static void recv_command(uint8_t msg_len)
 	/* TODO */
 }
 
+static void send_param_value(miniecu_ParamValue *pv_msg)
+{
+	pb_ostream_t outstream = pb_ostream_from_buffer(msg_buf, sizeof(msg_buf));
+
+	if (!pb_encode(&outstream, miniecu_ParamValue_fields, pv_msg)) {
+		alert_component(ALS_COMM, AL_FAIL);
+		return;
+	}
+
+	pbstx_send(miniecu_MessageId_PARAM_VALUE,
+			msg_buf, outstream.bytes_written);
+}
+
 static void recv_param_request(uint8_t msg_len)
 {
 	pb_istream_t instream = pb_istream_from_buffer(msg_buf, msg_len);
 	miniecu_ParamRequest param_req;
+	miniecu_ParamValue param_value;
+	size_t idx, count = param_count();
 
 	if (!pb_decode(&instream, miniecu_ParamRequest_fields, &param_req)) {
 		alert_component(ALS_COMM, AL_FAIL);
 		return;
 	}
 
-	/* TODO */
+	if (param_req.has_param_id) {
+		if (param_get(param_req.param_id, &param_value.value, &idx) != MSG_OK)
+			return;
+
+		param_value.engine_id = g_engine_id;
+		param_value.param_index = idx;
+		param_value.param_count = count;
+		strncpy(param_value.param_id, param_req.param_id, PT_ID_SIZE);
+
+		send_param_value(&param_value);
+	}
+	else {
+		for (idx = 0; idx < count; idx++) {
+			if (param_get_by_idx(idx, param_value.param_id, &param_value.value) != MSG_OK)
+				continue;
+
+			param_value.engine_id = g_engine_id;
+			param_value.param_index = idx;
+			param_value.param_count = count;
+
+			send_param_value(&param_value);
+		}
+	}
 }
 
 static void recv_param_set(uint8_t msg_len)

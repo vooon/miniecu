@@ -29,7 +29,7 @@
 
 /* -*- global parameters -*- */
 
-float g_vbat_vd1_voltage_drop = 0.450; // [V]
+float g_vbat_vd1_voltage_drop; // [V]
 
 /* -*- private vars -*- */
 

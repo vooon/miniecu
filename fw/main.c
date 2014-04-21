@@ -19,7 +19,7 @@
 #include "th_adc.h"
 #include "alert_led.h"
 
-static THD_WORKING_AREA(wa_comm, 512);
+static THD_WORKING_AREA(wa_comm, 1024);
 static THD_WORKING_AREA(wa_led, 128);
 static THD_WORKING_AREA(wa_adc, 512);
 
