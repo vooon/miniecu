@@ -152,7 +152,7 @@ static void _pr_set_ParamType(miniecu_ParamType *value, const struct param_entry
 
 msg_t param_set(const char *id, miniecu_ParamType *value)
 {
-	msg_t ret;
+	msg_t ret = 0;
 	size_t idx;
 	const struct param_entry *p = _prt_find(id, &idx);
 

@@ -22,20 +22,20 @@ enum MessageId {
 // @{
 
 message BatteryStatus {
-	// Ignition battery voltage [10^-2 V]
+	// Ignition battery voltage [10^-3 V]
 	required uint32 voltage = 1;
-	// Ignition battery consumption [10^-2 A]
+	// Ignition battery consumption [10^-3 A]
 	optional uint32 current = 2;
 	// Calculated battery remainning [10^-1 %]
 	optional uint32 remaining = 3;
 }
 
 message TemperatureStatus {
-	// Current engine temperature [10^-2 degC]
+	// Current engine temperature [10^-3 degC]
 	required int32 engine1 = 1;
 	// Second temperature sensor (if oil pressure not used)
 	optional int32 engine2 = 2;
-	// Internal temperature [10^-2 degC]
+	// Internal temperature [10^-3 degC]
 	required int32 ecu = 3;
 }
 

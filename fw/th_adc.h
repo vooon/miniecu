@@ -27,4 +27,9 @@
 
 THD_FUNCTION(th_adc, arg ATTR_UNUSED);
 
+/* subsystem functions */
+
+uint32_t batt_get_voltage(void);
+bool batt_check_voltage(void);
+
 #endif /* TH_ADC_H */

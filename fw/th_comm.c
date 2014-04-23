@@ -27,11 +27,13 @@
 #include "pb_decode.h"
 #include "param.h"
 #include "rtc_time.h"
+#include "th_adc.h"
 
 /* global parameters */
 
 int32_t g_engine_id;
 int32_t g_serial_baud;
+int32_t g_status_period;
 
 /* Thread */
 static void send_status(void);
@@ -43,8 +45,6 @@ static void recv_log_request(uint8_t msg_len);
 
 /* Local varables */
 static uint8_t msg_buf[256];
-
-#define STATUS_TIMEOUT	MS2ST(10000) // TODO: make it settable
 
 
 THD_FUNCTION(th_comm, arg ATTR_UNUSED)
@@ -58,7 +58,7 @@ THD_FUNCTION(th_comm, arg ATTR_UNUSED)
 	pbstx_init();
 
 	while (true) {
-		if (chTimeElapsedSince(send_time) >= STATUS_TIMEOUT) {
+		if (chTimeElapsedSince(send_time) >= MS2ST(g_status_period)) {
 			send_status();
 			send_time = chTimeNow();
 		}
@@ -141,11 +141,18 @@ static void send_status(void)
 
 	if (time_is_known())		flags |= miniecu_Status_Flags_TIME_KNOWN;
 	if (alert_check_error())	flags |= miniecu_Status_Flags_ERROR;
+	if (batt_check_voltage())	flags |= miniecu_Status_Flags_UNDERVOLTAGE;
 
 	memset(&status, 0, sizeof(status));
 	status.engine_id = g_engine_id;
 	status.status = flags;
 	status.timestamp_ms = time_get_timestamp();
+
+	status.battery.voltage = batt_get_voltage();
+	/* status.battery.current = batt_get_current(); Not supported by hw_v2 */
+	/* TODO: battery remaining approx */
+	status.battery.has_remaining = false;
+	status.battery.remaining = 1000;
 
 	/* TODO: Fill status */
 
