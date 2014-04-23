@@ -29,8 +29,8 @@ char g_batt_type[PT_STRING_SIZE];
 #define BATT_CELL_NiMH		1.0
 #define BATT_CELL_NiCd		1.0
 #define BATT_CELL_LiIon		3.0
-#define BATT_CELL_LiPol		3.0
-#define BATT_CELL_LiFePo	3.0
+#define BATT_CELL_LiPo		3.0
+#define BATT_CELL_LiFePo	2.8
 #define BATT_CELL_Pb		1.66
 
 static float m_batt_min_cell_volt = BATT_CELL_NiMH;
@@ -43,11 +43,11 @@ void on_batt_type_change(struct param_entry *p ATTR_UNUSED)
 		m_batt_min_cell_volt = BATT_CELL_NiCd;
 	else if (strcasecmp(g_batt_type, "LiIon") == 0)
 		m_batt_min_cell_volt = BATT_CELL_LiIon;
-	else if (strcasecmp(g_batt_type, "LiPol") == 0)
-		m_batt_min_cell_volt = BATT_CELL_LiPol;
+	else if (strcasecmp(g_batt_type, "LiPo") == 0)
+		m_batt_min_cell_volt = BATT_CELL_LiPo;
 	else if (strcasecmp(g_batt_type, "LiFePo") == 0)
 		m_batt_min_cell_volt = BATT_CELL_LiFePo;
-	else if (strcasecmp(g_batt_type, "NiMH") == 0)
+	else if (strcasecmp(g_batt_type, "Pb") == 0)
 		m_batt_min_cell_volt = BATT_CELL_Pb;
 	else {
 		debug_printf(DP_ERROR, "unknown battery type");
