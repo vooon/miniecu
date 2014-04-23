@@ -94,6 +94,15 @@ void alert_init(void)
 	LED_FAIL_ON();
 }
 
+bool alert_check_error(void)
+{
+	for (int i = 0; i < ALS_MAX; i++)
+		if (al_status[i] == AL_FAIL)
+			return true;
+
+	return false;
+}
+
 /* local functions */
 THD_FUNCTION(th_led, arg ATTR_UNUSED)
 {

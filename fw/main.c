@@ -18,6 +18,7 @@
 #include "th_comm.h"
 #include "th_adc.h"
 #include "alert_led.h"
+#include "rtc_time.h"
 
 static THD_WORKING_AREA(wa_comm, 1024);
 static THD_WORKING_AREA(wa_led, 128);
@@ -40,6 +41,7 @@ int main(void) {
 
 	sdStart(&PBSTX_SD, NULL);
 	alert_init();
+	time_init();
 
 	chThdCreateStatic(wa_led, sizeof(wa_led), LOWPRIO, th_led, NULL);
 	chThdCreateStatic(wa_comm, sizeof(wa_comm), NORMALPRIO, th_comm, NULL);

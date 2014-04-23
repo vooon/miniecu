@@ -55,7 +55,7 @@
 #define STM32_USART3SW                      STM32_USART3SW_PCLK
 #define STM32_I2C1SW                        STM32_I2C1SW_SYSCLK
 #define STM32_I2C2SW                        STM32_I2C2SW_SYSCLK
-#define STM32_RTCSEL                        STM32_RTCSEL_LSI
+#define STM32_RTCSEL                        STM32_RTCSEL_LSE /* TODO: detect LSE or LSI in runtime */
 #define STM32_USB_CLOCK_REQUIRED            TRUE
 #define STM32_USBPRE                        STM32_USBPRE_DIV1P5
 

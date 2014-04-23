@@ -26,6 +26,7 @@
 #include "pb_encode.h"
 #include "pb_decode.h"
 #include "param.h"
+#include "rtc_time.h"
 
 /* global parameters */
 
@@ -136,10 +137,15 @@ static void send_status(void)
 {
 	pb_ostream_t outstream = pb_ostream_from_buffer(msg_buf, sizeof(msg_buf));
 	miniecu_Status status;
+	uint32_t flags = 0;
+
+	if (time_is_known())		flags |= miniecu_Status_Flags_TIME_KNOWN;
+	if (alert_check_error())	flags |= miniecu_Status_Flags_ERROR;
 
 	memset(&status, 0, sizeof(status));
 	status.engine_id = g_engine_id;
-	status.timestamp_ms = ST2MS(chTimeNow());
+	status.status = flags;
+	status.timestamp_ms = time_get_timestamp();
 
 	/* TODO: Fill status */
 
@@ -165,7 +171,10 @@ static void recv_time_reference(uint8_t msg_len)
 		return;
 	}
 
-	/* TODO: set RTC time, calculate diff, return current time */
+	/* answer to broadcast too */
+	if (time_ref.engine_id != (unsigned)g_engine_id
+			&& time_ref.engine_id != 0)
+		return;
 
 	pb_ostream_t outstream = pb_ostream_from_buffer(msg_buf, sizeof(msg_buf));
 
@@ -173,7 +182,7 @@ static void recv_time_reference(uint8_t msg_len)
 	time_ref.has_system_time = true;
 	time_ref.system_time = ST2MS(chTimeNow());
 	time_ref.has_timediff = true;
-	time_ref.timediff = 9000;
+	time_ref.timediff = time_set_timestamp(time_ref.timestamp_ms);
 
 	if (!pb_encode(&outstream, miniecu_TimeReference_fields, &time_ref)) {
 		alert_component(ALS_COMM, AL_FAIL);

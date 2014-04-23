@@ -1,6 +1,6 @@
 /**
- * @file       alert_led.h
- * @brief      led alarm functions
+ * @file       rtc_time.h
+ * @brief      RTC helpers
  * @author     Vladimir Ermakov Copyright (C) 2014.
  * @see        The GNU Public License (GPL) Version 3
  */
@@ -20,27 +20,14 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef ALERT_LED_H
-#define ALERT_LED_H
+#ifndef RTC_TIME_H
+#define RTC_TIME_H
 
 #include "fw_common.h"
 
-enum alert_status {
-	AL_INIT = 0,
-	AL_FAIL,
-	AL_NORMAL
-};
+void time_init(void);
+bool time_is_known(void);
+uint64_t time_get_timestamp(void);
+int32_t time_set_timestamp(uint64_t ts);
 
-enum alert_source {
-	ALS_COMM = 0,
-	ALS_ADC,
-	//ALS_RTC,
-	ALS_MAX /* max size of alert array */
-};
-
-THD_FUNCTION(th_led, arg ATTR_UNUSED);
-void alert_init(void);
-void alert_component(enum alert_source src, enum alert_status st);
-bool alert_check_error(void);
-
-#endif /* ALERT_LED_H */
+#endif /* RTC_TIME_H */
