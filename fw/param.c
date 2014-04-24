@@ -219,5 +219,8 @@ void param_init(void)
 
 	for (; i < ARRAY_SIZE(parameter_table); i++, p++)
 		_pr_set(p, (void *)&p->default_value);
+
+	/* special init */
+	on_ecu_serial_no_change(NULL);
 }
 

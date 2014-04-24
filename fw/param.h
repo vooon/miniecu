@@ -77,7 +77,7 @@ struct param_entry {
 #define PARAM_INT32(_id, _var, _default, _min, _max, _change_cb)	\
 	{ (_id), PT_INT32, &(_var), {.i=(_default)}, {.i=(_min)}, {.i=(_max)}, (_change_cb) }
 #define PARAM_FLOAT(_id, _var, _default, _min, _max, _change_cb)	\
-	{ (_id), PT_FLOAT, &(_var), {.f=(_default)}, {.f=(_min)}, {.f=(_min)}, (_change_cb) }
+	{ (_id), PT_FLOAT, &(_var), {.f=(_default)}, {.f=(_min)}, {.f=(_max)}, (_change_cb) }
 #define PARAM_STRING(_id, _var, _default, _change_cb)			\
 	{ (_id), PT_STRING, &(_var), {.s=(_default)}, {.i=0}, {.i=16}, (_change_cb) }
 
