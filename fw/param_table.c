@@ -6,6 +6,11 @@ extern int32_t g_status_period;
 extern float g_vbat_vd1_voltage_drop;
 extern int32_t g_batt_cells;
 extern char g_batt_type[PT_STRING_SIZE];
+extern int32_t g_temp_r;
+extern float g_temp_overheat;
+extern float g_temp_sh_a;
+extern float g_temp_sh_b;
+extern float g_temp_sh_c;
 
 /* global callbacks */
 extern void on_serial1_change(const struct param_entry *p ATTR_UNUSED);
@@ -38,14 +43,41 @@ static void on_ecu_serial_no_change(const struct param_entry *p ATTR_UNUSED)
 }
 
 static const struct param_entry parameter_table[] = {
+	// @DESC: engine manufacturer and model
 	PARAM_STRING("ENGINE_NAME", l_engine_name, "mfg & name", NULL),
+	// @DESC: engine serial number
 	PARAM_STRING("ENGINE_SERIAL", l_engine_serial_no, "serial no", NULL),
-	PARAM_STRING("ECU_SERIAL", l_ecu_serial_no, "SETUP ERROR", on_ecu_serial_no_change),
+	// @DESC: ECU address
 	PARAM_INT32("ENGINE_ID", g_engine_id, 1, 1, 255, NULL),
+
+	// @DESC: ECU module serial number
+	// @READ-ONLY
+	PARAM_STRING("ECU_SERIAL", l_ecu_serial_no, "SETUP ERROR", on_ecu_serial_no_change),
+
+	// @DESC: baud rate for UART
+	// @VALUES: 9600, 19200, 38400, 57600, 115200
 	PARAM_INT32("SERIAL1_BAUD", g_serial_baud, 57600, 9600, 115200, on_serial1_change),
+	// @DESC: period of Status message in milliseconds
 	PARAM_INT32("STATUS_PERIOD", g_status_period, 1000, 100, 60000, NULL),
-	PARAM_FLOAT("VBAT_VD1_VD", g_vbat_vd1_voltage_drop, 0.400, 0.0, 1.0, NULL),
+
+	// @DESC: Voltage drop on VD1 diode (for compensation)
+	PARAM_FLOAT("BATT_VD1_VD", g_vbat_vd1_voltage_drop, 0.400, 0.0, 1.0, NULL),
+	// @DESC: number of cells in battery
 	PARAM_INT32("BATT_CELLS", g_batt_cells, 4, 1, 10, NULL),
-	PARAM_STRING("BATT_TYPE", g_batt_type, "NiMH", on_batt_type_change)
+	// @DESC: battery chemistry type
+	// @VALUES: NiMH, NiCd, LiIon, LiPo, LiFePo, Pb
+	PARAM_STRING("BATT_TYPE", g_batt_type, "NiMH", on_batt_type_change),
+
+	// @DESC: TEMP input mode R1 or R2
+	// @ENUM: R1=1, R2=2
+	PARAM_INT32("TEMP_R", g_temp_r, 2, 1, 2, NULL),
+	// @DESC: engine overheat temperature
+	PARAM_FLOAT("TEMP_OVERHEAT", g_temp_overheat, 110.0, 0, 200, NULL),
+	// @DESC: Steinhart-Hart A koeff for TERM
+	PARAM_FLOAT("TEMP_SH_A", g_temp_sh_a, 2.1085e-3, -10, 10, NULL),
+	// @DESC: Steinhart-Hart B koeff for TERM
+	PARAM_FLOAT("TEMP_SH_B", g_temp_sh_b, 0.7979e-4, -10, 10, NULL),
+	// @DESC: Steinhart-Hart C koeff for TERM
+	PARAM_FLOAT("TEMP_SH_C", g_temp_sh_c, 6.5351e-7, -10, 10, NULL)
 };
 

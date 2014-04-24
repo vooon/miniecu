@@ -1,6 +1,6 @@
 /**
- * @file       th_adc.h
- * @brief      ADC task
+ * @file       ntc.h
+ * @brief      NTC thermistor calculation functions
  * @author     Vladimir Ermakov Copyright (C) 2014.
  * @see        The GNU Public License (GPL) Version 3
  */
@@ -20,21 +20,14 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef TH_ADC_H
-#define TH_ADC_H
+#ifndef NTC_H
+#define NTC_H
 
 #include "fw_common.h"
 
-THD_FUNCTION(th_adc, arg ATTR_UNUSED);
+float ntc_get_R1(float Vout, float Vin, float R2);
+float ntc_get_R2(float Vout, float Vin, float R1);
+float ntc_get_K(float R, float sh_a, float sh_b, float sh_c);
+float ntc_K_to_C(float K);
 
-/* subsystem functions */
-
-uint32_t batt_get_voltage(void);
-bool batt_check_voltage(void);
-bool batt_get_remaining(uint32_t *out);
-
-uint32_t temp_get_int_temperature(void);
-uint32_t temp_get_temperature(void);
-bool temp_check_temperature(void);
-
-#endif /* TH_ADC_H */
+#endif /* NTC_H */

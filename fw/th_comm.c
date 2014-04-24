@@ -152,6 +152,9 @@ static void send_status(void)
 	/* status.battery.current = batt_get_current(); Not supported by hw_v2 */
 	status.battery.has_remaining = batt_get_remaining(&status.battery.remaining);
 
+	status.temperature.ecu = temp_get_int_temperature();
+	status.temperature.engine1 = temp_get_temperature();
+
 	/* TODO: Fill status */
 
 	if (!pb_encode(&outstream, miniecu_Status_fields, &status)) {

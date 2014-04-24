@@ -90,11 +90,11 @@ static void adc_int_temp_vrtc_cb(ADCDriver *adcp ATTR_UNUSED,
 	m_int_temp = adc_to_int_temp(buffer[0]);
 	m_vrtc = 2 * adc_to_voltage(buffer[1]);
 
-	if (thdp_adc != NULL) {
+	/*if (thdp_adc != NULL) {
 		chSysLockFromIsr();
 		chEvtSignalI(thdp_adc, ADC1_EVMASK);
 		chSysUnlockFromIsr();
-	}
+	} not used */
 }
 
 static void adc_temp_oilp_vbat_cb(ADCDriver *adcp ATTR_UNUSED,
@@ -213,6 +213,7 @@ static const ADCConversionGroup sdadc3group = {
 /* -*- module thread -*- */
 
 #include "adc_batt.c"
+#include "adc_therm.c"
 
 THD_FUNCTION(th_adc, arg ATTR_UNUSED)
 {
@@ -251,12 +252,12 @@ THD_FUNCTION(th_adc, arg ATTR_UNUSED)
 		}
 
 		if (mask & ADC1_EVMASK) {
-			//debug_printf(DP_INFO, "ECU Temp: %3d", (int)(m_int_temp * 1000));
-			//debug_printf(DP_DEBUG, "V_rtc: %3d", (int)(m_vrtc * 1000));
+			/* CPU temp don't emit events */
+			/* Vrtc currently not used */
 		}
 		if (mask & SDADC1_EVMASK) {
 			adc_handle_battery();
-			//debug_printf(DP_DEBUG, "Temp V: %3d", (int)(m_temp_volt * 1000));
+			adc_handle_temperature();
 			//debug_printf(DP_DEBUG, "Oilp V: %3d", (int)(m_oilp_volt * 1000));
 		}
 		if (mask & SDADC3_EVMASK) {
