@@ -150,9 +150,7 @@ static void send_status(void)
 
 	status.battery.voltage = batt_get_voltage();
 	/* status.battery.current = batt_get_current(); Not supported by hw_v2 */
-	/* TODO: battery remaining approx */
-	status.battery.has_remaining = false;
-	status.battery.remaining = 1000;
+	status.battery.has_remaining = batt_get_remaining(&status.battery.remaining);
 
 	/* TODO: Fill status */
 

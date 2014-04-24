@@ -31,5 +31,6 @@ THD_FUNCTION(th_adc, arg ATTR_UNUSED);
 
 uint32_t batt_get_voltage(void);
 bool batt_check_voltage(void);
+bool batt_get_remaining(uint32_t *out);
 
 #endif /* TH_ADC_H */

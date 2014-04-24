@@ -26,7 +26,7 @@ message BatteryStatus {
 	required uint32 voltage = 1;
 	// Ignition battery consumption [10^-3 A]
 	optional uint32 current = 2;
-	// Calculated battery remainning [10^-1 %]
+	// Calculated battery remainning [%]
 	optional uint32 remaining = 3;
 }
 
