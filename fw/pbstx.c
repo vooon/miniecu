@@ -26,6 +26,7 @@
 
 /* Local variables */
 static MUTEX_DECL(tx_mutex);
+static BaseChannel *m_stream = (BaseChannel *) &PBSTX_SD;
 
 enum rx_state {
 	PR_WAIT_START = 0,
@@ -42,9 +43,33 @@ enum rx_state {
 #define SER_TIMEOUT		MS2ST(10)
 #define SER_PAYLOAD_TIMEOUT	MS2ST(50)
 
+extern void vcom_start(void);
+extern void vcom_connect(void);
+
+#if HAL_USE_SERIAL_USB
+extern SerialUSBDriver PBSTX_SDU;
+#endif /* HAL_USE_SERIAL_USB */
+
 
 void pbstx_init(void)
 {
+	vcom_start();
+	/* timeout? */
+	vcom_connect();
+}
+
+void pbstx_check_usb(void)
+{
+#if HAL_USE_SERIAL_USB
+	chMtxLock(&tx_mutex);
+
+	if (usbGetDriverStateI(PBSTX_SDU.config->usbp) == USB_ACTIVE)
+		m_stream = (BaseChannel *) &PBSTX_SDU;
+	else
+		m_stream = (BaseChannel *) &PBSTX_SD;
+
+	chMtxUnlock();
+#endif /* HAL_USE_SERIAL_USB */
 }
 
 msg_t pbstx_receive(uint8_t *msgid, uint8_t *payload, uint8_t *payload_len)
@@ -55,7 +80,7 @@ msg_t pbstx_receive(uint8_t *msgid, uint8_t *payload, uint8_t *payload_len)
 	static enum rx_state rx_state = PR_WAIT_START;
 
 	while (!chThdShouldTerminate()) {
-		ret = sdGetTimeout(&PBSTX_SD, SER_TIMEOUT);
+		ret = chnGetTimeout(m_stream, SER_TIMEOUT);
 		if (ret == Q_TIMEOUT || ret == Q_RESET)
 			return ret;
 
@@ -89,7 +114,7 @@ msg_t pbstx_receive(uint8_t *msgid, uint8_t *payload, uint8_t *payload_len)
 			/* fall through if payload exists */
 
 		case PR_PAYLOAD:
-			ret = sdReadTimeout(&PBSTX_SD, payload, *payload_len,
+			ret = chnReadTimeout(m_stream, payload, *payload_len,
 					SER_PAYLOAD_TIMEOUT);
 			if (ret == Q_TIMEOUT || ret == Q_RESET) {
 				alert_component(ALS_COMM, AL_FAIL);
@@ -131,19 +156,19 @@ msg_t pbstx_send(uint8_t msgid, const uint8_t *payload, uint8_t payload_len)
 	chMtxLock(&tx_mutex);
 
 	crc = PIOS_CRC_updateCRC(0, header + 1, sizeof(header) - 1);
-	ret = sdWriteTimeout(&PBSTX_SD, header, sizeof(header), SER_TIMEOUT);
+	ret = chnWriteTimeout(m_stream, header, sizeof(header), SER_TIMEOUT);
 	if (ret == Q_TIMEOUT || ret == Q_RESET)
 		goto unlock_ret;
 
 	if (payload_len > 0) {
 		crc = PIOS_CRC_updateCRC(crc, payload, payload_len);
-		ret = sdWriteTimeout(&PBSTX_SD, payload, payload_len,
+		ret = chnWriteTimeout(m_stream, payload, payload_len,
 				SER_PAYLOAD_TIMEOUT);
 		if (ret == Q_TIMEOUT || ret == Q_RESET)
 			goto unlock_ret;
 	}
 
-	ret = sdPutTimeout(&PBSTX_SD, crc, SER_TIMEOUT);
+	ret = chnPutTimeout(m_stream, crc, SER_TIMEOUT);
 
 unlock_ret:
 	chMtxUnlock();

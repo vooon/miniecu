@@ -877,6 +877,16 @@
                                      PIN_AFIO_AF(GPIOF_PIN15, 0))
 
 
+/*
+ * USB bus activation macro, required by the USB driver.
+ */
+#define usb_lld_connect_bus(usbp) ((void) usbp)
+
+/*
+ * USB bus de-activation macro, required by the USB driver.
+ */
+#define usb_lld_disconnect_bus(usbp) ((void) usbp)
+
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus
 extern "C" {

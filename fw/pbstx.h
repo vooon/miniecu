@@ -27,6 +27,7 @@
 #include "miniecu.pb.h"
 
 extern void pbstx_init(void);
+extern void pbstx_check_usb(void);
 extern msg_t pbstx_receive(uint8_t *msgid, uint8_t *payload, uint8_t *payload_len);
 extern msg_t pbstx_send(uint8_t msgid, const uint8_t *payload, uint8_t payload_len);
 

@@ -63,6 +63,7 @@ THD_FUNCTION(th_comm, arg ATTR_UNUSED)
 			send_time = chTimeNow();
 		}
 
+		pbstx_check_usb();
 		ret = pbstx_receive(&msgid, msg_buf, &in_msg_len);
 		if (ret == MSG_OK) {
 			switch (msgid) {
@@ -130,7 +131,8 @@ void debug_printf(enum severity severity, char *fmt, ...)
 
 void on_serial1_change(const struct param_entry *p ATTR_UNUSED)
 {
-	debug_printf(DP_DEBUG, "serial1 baud change: %d", g_serial_baud);
+	debug_printf(DP_WARN, "serial baud change: %d", g_serial_baud);
+	/* TODO */
 }
 
 static void send_status(void)
