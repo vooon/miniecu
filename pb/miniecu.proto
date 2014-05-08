@@ -35,8 +35,6 @@ message TemperatureStatus {
 	required int32 engine1 = 1;
 	// Second temperature sensor (if oil pressure not used)
 	optional int32 engine2 = 2;
-	// Internal temperature [10^-3 degC]
-	required int32 ecu = 3;
 }
 
 // TODO: check it
@@ -51,6 +49,13 @@ message EngineTimerStatus {
 	required uint32 total_elapsed = 1;
 	// Current powered timer in seconds
 	required uint32 current_powered = 2;
+}
+
+message CPUStatus {
+	// CPU load [%]
+	required uint32 load = 1;
+	// Internal temperature [10^-3 degC]
+	required int32 temperature = 2;
 }
 
 message Status {
@@ -80,9 +85,10 @@ message Status {
 	required BatteryStatus battery = 5;
 	required TemperatureStatus temperature = 6;
 	required EngineTimerStatus time = 7;
+	required CPUStatus cpu = 8;
 	// Current OIL pressure [TODO]
-	optional int32 oil_pressure = 8;
-	optional FuelFlowStatus fuel = 9;
+	optional int32 oil_pressure = 9;
+	optional FuelFlowStatus fuel = 10;
 }
 
 // @}
@@ -149,16 +155,6 @@ message ParamType {
 	optional int32 u_int32 = 2;
 	optional float u_float = 3;
 	optional string u_string = 4;
-}
-
-// internal storage type
-message ParamStorage {
-	required string param_id = 1;
-	required ParamType value = 2;
-}
-
-message ParamStorageArray {
-	repeated ParamStorage vars = 1;
 }
 
 // if param_id is not set: request list

@@ -148,12 +148,17 @@ static void send_status(void)
 	status.status = flags;
 	status.timestamp_ms = time_get_timestamp();
 
+	/* battery */
 	status.battery.voltage = batt_get_voltage();
-	/* status.battery.current = batt_get_current(); Not supported by hw_v2 */
+	// status.battery.current = batt_get_current(); /* Not supported by hw_v2 */
 	status.battery.has_remaining = batt_get_remaining(&status.battery.remaining);
 
-	status.temperature.ecu = temp_get_int_temperature();
+	/* temperature */
 	status.temperature.engine1 = temp_get_temperature();
+
+	/* CPU status */
+	status.cpu.load = 0; /* TODO */
+	status.cpu.temperature = temp_get_int_temperature();
 
 	/* TODO: Fill status */
 

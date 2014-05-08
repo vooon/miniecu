@@ -10,7 +10,7 @@ PROTODIR = $(BUILDDIR)/pb
 PROTOC = protoc
 PROTOC_OPTS = --plugin=protoc-gen-nanopb=$(NANOPBDIR)/generator/protoc-gen-nanopb
 
-all: $(PROTODIR)/miniecu.pb.c
+all: $(PROTODIR)/miniecu.pb.c $(PROTODIR)/flash.pb.c
 
 $(PROTODIR):
 	mkdir -p $(PROTODIR)

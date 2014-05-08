@@ -1,0 +1,6 @@
+#
+# Special options for nanopb
+#
+# vim:set ft=proto et
+
+*.param_id              max_size:16
