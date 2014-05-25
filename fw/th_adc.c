@@ -215,6 +215,31 @@ static const ADCConversionGroup sdadc3group = {
 #include "adc_batt.c"
 #include "adc_therm.c"
 
+float adc_getll_temp(void)
+{
+	return m_temp_volt;
+}
+
+float adc_getll_oilp(void)
+{
+	return m_oilp_volt;
+}
+
+float adc_getll_flow(void)
+{
+	return m_flow_volt;
+}
+
+float adc_getll_vbat(void)
+{
+	return m_vbat;
+}
+
+float adc_getll_vrtc(void)
+{
+	return m_vrtc;
+}
+
 THD_FUNCTION(th_adc, arg ATTR_UNUSED)
 {
 	/* set listening thread */

@@ -174,6 +174,15 @@ static void send_status(void)
 	status.cpu.load = 0; /* TODO */
 	status.cpu.temperature = temp_get_int_temperature();
 
+	if (g_debug_enable_adc_raw) {
+		status.has_adc_raw = true;
+		status.adc_raw.temp = adc_getll_temp();
+		status.adc_raw.oilp = adc_getll_oilp();
+		status.adc_raw.flow = adc_getll_flow();
+		status.adc_raw.battv = adc_getll_vbat();
+		status.adc_raw.rtc_batt = adc_getll_vrtc();
+	}
+
 	/* TODO: Fill status */
 
 	if (!pb_encode(&outstream, miniecu_Status_fields, &status)) {

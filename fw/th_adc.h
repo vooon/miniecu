@@ -37,4 +37,10 @@ uint32_t temp_get_int_temperature(void);
 uint32_t temp_get_temperature(void);
 bool temp_check_temperature(void);
 
+float adc_getll_temp(void);
+float adc_getll_oilp(void);
+float adc_getll_flow(void);
+float adc_getll_vbat(void);
+float adc_getll_vrtc(void);
+
 #endif /* TH_ADC_H */
