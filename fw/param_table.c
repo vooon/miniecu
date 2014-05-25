@@ -11,6 +11,8 @@ extern float g_temp_overheat;
 extern float g_temp_sh_a;
 extern float g_temp_sh_b;
 extern float g_temp_sh_c;
+extern bool g_debug_enable_adc_raw;
+extern bool g_debug_enable_memdump;
 
 /* global callbacks */
 extern void on_serial1_change(const struct param_entry *p ATTR_UNUSED);
@@ -73,11 +75,16 @@ static const struct param_entry parameter_table[] = {
 	PARAM_INT32("TEMP_R", g_temp_r, 2, 1, 2, NULL),
 	// @DESC: engine overheat temperature
 	PARAM_FLOAT("TEMP_OVERHEAT", g_temp_overheat, 110.0, 0, 200, NULL),
-	// @DESC: Steinhart-Hart A koeff for TERM
+	// @DESC: Steinhart-Hart A koeff for TEMP
 	PARAM_FLOAT("TEMP_SH_A", g_temp_sh_a, 2.1085e-3, -10, 10, NULL),
-	// @DESC: Steinhart-Hart B koeff for TERM
+	// @DESC: Steinhart-Hart B koeff for TEMP
 	PARAM_FLOAT("TEMP_SH_B", g_temp_sh_b, 0.7979e-4, -10, 10, NULL),
-	// @DESC: Steinhart-Hart C koeff for TERM
-	PARAM_FLOAT("TEMP_SH_C", g_temp_sh_c, 6.5351e-7, -10, 10, NULL)
+	// @DESC: Steinhart-Hart C koeff for TEMP
+	PARAM_FLOAT("TEMP_SH_C", g_temp_sh_c, 6.5351e-7, -10, 10, NULL),
+
+	// @DESC: Enable debug feuture: send Status.adc_raw message
+	PARAM_BOOL("DEBUG_ADC_RAW", g_debug_enable_adc_raw, false, NULL),
+	// @DESC: Enable memdump subsystem (used for debugging)
+	PARAM_BOOL("DEBUG_MEMDUMP", g_debug_enable_memdump, false, NULL)
 };
 

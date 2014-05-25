@@ -15,6 +15,8 @@ enum MessageId {
 	LOG_REQUEST = 117;
 	LOG_ENTRY = 119;
 	STATUS_TEXT = 253;
+	MEMORY_DUMP_REQUEST = 250;
+	MEMORY_DUMP_PAGE = 251;
 };
 
 //
@@ -58,6 +60,15 @@ message CPUStatus {
 	required int32 temperature = 2;
 }
 
+// Debugging ADC (hw_v2)
+message ADCRawVoltages {
+	required float temp = 1;
+	required float oilp = 2;
+	required float flow = 3;
+	required float battv = 4;
+	required float rtc_batt = 5;
+};
+
 message Status {
 	enum Flags {
 		UNKNOWN = 0;
@@ -70,8 +81,9 @@ message Status {
 		ERROR = 128;
 		UNDERVOLTAGE = 256;
 		OVERCURRENT = 512; // not implemented in hw_v2
-		OVERTEMP = 1024;
+		OVERHEAT = 1024;
 		LOW_FUEL = 2048;
+		LOW_OIL_PRESSURE = 4096;
 	};
 
 	// Engine ID: 4-byte string identifying engine
@@ -89,6 +101,7 @@ message Status {
 	// Current OIL pressure [TODO]
 	optional int32 oil_pressure = 9;
 	optional FuelFlowStatus fuel = 10;
+	optional ADCRawVoltages adc_raw = 11;
 }
 
 // @}
@@ -223,5 +236,27 @@ message StatusText {
 	required Severity severity = 2;
 	required string text = 3;
 }
+
+// Request mem dump
+message MemoryDumpRequest {
+	enum Type {
+		RAM = 0;
+		FLASH = 1;
+	};
+
+	required uint32 engine_id = 1;
+	required Type type = 2;
+	required uint32 stream_id = 3;
+	required uint32 address = 4;
+	required uint32 size = 5;
+};
+
+// Ansver to MemoryDumpRequest
+message MemoryDumpPage {
+	required uint32 engine_id = 1;
+	required uint32 stream_id = 2;
+	required uint32 address = 3;
+	required bytes page = 4;
+};
 
 // @}

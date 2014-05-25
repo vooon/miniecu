@@ -14,13 +14,16 @@ import threading
 try:
     from miniecu_pb2 import Status, Command, TimeReference, \
             ParamRequest, ParamSet, ParamValue, StatusText, \
+            MemoryDumpRequest, MemoryDumpPage, \
             STATUS as MSGID_STATUS, \
             TIME_REFERENCE as MSGID_TIME_REFERENCE, \
             COMMAND as MSGID_COMMAND, \
             PARAM_REQUEST as MSGID_PARAM_REQUEST, \
             PARAM_SET as MSGID_PARAM_SET, \
             PARAM_VALUE as MSGID_PARAM_VALUE, \
-            STATUS_TEXT as MSGID_STATUS_TEXT
+            STATUS_TEXT as MSGID_STATUS_TEXT, \
+            MEMORY_DUMP_REQUEST as MSGID_MEMORY_DUMP_REQUEST, \
+            MEMORY_DUMP_PAGE as MSGID_MEMORY_DUMP_PAGE
 except ImportError as ex:
     raise ImportError(str(ex) + ": did you run protoc generator?")
 
@@ -71,6 +74,8 @@ class PBStx(object):
         MSGID_PARAM_SET: ParamSet,
         MSGID_PARAM_VALUE: ParamValue,
         MSGID_STATUS_TEXT: StatusText,
+        MSGID_MEMORY_DUMP_REQUEST: MemoryDumpRequest,
+        MSGID_MEMORY_DUMP_PAGE: MemoryDumpPage,
     }
 
     def __init__(self, port, baud=57600, sysid=240):

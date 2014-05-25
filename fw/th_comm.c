@@ -34,6 +34,8 @@
 int32_t g_engine_id;
 int32_t g_serial_baud;
 int32_t g_status_period;
+bool g_debug_enable_adc_raw;
+bool g_debug_enable_memdump;
 
 /* Thread */
 static void send_status(void);
@@ -42,6 +44,12 @@ static void recv_command(uint8_t msg_len);
 static void recv_param_request(uint8_t msg_len);
 static void recv_param_set(uint8_t msg_len);
 static void recv_log_request(uint8_t msg_len);
+static void recv_memory_dump_request(uint8_t msg_len);
+
+
+#define MEMDUMP_SIZE	64
+int32_t memdump_int_ram(uint32_t address, void *buffer, size_t size);
+int32_t memdump_ext_flash(uint32_t address, void *buffer, size_t size);
 
 /* Local varables */
 static uint8_t msg_buf[256];
@@ -81,6 +89,10 @@ THD_FUNCTION(th_comm, arg ATTR_UNUSED)
 					break;
 				case miniecu_MessageId_LOG_REQUEST:
 					recv_log_request(in_msg_len);
+					break;
+				case miniecu_MessageId_MEMORY_DUMP_REQUEST:
+					if (g_debug_enable_memdump)
+						recv_memory_dump_request(in_msg_len);
 					break;
 
 				default:
@@ -319,5 +331,69 @@ static void recv_log_request(uint8_t msg_len)
 	}
 
 	/* TODO */
+}
+
+static void send_memory_dump_page(miniecu_MemoryDumpPage *page_msg)
+{
+	pb_ostream_t outstream = pb_ostream_from_buffer(msg_buf, sizeof(msg_buf));
+
+	if (!pb_encode(&outstream, miniecu_MemoryDumpPage_fields, page_msg)) {
+		alert_component(ALS_COMM, AL_FAIL);
+		return;
+	}
+
+	pbstx_send(miniecu_MessageId_MEMORY_DUMP_PAGE,
+			msg_buf, outstream.bytes_written);
+}
+
+static void recv_memory_dump_request(uint8_t msg_len)
+{
+	pb_istream_t instream = pb_istream_from_buffer(msg_buf, msg_len);
+	miniecu_MemoryDumpRequest dump_req;
+
+	if (!pb_decode(&instream, miniecu_MemoryDumpRequest_fields, &dump_req)) {
+		alert_component(ALS_COMM, AL_FAIL);
+		return;
+	}
+
+	/* NOTE: ssize_t missing in chibios so we use int32_t instead */
+	miniecu_MemoryDumpPage page_msg;
+	uint32_t address = dump_req.address;
+	int32_t bytes_rem = dump_req.size;
+	int32_t (*memdump)(uint32_t address, void *buffer, size_t size) = NULL;
+
+	switch (dump_req.type) {
+	case miniecu_MemoryDumpRequest_Type_RAM:
+		memdump = memdump_int_ram;
+		break;
+	case miniecu_MemoryDumpRequest_Type_FLASH:
+		memdump = memdump_ext_flash;
+		break;
+
+	default:
+		debug_printf(DP_ERROR, "MemDump: unknown type");
+		return;
+	};
+
+	while (bytes_rem > 0) {
+		int32_t ret = memdump(address,
+				page_msg.page.bytes,
+				(bytes_rem > MEMDUMP_SIZE)? MEMDUMP_SIZE : bytes_rem);
+
+		if (ret < 0) {
+			debug_printf(DP_ERROR, "MemDump: read error");
+			return;
+		}
+
+		page_msg.engine_id = g_engine_id;
+		page_msg.stream_id = dump_req.stream_id;
+		page_msg.address = address;
+		page_msg.page.size = ret;
+
+		address += ret;
+		bytes_rem -= ret;
+
+		send_memory_dump_page(&page_msg);
+	}
 }
 
