@@ -56,3 +56,15 @@ void __early_init(void) {
  */
 void boardInit(void) {
 }
+
+void board_usb_connect(void)
+{
+	palSetPadMode(GPIOA, GPIOA_USB_DP, PAL_MODE_ALTERNATE(14));
+}
+
+void board_usb_disconnect(void)
+{
+	palSetPadMode(GPIOA, GPIOA_USB_DP, PAL_MODE_OUTPUT_PUSHPULL);
+	palClearPad(GPIOA, GPIOA_USB_DP);
+}
+
