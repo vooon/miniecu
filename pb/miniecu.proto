@@ -84,6 +84,7 @@ message Status {
 		OVERHEAT = 1024;
 		LOW_FUEL = 2048;
 		LOW_OIL_PRESSURE = 4096;
+		HIGH_RPM = 8192;
 	};
 
 	// Engine ID: 4-byte string identifying engine

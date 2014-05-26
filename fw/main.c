@@ -17,12 +17,14 @@
 #include "fw_common.h"
 #include "th_comm.h"
 #include "th_adc.h"
+#include "th_rpm.h"
 #include "alert_led.h"
 #include "rtc_time.h"
 
 static THD_WORKING_AREA(wa_comm, 1024);
 static THD_WORKING_AREA(wa_led, 128);
 static THD_WORKING_AREA(wa_adc, 512);
+static THD_WORKING_AREA(wa_rpm, 256);
 
 /*
  * Application entry point.
@@ -46,6 +48,7 @@ int main(void) {
 	chThdCreateStatic(wa_led, sizeof(wa_led), LOWPRIO, th_led, NULL);
 	chThdCreateStatic(wa_comm, sizeof(wa_comm), NORMALPRIO, th_comm, NULL);
 	chThdCreateStatic(wa_adc, sizeof(wa_adc), NORMALPRIO + 1, th_adc, NULL);
+	chThdCreateStatic(wa_rpm, sizeof(wa_rpm), NORMALPRIO - 1, th_rpm, NULL);
 
 	/* we use main thread as idle */
 	chThdSetPriority(IDLEPRIO);

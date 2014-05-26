@@ -242,7 +242,7 @@
                                      PIN_OSPEED_100M(GPIOA_SWDIO) |         \
                                      PIN_OSPEED_100M(GPIOA_SWCLK) |         \
                                      PIN_OSPEED_2M(GPIOA_PIN15))
-#define VAL_GPIOA_PUPDR             (PIN_PUPDR_PULLDOWN(GPIOA_RPM_IN) |     \
+#define VAL_GPIOA_PUPDR             (PIN_PUPDR_FLOATING(GPIOA_RPM_IN) |     \
                                      PIN_PUPDR_PULLUP(GPIOA_XP2_PA1) |      \
                                      PIN_PUPDR_PULLUP(GPIOA_XP2_PA2) |      \
                                      PIN_PUPDR_FLOATING(GPIOA_LED_R) |      \

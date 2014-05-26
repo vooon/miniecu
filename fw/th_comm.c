@@ -28,6 +28,7 @@
 #include "param.h"
 #include "rtc_time.h"
 #include "th_adc.h"
+#include "th_rpm.h"
 
 /* global parameters */
 
@@ -156,11 +157,14 @@ static void send_status(void)
 	if (time_is_known())		flags |= miniecu_Status_Flags_TIME_KNOWN;
 	if (alert_check_error())	flags |= miniecu_Status_Flags_ERROR;
 	if (batt_check_voltage())	flags |= miniecu_Status_Flags_UNDERVOLTAGE;
+	if (rpm_check_limit())		flags |= miniecu_Status_Flags_HIGH_RPM;
+	if (rpm_check_engine_running())	flags |= miniecu_Status_Flags_ENGINE_RUNNING;
 
 	memset(&status, 0, sizeof(status));
 	status.engine_id = g_engine_id;
 	status.status = flags;
 	status.timestamp_ms = time_get_timestamp();
+	status.rpm = rpm_get_filtered();
 
 	/* battery */
 	status.battery.voltage = batt_get_voltage();

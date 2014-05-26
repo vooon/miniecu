@@ -13,6 +13,9 @@ extern float g_temp_sh_b;
 extern float g_temp_sh_c;
 extern bool g_debug_enable_adc_raw;
 extern bool g_debug_enable_memdump;
+extern int32_t g_pulses_per_revolution;
+extern int32_t g_rpm_limit;
+extern int32_t g_rpm_min_idle;
 
 /* global callbacks */
 extern void on_serial1_change(const struct param_entry *p ATTR_UNUSED);
@@ -81,6 +84,13 @@ static const struct param_entry parameter_table[] = {
 	PARAM_FLOAT("TEMP_SH_B", g_temp_sh_b, 0.7979e-4, -10, 10, NULL),
 	// @DESC: Steinhart-Hart C koeff for TEMP
 	PARAM_FLOAT("TEMP_SH_C", g_temp_sh_c, 6.5351e-7, -10, 10, NULL),
+
+	// @DESC: High RPM limit
+	PARAM_INT32("RPM_LIMIT", g_rpm_limit, 8000, 0, 20000, NULL),
+	// @DESC: Number of pulses per revolution of crankshaft
+	PARAM_INT32("RPM_NPULSES", g_pulses_per_revolution, 1, 1, 64, NULL),
+	// @DESC: Low RPM limit (Idle RPM - 10%..20%)
+	PARAM_INT32("RPM_MIN_IDLE", g_rpm_min_idle, 800, 0, 3000, NULL),
 
 	// @DESC: Enable debug feuture: send Status.adc_raw message
 	PARAM_BOOL("DEBUG_ADC_RAW", g_debug_enable_adc_raw, false, NULL),
