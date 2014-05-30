@@ -16,5 +16,3 @@ FWSRC = ${MINIECU}/fw/main.c \
 
 # Required include directories
 FWINC = ${MINIECU}/fw
-
-DDEFS += -DPB_NO_ERRMSG

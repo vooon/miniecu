@@ -23,6 +23,9 @@
 #include "alert_led.h"
 #include "th_flash_log.h"
 #include "flash-mtd.h"
+
+#include "miniecu.pb.h"
+#include "flash.pb.h"
 #include "param.h"
 #include <string.h>
 
@@ -55,7 +58,10 @@ static const struct sst25_partition init_parts[] = {
 	{ NULL }
 };
 
-//static uint8_t rw_buff[256]; /* note: for sst25 */
+static uint8_t m_rw_buff[256]; /* note: for sst25 */
+
+/* -*- submodules -*- */
+#include "flash_param.c"
 
 /* -*- public -*- */
 
@@ -86,6 +92,8 @@ THD_FUNCTION(th_flash_log, arg ATTR_UNUSED)
 
 			alert_component(ALS_FLASH, AL_NORMAL);
 			sst25InitPartitionTable(&SST25_chip, init_parts);
+
+			flash_param_save();
 		}
 	}
 }

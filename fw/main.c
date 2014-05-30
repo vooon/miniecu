@@ -29,7 +29,7 @@ static THD_WORKING_AREA(wa_comm, 1024);
 static THD_WORKING_AREA(wa_led, 128);
 static THD_WORKING_AREA(wa_adc, 512);
 static THD_WORKING_AREA(wa_rpm, 256);
-static THD_WORKING_AREA(wa_flash_log, 512);
+static THD_WORKING_AREA(wa_flash_log, 1024);
 static THD_WORKING_AREA(wa_command, 256);
 
 /*
