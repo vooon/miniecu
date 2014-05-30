@@ -19,6 +19,7 @@
 #include "th_adc.h"
 #include "th_rpm.h"
 #include "th_flash_log.h"
+#include "th_command.h"
 #include "alert_led.h"
 #include "rtc_time.h"
 #include "pbstx.h"
@@ -29,6 +30,7 @@ static THD_WORKING_AREA(wa_led, 128);
 static THD_WORKING_AREA(wa_adc, 512);
 static THD_WORKING_AREA(wa_rpm, 256);
 static THD_WORKING_AREA(wa_flash_log, 512);
+static THD_WORKING_AREA(wa_command, 256);
 
 /*
  * Application entry point.
@@ -56,6 +58,7 @@ int main(void) {
 	chThdCreateStatic(wa_flash_log, sizeof(wa_flash_log), NORMALPRIO - 2, th_flash_log, NULL);
 	chThdCreateStatic(wa_adc, sizeof(wa_adc), NORMALPRIO + 1, th_adc, NULL);
 	chThdCreateStatic(wa_rpm, sizeof(wa_rpm), NORMALPRIO - 1, th_rpm, NULL);
+	chThdCreateStatic(wa_command, sizeof(wa_command), NORMALPRIO - 2, th_command, NULL);
 
 	/* we use main thread as idle */
 	chThdSetPriority(IDLEPRIO);

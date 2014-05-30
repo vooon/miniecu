@@ -121,7 +121,7 @@ bool rpm_check_engine_running(void)
 THD_FUNCTION(th_rpm, arg ATTR_UNUSED)
 {
 	/* set listening thread */
-	thdp_rpm = currp;
+	thdp_rpm = chThdSelf();
 
 	/* clear filter data */
 	m_period_idx = 0;

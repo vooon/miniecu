@@ -29,6 +29,7 @@
 #include "rtc_time.h"
 #include "th_adc.h"
 #include "th_rpm.h"
+#include "th_command.h"
 
 /* global parameters */
 
@@ -156,6 +157,8 @@ static void send_status(void)
 	if (batt_check_voltage())	flags |= miniecu_Status_Flags_UNDERVOLTAGE;
 	if (rpm_check_limit())		flags |= miniecu_Status_Flags_HIGH_RPM;
 	if (rpm_check_engine_running())	flags |= miniecu_Status_Flags_ENGINE_RUNNING;
+	if (command_check_ignition())	flags |= miniecu_Status_Flags_IGNITION_ENABLED;
+	if (command_check_starter())	flags |= miniecu_Status_Flags_STARTER_ENABLED;
 
 	memset(&status, 0, sizeof(status));
 	status.engine_id = g_engine_id;
@@ -240,7 +243,25 @@ static void recv_command(uint8_t msg_len)
 		return;
 	}
 
-	/* TODO */
+	/* answer to broadcast to */
+	if (cmd.engine_id != (unsigned)g_engine_id
+			&& cmd.engine_id != 0)
+		return;
+
+	pb_ostream_t outstream = pb_ostream_from_buffer(msg_buf, sizeof(msg_buf));
+
+	/* note: th_command can send response later */
+	cmd.engine_id = g_engine_id;
+	cmd.has_response = true;
+	cmd.response = command_request(cmd.operation);
+
+	if (!pb_encode(&outstream, miniecu_Command_fields, &cmd)) {
+		alert_component(ALS_COMM, AL_FAIL);
+		return;
+	}
+
+	pbstx_send(miniecu_MessageId_COMMAND,
+			msg_buf, outstream.bytes_written);
 }
 
 static void send_param_value(miniecu_ParamValue *pv_msg)

@@ -243,7 +243,7 @@ float adc_getll_vrtc(void)
 THD_FUNCTION(th_adc, arg ATTR_UNUSED)
 {
 	/* set listening thread */
-	thdp_adc = currp;
+	thdp_adc = chThdSelf();
 
 	/* ADC1 */
 	adcStart(&ADCD1, NULL);

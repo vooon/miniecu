@@ -11,9 +11,10 @@ FWSRC = ${MINIECU}/fw/main.c \
 	${MINIECU}/fw/usb_vcom.c \
 	${MINIECU}/fw/memdump.c \
 	${MINIECU}/fw/th_rpm.c \
-	${MINIECU}/fw/th_flash_log.c
+	${MINIECU}/fw/th_flash_log.c \
+	${MINIECU}/fw/th_command.c
 
 # Required include directories
 FWINC = ${MINIECU}/fw
 
-DDEFS += -DPB_BUFFER_ONLY -DPB_NO_ERRMSG
+DDEFS += -DPB_NO_ERRMSG
