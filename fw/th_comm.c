@@ -63,9 +63,6 @@ THD_FUNCTION(th_comm, arg ATTR_UNUSED)
 	uint8_t in_msg_len;
 	systime_t send_time = 0;
 
-	param_init();
-	pbstx_init();
-
 	while (true) {
 		if (chTimeElapsedSince(send_time) >= MS2ST(g_status_period)) {
 			send_status();
@@ -116,7 +113,7 @@ void debug_printf(enum severity severity, char *fmt, ...)
 	va_list ap;
 	MemoryStream ms;
 	BaseSequentialStream *chp;
-	uint8_t local_msg_buf[68];
+	uint8_t local_msg_buf[82];
 	pb_ostream_t outstream = pb_ostream_from_buffer(local_msg_buf,
 			sizeof(local_msg_buf));
 	miniecu_StatusText st;
@@ -393,7 +390,7 @@ static void recv_memory_dump_request(uint8_t msg_len)
 				page_msg.page.bytes,
 				(bytes_rem > MEMDUMP_SIZE)? MEMDUMP_SIZE : bytes_rem);
 
-		if (ret < 0) {
+		if (ret <= 0) {
 			debug_printf(DP_ERROR, "MemDump: read error");
 			return;
 		}

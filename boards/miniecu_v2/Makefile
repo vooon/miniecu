@@ -79,7 +79,7 @@ include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/ports/GCC/ARMCMx/STM32F3xx/port.mk
 include $(CHIBIOS)/os/kernel/kernel.mk
 include $(MINIECU)/pb/nanopb.mk
-include $(FLASH25)/flash25.mk
+include $(FLASH25)/flash-mtd.mk
 include $(MINIECU)/fw/fw.mk
 
 # Define linker script file here

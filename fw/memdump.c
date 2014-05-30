@@ -30,9 +30,30 @@ int32_t memdump_int_ram(uint32_t address, void *buffer, size_t size)
 	return size;
 }
 
-int32_t memdump_ext_flash(uint32_t address ATTR_UNUSED, void *buffer ATTR_UNUSED, size_t size ATTR_UNUSED)
+/* defined in th_flash_log.c */
+bool_t memdump_ll_flash_readpage(uint32_t page, uint8_t *rbuff);
+
+/* TODO: generalize SST25 only functions */
+int32_t memdump_ext_flash(uint32_t address, void *buffer, size_t size)
 {
-	/* TODO */
-	return -1;
+	uint8_t rd_buff[256]; /* SST25 */
+	int32_t size_ret = 0;
+
+	while (size_ret < size) {
+		uint32_t page = address / sizeof(rd_buff);
+		uint32_t off = address % sizeof(rd_buff);
+		int32_t sz = sizeof(rd_buff) - off;
+
+		if (sz > size - size_ret)	sz = size - size_ret;
+		if (memdump_ll_flash_readpage(page, rd_buff) != CH_SUCCESS)
+			return -1;
+
+		memcpy(buffer, rd_buff + off, sz);
+		address += sz;
+		buffer += sz;
+		size_ret += sz;
+	}
+
+	return size_ret;
 }
 

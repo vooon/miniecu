@@ -10,7 +10,8 @@ FWSRC = ${MINIECU}/fw/main.c \
 	${MINIECU}/fw/ntc.c \
 	${MINIECU}/fw/usb_vcom.c \
 	${MINIECU}/fw/memdump.c \
-	${MINIECU}/fw/th_rpm.c
+	${MINIECU}/fw/th_rpm.c \
+	${MINIECU}/fw/th_flash_log.c
 
 # Required include directories
 FWINC = ${MINIECU}/fw

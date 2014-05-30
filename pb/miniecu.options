@@ -5,5 +5,5 @@
 
 *.param_id              max_size:16
 *.ParamType.u_string    max_size:16
-*.StatusText.text       max_size:50
+*.StatusText.text       max_size:64
 *.MemoryDumpPage.page	max_size:64

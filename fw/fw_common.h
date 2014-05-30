@@ -64,4 +64,8 @@ enum severity {
 void debug_printf(enum severity severity, char *fmt, ...)
 	__attribute__((format (printf, 2, 3)));
 
+/* flash-mtd driver messages */
+#define MTD_DEBUG(fmt, args...)		debug_printf(DP_DEBUG, fmt, args)
+#define MTD_INFO(fmt, args...)		debug_printf(DP_INFO, fmt, args)
+
 #endif /* FW_COMMON_H */

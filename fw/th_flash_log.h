@@ -1,6 +1,6 @@
 /**
- * @file       alert_led.h
- * @brief      led alarm functions
+ * @file       th_flash_log.h
+ * @brief      FLASH task
  * @author     Vladimir Ermakov Copyright (C) 2014.
  * @see        The GNU Public License (GPL) Version 3
  */
@@ -20,28 +20,13 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef ALERT_LED_H
-#define ALERT_LED_H
+#ifndef TH_FLASH_LOG_H
+#define TH_FLASH_LOG_H
 
 #include "fw_common.h"
 
-enum alert_status {
-	AL_INIT = 0,
-	AL_FAIL,
-	AL_NORMAL
-};
+THD_FUNCTION(th_flash_log, arg ATTR_UNUSED);
 
-enum alert_source {
-	ALS_COMM = 0,
-	ALS_ADC,
-	//ALS_RTC,
-	ALS_FLASH,
-	ALS_MAX /* max size of alert array */
-};
+/* subsystem functions */
 
-THD_FUNCTION(th_led, arg ATTR_UNUSED);
-void alert_init(void);
-void alert_component(enum alert_source src, enum alert_status st);
-bool alert_check_error(void);
-
-#endif /* ALERT_LED_H */
+#endif /* TH_FLASH_LOG_H */
