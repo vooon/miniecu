@@ -22,6 +22,7 @@
 
 #include "pb_encode.h"
 #include "pb_decode.h"
+#include "pios_crc.h"
 
 // For big endian:
 //#define PARAM_SIGNATURE		0x706172616d763130
@@ -93,6 +94,26 @@ static bool flash_pb_ostream_cb(pb_ostream_t *stream, const uint8_t *buf, size_t
 	return true;
 }
 
+static bool flash_encode_repeated_parameter_storage(pb_ostream_t *stream, const pb_field_t *field, void * const *arg ATTR_UNUSED)
+{
+	flash_ParamStorage storage;
+	size_t idx, count = param_count();
+	for (idx = 0; idx < count; idx++) {
+		memset(&storage, 0, sizeof(storage));
+		if (param_get_by_idx(idx, storage.param_id, &storage.value) != PARAM_OK)
+			continue;
+
+		uint8_t crc8 = PIOS_CRC_updateCRC(0, (uint8_t *)storage.param_id, PT_ID_SIZE);
+		storage.crc8 = PIOS_CRC_updateCRC(crc8, (uint8_t *)&storage.value, sizeof(storage.value));
+
+		if (!pb_encode_tag_for_field(stream, field))
+			return false;
+
+		if (!pb_encode_submessage(stream, flash_ParamStorage_fields, &storage))
+			return false;
+	}
+}
+
 /* -*- public -*- */
 
 void flash_param_load(void)
@@ -102,7 +123,7 @@ void flash_param_load(void)
 
 void flash_param_save(void)
 {
-	//flash_ParamStorageArray param_array;
+	flash_ParamStorageArray param_array;
 	flash_pb_state_t state = { 0 };
 	flash_param_header_t header = { PARAM_SIGNATURE, PARAM_VERSION, 0, {0,0} };
 
@@ -115,7 +136,12 @@ void flash_param_save(void)
 	header.counter = ++m_flash_param_cnt;
 	pb_write(&ostream, (const uint8_t *)&header, sizeof(header));
 
-	//param_array.vars.funcs.encode = NULL;
+	param_array.vars.funcs.encode = flash_encode_repeated_parameter_storage;
+
+	if (!pb_encode(&ostream, flash_ParamStorageArray_fields, &param_array)) {
+		alert_component(ALS_FLASH, AL_FAIL);
+		return;
+	}
 
 	/* finalize stream */
 	flash_pb_ostream_finalize(&ostream);
