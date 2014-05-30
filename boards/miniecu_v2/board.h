@@ -77,11 +77,11 @@
 #define GPIOB_I2C1_SDA              7
 #define GPIOB_CAN_RX                8
 #define GPIOB_CAN_TX                9
-#define GPIOB_FLASH_CS              10
+#define GPIOB_PIN10                 10
 #define GPIOB_PIN11                 11
 #define GPIOB_PIN12                 12
 #define GPIOB_PIN13                 13
-#define GPIOB_PIN14                 14
+#define GPIOB_FLASH_CS              14
 #define GPIOB_PIN15                 15
 
 #define GPIOC_PIN0                  0
@@ -304,11 +304,11 @@
  * PB7  - I2C1 SDA                  (alternate 4).
  * PB8  - CAN RX                    (alternate 9).
  * PB9  - CAN TX                    (alternate 9).
- * PB10 - FLASH_CS                  (output up).
+ * PB10 -                           (def).
  * PB11 -                           (def).
  * PB12 -                           (def).
  * PB13 -                           (def).
- * PB14 -                           (def).
+ * PB14 - FLASH_CS                  (output up).
  * PB15 -                           (def).
  */
 #define VAL_GPIOB_MODER             (PIN_MODE_ANALOG(GPIOB_THERM) |         \
@@ -321,11 +321,11 @@
                                      PIN_MODE_ALTERNATE(GPIOB_I2C1_SDA) |   \
                                      PIN_MODE_ALTERNATE(GPIOB_CAN_RX) |     \
                                      PIN_MODE_ALTERNATE(GPIOB_CAN_TX) |     \
-                                     PIN_MODE_OUTPUT(GPIOB_FLASH_CS) |      \
+                                     PIN_MODE_INPUT(GPIOB_PIN10) |          \
                                      PIN_MODE_INPUT(GPIOB_PIN11) |          \
                                      PIN_MODE_INPUT(GPIOB_PIN12) |          \
                                      PIN_MODE_INPUT(GPIOB_PIN13) |          \
-                                     PIN_MODE_INPUT(GPIOB_PIN14) |          \
+                                     PIN_MODE_OUTPUT(GPIOB_FLASH_CS) |      \
                                      PIN_MODE_INPUT(GPIOB_PIN15))
 #define VAL_GPIOB_OTYPER            (PIN_OTYPE_PUSHPULL(GPIOB_THERM) |      \
                                      PIN_OTYPE_PUSHPULL(GPIOB_OIL_PRES) |   \
@@ -337,11 +337,11 @@
                                      PIN_OTYPE_OPENDRAIN(GPIOB_I2C1_SDA) |  \
                                      PIN_OTYPE_PUSHPULL(GPIOB_CAN_RX) |     \
                                      PIN_OTYPE_PUSHPULL(GPIOB_CAN_TX) |     \
-                                     PIN_OTYPE_PUSHPULL(GPIOB_FLASH_CS) |   \
+                                     PIN_OTYPE_PUSHPULL(GPIOB_PIN10) |      \
                                      PIN_OTYPE_PUSHPULL(GPIOB_PIN11) |      \
                                      PIN_OTYPE_PUSHPULL(GPIOB_PIN12) |      \
                                      PIN_OTYPE_PUSHPULL(GPIOB_PIN13) |      \
-                                     PIN_OTYPE_PUSHPULL(GPIOB_PIN14) |      \
+                                     PIN_OTYPE_PUSHPULL(GPIOB_FLASH_CS) |   \
                                      PIN_OTYPE_PUSHPULL(GPIOB_PIN15))
 #define VAL_GPIOB_OSPEEDR           (PIN_OSPEED_2M(GPIOB_THERM) |           \
                                      PIN_OSPEED_2M(GPIOB_OIL_PRES) |        \
@@ -353,11 +353,11 @@
                                      PIN_OSPEED_100M(GPIOB_I2C1_SDA) |      \
                                      PIN_OSPEED_100M(GPIOB_CAN_RX) |        \
                                      PIN_OSPEED_100M(GPIOB_CAN_TX) |        \
-                                     PIN_OSPEED_100M(GPIOB_FLASH_CS) |      \
+                                     PIN_OSPEED_2M(GPIOB_PIN10) |           \
                                      PIN_OSPEED_2M(GPIOB_PIN11) |           \
                                      PIN_OSPEED_2M(GPIOB_PIN12) |           \
                                      PIN_OSPEED_2M(GPIOB_PIN13) |           \
-                                     PIN_OSPEED_2M(GPIOB_PIN14) |           \
+                                     PIN_OSPEED_100M(GPIOB_FLASH_CS) |      \
                                      PIN_OSPEED_2M(GPIOB_PIN15))
 #define VAL_GPIOB_PUPDR             (PIN_PUPDR_FLOATING(GPIOB_THERM) |      \
                                      PIN_PUPDR_FLOATING(GPIOB_OIL_PRES) |   \
@@ -369,11 +369,11 @@
                                      PIN_PUPDR_PULLUP(GPIOB_I2C1_SDA) |     \
                                      PIN_PUPDR_FLOATING(GPIOB_CAN_RX) |     \
                                      PIN_PUPDR_FLOATING(GPIOB_CAN_TX) |     \
-                                     PIN_PUPDR_FLOATING(GPIOB_FLASH_CS) |   \
+                                     PIN_PUPDR_PULLUP(GPIOB_PIN10) |        \
                                      PIN_PUPDR_PULLUP(GPIOB_PIN11) |        \
                                      PIN_PUPDR_PULLUP(GPIOB_PIN12) |        \
                                      PIN_PUPDR_PULLUP(GPIOB_PIN13) |        \
-                                     PIN_PUPDR_PULLUP(GPIOB_PIN14) |        \
+                                     PIN_PUPDR_PULLUP(GPIOB_FLASH_CS) |     \
                                      PIN_PUPDR_PULLUP(GPIOB_PIN15))
 #define VAL_GPIOB_ODR               (PIN_ODR_HIGH(GPIOB_THERM) |            \
                                      PIN_ODR_HIGH(GPIOB_OIL_PRES) |         \
@@ -385,11 +385,11 @@
                                      PIN_ODR_HIGH(GPIOB_I2C1_SDA) |         \
                                      PIN_ODR_HIGH(GPIOB_CAN_RX) |           \
                                      PIN_ODR_HIGH(GPIOB_CAN_TX) |           \
-                                     PIN_ODR_HIGH(GPIOB_FLASH_CS) |         \
+                                     PIN_ODR_HIGH(GPIOB_PIN10) |            \
                                      PIN_ODR_HIGH(GPIOB_PIN11) |            \
                                      PIN_ODR_HIGH(GPIOB_PIN12) |            \
                                      PIN_ODR_HIGH(GPIOB_PIN13) |            \
-                                     PIN_ODR_HIGH(GPIOB_PIN14) |            \
+                                     PIN_ODR_HIGH(GPIOB_FLASH_CS) |         \
                                      PIN_ODR_HIGH(GPIOB_PIN15))
 #define VAL_GPIOB_AFRL              (PIN_AFIO_AF(GPIOB_THERM, 0) |          \
                                      PIN_AFIO_AF(GPIOB_OIL_PRES, 0) |       \
@@ -401,11 +401,11 @@
                                      PIN_AFIO_AF(GPIOB_I2C1_SDA, 4))
 #define VAL_GPIOB_AFRH              (PIN_AFIO_AF(GPIOB_CAN_RX, 9) |         \
                                      PIN_AFIO_AF(GPIOB_CAN_TX, 9) |         \
-                                     PIN_AFIO_AF(GPIOB_FLASH_CS, 0) |       \
+                                     PIN_AFIO_AF(GPIOB_PIN10, 0) |          \
                                      PIN_AFIO_AF(GPIOB_PIN11, 0) |          \
                                      PIN_AFIO_AF(GPIOB_PIN12, 0) |          \
                                      PIN_AFIO_AF(GPIOB_PIN13, 0) |          \
-                                     PIN_AFIO_AF(GPIOB_PIN14, 0) |          \
+                                     PIN_AFIO_AF(GPIOB_FLASH_CS, 0) |       \
                                      PIN_AFIO_AF(GPIOB_PIN15, 0))
 
 /*
