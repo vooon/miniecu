@@ -79,9 +79,9 @@ class PBStx(object):
     }
 
     def __init__(self, port, baud=57600, sysid=240):
+        self.terminate = threading.Event()
         self.ser = serial.Serial(port, baud)
         self.ser.setTimeout(2.0)
-        self.terminate = threading.Event()
         self._tx_seq = 0
         self._rx_seq = 0
 
