@@ -40,8 +40,8 @@ enum rx_state {
 #define HDR_START		0xa5
 #define MAX_PAYLOAD		255
 
-#define SER_TIMEOUT		MS2ST(10)
-#define SER_PAYLOAD_TIMEOUT	MS2ST(50)
+#define SER_TIMEOUT		MS2ST(100)
+#define SER_PAYLOAD_TIMEOUT	MS2ST(500)
 
 extern void vcom_start(void);
 extern void vcom_connect(void);

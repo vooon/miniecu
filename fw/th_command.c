@@ -22,10 +22,12 @@
 
 #include "alert_led.h"
 #include "th_comm.h"
+#include "th_flash_log.h"
 #include "miniecu.pb.h"
 
 static Thread *thdp_cmd;
-#define EVT_TIMEOUT		MS2ST(1000)
+#define EVT_TIMEOUT		MS2ST(10000)
+#define CFG_OP_TIMEOUT		MS2ST(1000)
 #define ESTOP_EVMASK		EVENT_MASK(1)
 #define DO_START_EVMASK		EVENT_MASK(2)
 #define SAVE_CFG_EVMASK		EVENT_MASK(3)
@@ -33,13 +35,33 @@ static Thread *thdp_cmd;
 #define DO_ERASE_CFG_EVMASK	EVENT_MASK(5)
 #define DO_ERASE_LOG_EVMASK	EVENT_MASK(6)
 
-
 THD_FUNCTION(th_command, arg ATTR_UNUSED)
 {
 	thdp_cmd = chThdSelf();
 
 	while (true) {
 		eventmask_t mask = chEvtWaitAnyTimeout(ALL_EVENTS, EVT_TIMEOUT);
+
+		if (mask & LOAD_CFG_EVMASK) {
+			send_command_response(miniecu_Command_Operation_LOAD_CONFIG,
+					(flash_do_load_cfg(CFG_OP_TIMEOUT))?
+						miniecu_Command_Response_ACK :
+						miniecu_Command_Response_NACK);
+		}
+
+		if (mask & SAVE_CFG_EVMASK) {
+			send_command_response(miniecu_Command_Operation_SAVE_CONFIG,
+					(flash_do_save_cfg(CFG_OP_TIMEOUT))?
+						miniecu_Command_Response_ACK :
+						miniecu_Command_Response_NACK);
+		}
+
+		if (mask & DO_ERASE_CFG_EVMASK) {
+			send_command_response(miniecu_Command_Operation_DO_ERASE_CONFIG,
+					(flash_do_erase_cfg(CFG_OP_TIMEOUT))?
+						miniecu_Command_Response_ACK :
+						miniecu_Command_Response_NACK);
+		}
 	}
 }
 
@@ -85,7 +107,7 @@ uint32_t command_request(uint32_t cmdid)
 		mask = DO_ERASE_CFG_EVMASK;
 		break;
 	case miniecu_Command_Operation_DO_ERASE_LOG:
-		mask = DO_ERASE_LOG_EVMASK;
+		//mask = DO_ERASE_LOG_EVMASK;
 		break;
 
 	case miniecu_Command_Operation_DO_REBOOT:

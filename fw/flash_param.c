@@ -88,7 +88,6 @@ static bool flash_decode_repeated_parameter_storage(pb_istream_t *stream,
 		const pb_field_t *field ATTR_UNUSED, void **arg ATTR_UNUSED)
 {
 	flash_ParamStorage storage;
-	bool status;
 
 	memset(&storage, 0, sizeof(storage));
 	if (!pb_decode_noinit(stream, flash_ParamStorage_fields, &storage)) {

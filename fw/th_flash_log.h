@@ -28,5 +28,8 @@
 THD_FUNCTION(th_flash_log, arg ATTR_UNUSED);
 
 /* subsystem functions */
+bool flash_do_load_cfg(systime_t timeout);
+bool flash_do_save_cfg(systime_t timeout);
+bool flash_do_erase_cfg(systime_t timeout);
 
 #endif /* TH_FLASH_LOG_H */

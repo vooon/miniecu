@@ -233,6 +233,26 @@ static void recv_time_reference(uint8_t msg_len)
 			msg_buf, outstream.bytes_written);
 }
 
+void send_command_response(uint32_t operation, uint32_t response)
+{
+	uint8_t local_msg_buf[32];
+	pb_ostream_t outstream = pb_ostream_from_buffer(local_msg_buf, sizeof(local_msg_buf));
+	miniecu_Command cmd;
+
+	cmd.engine_id = g_engine_id;
+	cmd.operation = operation;
+	cmd.has_response = true;
+	cmd.response = response;
+
+	if (!pb_encode(&outstream, miniecu_Command_fields, &cmd)) {
+		alert_component(ALS_COMM, AL_FAIL);
+		return;
+	}
+
+	pbstx_send(miniecu_MessageId_COMMAND,
+			local_msg_buf, outstream.bytes_written);
+}
+
 static void recv_command(uint8_t msg_len)
 {
 	pb_istream_t instream = pb_istream_from_buffer(msg_buf, msg_len);
@@ -248,20 +268,8 @@ static void recv_command(uint8_t msg_len)
 			&& cmd.engine_id != 0)
 		return;
 
-	pb_ostream_t outstream = pb_ostream_from_buffer(msg_buf, sizeof(msg_buf));
-
 	/* note: th_command can send response later */
-	cmd.engine_id = g_engine_id;
-	cmd.has_response = true;
-	cmd.response = command_request(cmd.operation);
-
-	if (!pb_encode(&outstream, miniecu_Command_fields, &cmd)) {
-		alert_component(ALS_COMM, AL_FAIL);
-		return;
-	}
-
-	pbstx_send(miniecu_MessageId_COMMAND,
-			msg_buf, outstream.bytes_written);
+	send_command_response(cmd.operation, command_request(cmd.operation));
 }
 
 static void send_param_value(miniecu_ParamValue *pv_msg)

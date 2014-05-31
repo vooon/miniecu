@@ -60,6 +60,15 @@ static const struct sst25_partition init_parts[] = {
 
 static uint8_t m_rw_buff[256]; /* note: for sst25 */
 
+static CONDVAR_DECL(m_cfg_operation);
+
+static Thread *thdp_log = NULL;
+#define EVT_TIMEOUT			MS2ST(10000)
+#define DO_SAVE_CFG_EVMASK		EVENT_MASK(3)
+#define DO_LOAD_CFG_EVMASK		EVENT_MASK(4)
+#define DO_ERASE_CFG_EVMASK		EVENT_MASK(5)
+#define DO_ERASE_LOG_EVMASK		EVENT_MASK(6)
+
 /* -*- submodules -*- */
 #include "flash_param.c"
 
@@ -75,14 +84,21 @@ bool_t memdump_ll_flash_readpage(uint32_t page, uint8_t *rbuff)
 
 THD_FUNCTION(th_flash_log, arg ATTR_UNUSED)
 {
-	spiStart(&SPID1, &spi1_cfg);
+	bool is_first_loop = true;
+	eventmask_t mask = 0;
+
+	thdp_log = chThdSelf();
 
 	sst25ObjectInit(&SST25_chip);
 	sst25Start(&SST25_chip, &flash_cfg);
 
 	while (true) {
-		chThdSleepMilliseconds(1000);
+		if (is_first_loop)
+			is_first_loop = false;
+		else
+			mask = chEvtWaitAnyTimeout(ALL_EVENTS, EVT_TIMEOUT);
 
+		/* initialization */
 		if (blkGetDriverState(&SST25_chip) != BLK_ACTIVE) {
 			if (blkConnect(&SST25_chip) != CH_SUCCESS) {
 				alert_component(ALS_FLASH, AL_FAIL);
@@ -92,10 +108,58 @@ THD_FUNCTION(th_flash_log, arg ATTR_UNUSED)
 
 			alert_component(ALS_FLASH, AL_NORMAL);
 			sst25InitPartitionTable(&SST25_chip, init_parts);
-
-			flash_param_load();
-			flash_param_save();
+			mask = DO_LOAD_CFG_EVMASK;
 		}
+
+		if (mask & DO_LOAD_CFG_EVMASK) {
+			debug_printf(DP_INFO, "requested load configuration");
+			flash_param_load();
+			chCondBroadcast(&m_cfg_operation);
+		}
+
+		if (mask & DO_SAVE_CFG_EVMASK) {
+			debug_printf(DP_INFO, "requested save configuration");
+			flash_param_save();
+			chCondBroadcast(&m_cfg_operation);
+		}
+
+		if (mask & DO_ERASE_CFG_EVMASK) {
+			debug_printf(DP_WARN, "requested erase configuration");
+			mtdErase(&SST25_config, 0, UINT32_MAX);
+			chCondBroadcast(&m_cfg_operation);
+		}
+
+		/* TODO */
 	}
+}
+
+bool flash_do_load_cfg(systime_t timeout)
+{
+	if (thdp_log == NULL)
+		return false;
+
+	chEvtSignal(thdp_log, DO_LOAD_CFG_EVMASK);
+	//return chCondWaitTimeout(&m_cfg_operation, timeout) != RDY_TIMEOUT;
+	return true;
+}
+
+bool flash_do_save_cfg(systime_t timeout)
+{
+	if (thdp_log == NULL)
+		return false;
+
+	chEvtSignal(thdp_log, DO_SAVE_CFG_EVMASK);
+	//return chCondWaitTimeout(&m_cfg_operation, timeout) != RDY_TIMEOUT;
+	return true;
+}
+
+bool flash_do_erase_cfg(systime_t timeout)
+{
+	if (thdp_log == NULL)
+		return false;
+
+	chEvtSignal(thdp_log, DO_ERASE_CFG_EVMASK);
+	//return chCondWaitTimeout(&m_cfg_operation, timeout) != RDY_TIMEOUT;
+	return true;
 }
 

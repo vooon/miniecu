@@ -27,4 +27,8 @@
 
 THD_FUNCTION(th_comm, arg ATTR_UNUSED);
 
+/* public functions */
+void send_command_response(uint32_t operation, uint32_t response);
+/* debug_printf() defined in fw_common.h */
+
 #endif /* TH_COMM_H */
