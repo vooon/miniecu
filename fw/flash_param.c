@@ -53,11 +53,8 @@ static bool flash_pb_istream_read_next(pb_istream_t *stream)
 
 	state->buffer.eos = state->buffer.offset = 0;
 
-	debug_printf(DP_DEBUG, "read %u page", state->page);
-	if (blkRead(&SST25_config, state->page, state->buffer.buffer, 1) != CH_SUCCESS) {
-		debug_printf(DP_DEBUG, "read fail");
+	if (blkRead(&SST25_config, state->page, state->buffer.buffer, 1) != CH_SUCCESS)
 		return false;
-	}
 
 	state->buffer.eos = mtdGetPageSize(&SST25_config);
 	state->page += 1;
@@ -125,7 +122,7 @@ static bool flash_pb_ostream_finalize(pb_ostream_t *stream)
 		return true;
 
 	/* fill tail */
-	while (chSequentialStreamPut(chp, 0x00) == RDY_OK);
+	while (chSequentialStreamPut(chp, 0xFF) == RDY_OK);
 
 	if (blkWrite(&SST25_config, state->page, state->buffer.buffer, 1) != CH_SUCCESS)
 		return false;
@@ -177,9 +174,9 @@ static bool flash_encode_repeated_parameter_storage(pb_ostream_t *stream,
 	return true;
 }
 
-/* -*- public -*- */
+/* -*- submodule functions -*- */
 
-void flash_param_load(void)
+static void flash_param_load(void)
 {
 	flash_ParamStorageArray param_array;
 	flash_pb_state_t state = { 0 };
@@ -211,11 +208,12 @@ void flash_param_load(void)
 	debug_printf(DP_INFO, "parameters loaded #%u", m_flash_param_cnt);
 }
 
-void flash_param_save(void)
+static void flash_param_save(void)
 {
 	flash_ParamStorageArray param_array;
 	flash_pb_state_t state = { 0 };
 	flash_param_header_t header = { PARAM_SIGNATURE, PARAM_VERSION, 0, {0,0} };
+	uint64_t null_terminator = 0;
 
 	msObjectInit(&state.buffer, m_rw_buff, sizeof(m_rw_buff), 0);
 	pb_ostream_t ostream = {flash_pb_ostream_cb, &state, mtdGetSize(&SST25_config), 0};
@@ -234,7 +232,12 @@ void flash_param_save(void)
 	}
 
 	/* finalize stream */
-	flash_pb_ostream_finalize(&ostream);
+	if (!pb_write(&ostream, (const uint8_t *)&null_terminator, sizeof(null_terminator)))
+		return;
+
+	if (!flash_pb_ostream_finalize(&ostream))
+		return;
+
 	debug_printf(DP_INFO, "parameters saved #%u, %u bytes", m_flash_param_cnt, ostream.bytes_written);
 }
 
