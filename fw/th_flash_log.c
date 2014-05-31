@@ -93,6 +93,7 @@ THD_FUNCTION(th_flash_log, arg ATTR_UNUSED)
 			alert_component(ALS_FLASH, AL_NORMAL);
 			sst25InitPartitionTable(&SST25_chip, init_parts);
 
+			flash_param_load();
 			flash_param_save();
 		}
 	}
