@@ -61,6 +61,7 @@ static const struct sst25_partition init_parts[] = {
 static uint8_t m_rw_buff[256]; /* note: for sst25 */
 
 static CONDVAR_DECL(m_cfg_operation);
+static MUTEX_DECL(m_cfg_op_mtx);
 
 static Thread *thdp_log = NULL;
 #define EVT_TIMEOUT			MS2ST(10000)
@@ -112,35 +113,42 @@ THD_FUNCTION(th_flash_log, arg ATTR_UNUSED)
 		}
 
 		if (mask & DO_LOAD_CFG_EVMASK) {
-			debug_printf(DP_INFO, "requested load configuration");
+			debug_printf(DP_INFO, "requested load cfg");
 			flash_param_load();
-			chCondBroadcast(&m_cfg_operation);
+			chCondSignal(&m_cfg_operation);
 		}
 
 		if (mask & DO_SAVE_CFG_EVMASK) {
-			debug_printf(DP_INFO, "requested save configuration");
+			debug_printf(DP_INFO, "requested save cfg");
 			flash_param_save();
-			chCondBroadcast(&m_cfg_operation);
+			chCondSignal(&m_cfg_operation);
 		}
 
 		if (mask & DO_ERASE_CFG_EVMASK) {
-			debug_printf(DP_WARN, "requested erase configuration");
+			debug_printf(DP_WARN, "requested erase cfg");
 			mtdErase(&SST25_config, 0, UINT32_MAX);
-			chCondBroadcast(&m_cfg_operation);
+			chCondSignal(&m_cfg_operation);
 		}
 
 		/* TODO */
 	}
 }
 
+/* -*- functions for th_command -*- */
+
 bool flash_do_load_cfg(systime_t timeout)
 {
 	if (thdp_log == NULL)
 		return false;
 
+	chMtxLock(&m_cfg_op_mtx);
 	chEvtSignal(thdp_log, DO_LOAD_CFG_EVMASK);
-	//return chCondWaitTimeout(&m_cfg_operation, timeout) != RDY_TIMEOUT;
-	return true;
+	if (chCondWaitTimeout(&m_cfg_operation, timeout) != RDY_TIMEOUT) {
+		chMtxUnlock();
+		return true;
+	}
+	else
+		return false;
 }
 
 bool flash_do_save_cfg(systime_t timeout)
@@ -148,9 +156,14 @@ bool flash_do_save_cfg(systime_t timeout)
 	if (thdp_log == NULL)
 		return false;
 
+	chMtxLock(&m_cfg_op_mtx);
 	chEvtSignal(thdp_log, DO_SAVE_CFG_EVMASK);
-	//return chCondWaitTimeout(&m_cfg_operation, timeout) != RDY_TIMEOUT;
-	return true;
+	if (chCondWaitTimeout(&m_cfg_operation, timeout) != RDY_TIMEOUT) {
+		chMtxUnlock();
+		return true;
+	}
+	else
+		return false;
 }
 
 bool flash_do_erase_cfg(systime_t timeout)
@@ -158,8 +171,13 @@ bool flash_do_erase_cfg(systime_t timeout)
 	if (thdp_log == NULL)
 		return false;
 
+	chMtxLock(&m_cfg_op_mtx);
 	chEvtSignal(thdp_log, DO_ERASE_CFG_EVMASK);
-	//return chCondWaitTimeout(&m_cfg_operation, timeout) != RDY_TIMEOUT;
-	return true;
+	if (chCondWaitTimeout(&m_cfg_operation, timeout) != RDY_TIMEOUT) {
+		chMtxUnlock();
+		return true;
+	}
+	else
+		return false;
 }
 

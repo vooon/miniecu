@@ -72,7 +72,7 @@ static bool flash_pb_istream_cb(pb_istream_t *stream, uint8_t *buf, size_t count
 			return false;
 
 	while (size_ret < count) {
-		size_t ret = chSequentialStreamRead(chp, buf, count - size_ret);
+		size_t ret = chSequentialStreamRead(chp, buf + size_ret, count - size_ret);
 		if (ret < count - size_ret) {
 			if (!flash_pb_istream_read_next(stream))
 				return false;
@@ -138,7 +138,7 @@ static bool flash_pb_ostream_cb(pb_ostream_t *stream, const uint8_t *buf, size_t
 	size_t size_ret = 0;
 
 	while (size_ret < count) {
-		size_t ret = chSequentialStreamWrite(chp, buf, count - size_ret);
+		size_t ret = chSequentialStreamWrite(chp, buf + size_ret, count - size_ret);
 		if (ret < count - size_ret) {
 			if (!flash_pb_ostream_finalize(stream))
 				return false;
