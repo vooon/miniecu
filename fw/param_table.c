@@ -60,8 +60,8 @@ static const struct param_entry parameter_table[] = {
 	PARAM_STRING("ECU_SERIAL", l_ecu_serial_no, "SETUP ERROR", on_ecu_serial_no_change),
 
 	// @DESC: baud rate for UART
-	// @VALUES: 9600, 19200, 38400, 57600, 115200
-	PARAM_INT32("SERIAL1_BAUD", g_serial_baud, 57600, 9600, 115200, on_serial1_change),
+	// @VALUES: 9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600
+	PARAM_INT32("SERIAL1_BAUD", g_serial_baud, 57600, 9600, 921600, on_serial1_change),
 	// @DESC: period of Status message in milliseconds
 	PARAM_INT32("STATUS_PERIOD", g_status_period, 1000, 100, 60000, NULL),
 

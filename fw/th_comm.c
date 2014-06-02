@@ -55,6 +55,13 @@ int32_t memdump_ext_flash(uint32_t address, void *buffer, size_t size);
 
 /* Local varables */
 static uint8_t msg_buf[256];
+static SerialConfig serial1_cfg = {
+	.speed = SERIAL_DEFAULT_BITRATE,
+	.cr1 = 0,
+	/* 8N1, autobaud mode 1 */
+	.cr2 = USART_CR2_STOP1_BITS | USART_CR2_ABREN | USART_CR2_ABRMODE_0,
+	.cr3 = 0
+};
 
 
 THD_FUNCTION(th_comm, arg ATTR_UNUSED)
@@ -142,8 +149,24 @@ void debug_printf(enum severity severity, char *fmt, ...)
 
 void on_serial1_change(const struct param_entry *p ATTR_UNUSED)
 {
-	debug_printf(DP_WARN, "serial baud change: %d", g_serial_baud);
-	/* TODO */
+	switch (g_serial_baud) {
+	case 9600:
+	case 19200:
+	case 38400:
+	case 57600:
+	case 115200:
+	case 230400:
+	case 460800:
+	case 921600:
+		debug_printf(DP_WARN, "serial baud change: %d", g_serial_baud);
+		serial1_cfg.speed = g_serial_baud;
+		sdStart(&SD1, &serial1_cfg);
+		break;
+
+	default:
+		g_serial_baud = serial1_cfg.speed;
+		break;
+	}
 }
 
 static void send_status(void)
