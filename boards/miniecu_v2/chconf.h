@@ -509,6 +509,8 @@
 }
 #endif
 
+void system_halt_hook(void);
+
 /**
  * @brief   System halt hook.
  * @details This hook is invoked in case to a system halting error before
@@ -517,6 +519,7 @@
 #if !defined(SYSTEM_HALT_HOOK) || defined(__DOXYGEN__)
 #define SYSTEM_HALT_HOOK() {                                                \
   /* System halt code here.*/                                               \
+  system_halt_hook();                                                       \
 }
 #endif
 
