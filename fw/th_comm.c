@@ -263,9 +263,7 @@ static void recv_command(uint8_t msg_len)
 		return;
 	}
 
-	/* answer to broadcast to */
-	if (cmd.engine_id != (unsigned)g_engine_id
-			&& cmd.engine_id != 0)
+	if (cmd.engine_id != (unsigned)g_engine_id)
 		return;
 
 	/* note: th_command can send response later */

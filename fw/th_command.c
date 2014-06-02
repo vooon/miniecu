@@ -26,21 +26,34 @@
 #include "miniecu.pb.h"
 
 static Thread *thdp_cmd;
-#define EVT_TIMEOUT		MS2ST(10000)
-#define CFG_OP_TIMEOUT		MS2ST(1000)
+#define CFG_OP_TIMEOUT		MS2ST(2000)
 #define ESTOP_EVMASK		EVENT_MASK(1)
 #define DO_START_EVMASK		EVENT_MASK(2)
-#define SAVE_CFG_EVMASK		EVENT_MASK(3)
-#define LOAD_CFG_EVMASK		EVENT_MASK(4)
-#define DO_ERASE_CFG_EVMASK	EVENT_MASK(5)
-#define DO_ERASE_LOG_EVMASK	EVENT_MASK(6)
+#define DO_STOP_EVMASK		EVENT_MASK(3)
+#define SAVE_CFG_EVMASK		EVENT_MASK(4)
+#define LOAD_CFG_EVMASK		EVENT_MASK(5)
+#define DO_ERASE_CFG_EVMASK	EVENT_MASK(6)
+#define DO_ERASE_LOG_EVMASK	EVENT_MASK(7)
+
+/*
+ * TODO: ENGINE_START script.
+ */
+
 
 THD_FUNCTION(th_command, arg ATTR_UNUSED)
 {
 	thdp_cmd = chThdSelf();
 
 	while (true) {
-		eventmask_t mask = chEvtWaitAnyTimeout(ALL_EVENTS, EVT_TIMEOUT);
+		eventmask_t mask = chEvtWaitAny(ALL_EVENTS);
+
+		if (mask & ESTOP_EVMASK) {
+			palClearPad(GPIOE, GPIOE_IGN_EN);
+			palClearPad(GPIOE, GPIOE_STARTER);
+			/* TODO: stop ENGINE_START script */
+			send_command_response(miniecu_Command_Operation_EMERGENCY_STOP,
+					miniecu_Command_Response_ACK);
+		}
 
 		if (mask & LOAD_CFG_EVMASK) {
 			send_command_response(miniecu_Command_Operation_LOAD_CONFIG,
@@ -71,7 +84,7 @@ uint32_t command_request(uint32_t cmdid)
 
 	switch (cmdid) {
 	case miniecu_Command_Operation_EMERGENCY_STOP:
-		//mask = ESTOP_EVMASK;
+		mask = ESTOP_EVMASK;
 		break;
 
 	case miniecu_Command_Operation_IGNITION_ENABLE:
@@ -89,8 +102,10 @@ uint32_t command_request(uint32_t cmdid)
 		return miniecu_Command_Response_ACK;
 
 	case miniecu_Command_Operation_DO_ENGINE_START:
-	case miniecu_Command_Operation_STOP_ENGINE_START:
 		//mask = DO_START_EVMASK;
+		break;
+	case miniecu_Command_Operation_STOP_ENGINE_START:
+		//mask = DO_STOP_EVMASK;
 		break;
 
 	case miniecu_Command_Operation_REFUEL_DONE:

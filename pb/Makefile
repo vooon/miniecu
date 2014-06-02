@@ -23,3 +23,6 @@ else
 	@echo Protoc $(<F)
 	@$(PROTOC) $(PROTOC_OPTS) --nanopb_out="$(PROTODIR)" $<
 endif
+
+python_msgs:
+	$(PROTOC) *.proto --python_out="$(MINIECU)/tools/miniecu"
