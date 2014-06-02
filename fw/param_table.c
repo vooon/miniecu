@@ -16,10 +16,16 @@ extern bool g_debug_enable_memdump;
 extern int32_t g_pulses_per_revolution;
 extern int32_t g_rpm_limit;
 extern int32_t g_rpm_min_idle;
+extern char g_oilp_mode[PT_STRING_SIZE];
+extern int32_t g_oilp_r;
+extern float g_oilp_sh_a;
+extern float g_oilp_sh_b;
+extern float g_oilp_sh_c;
 
 /* global callbacks */
 extern void on_serial1_change(const struct param_entry *p ATTR_UNUSED);
 extern void on_batt_type_change(const struct param_entry *p ATTR_UNUSED);
+extern void on_oilp_mode_change(const struct param_entry *p ATTR_UNUSED);
 
 /* special variables for host system (for identifying ECU) */
 static char l_engine_name[PT_STRING_SIZE];
@@ -84,6 +90,19 @@ static const struct param_entry parameter_table[] = {
 	PARAM_FLOAT("TEMP_SH_B", g_temp_sh_b, 0.7979e-4, -10, 10, NULL),
 	// @DESC: Steinhart-Hart C koeff for TEMP
 	PARAM_FLOAT("TEMP_SH_C", g_temp_sh_c, 6.5351e-7, -10, 10, NULL),
+
+	// @DESC: OILP input mode
+	// @VALUES: Disabled, NTC10k
+	PARAM_STRING("OILP_MODE", g_oilp_mode, "Disabled", on_oilp_mode_change),
+	// @DESC: OILP input mode R1 or R2
+	// @ENUM: R1=1, R2=2
+	PARAM_INT32("OILP_R", g_oilp_r, 2, 1, 2, NULL),
+	// @DESC: Steinhart-Hart A koeff for OILP in NTC10k mode
+	PARAM_FLOAT("OILP_SH_A", g_oilp_sh_a, 2.1085e-3, -10, 10, NULL),
+	// @DESC: Steinhart-Hart B koeff for OILP in NTC10k mode
+	PARAM_FLOAT("OILP_SH_B", g_oilp_sh_b, 0.7979e-4, -10, 10, NULL),
+	// @DESC: Steinhart-Hart C koeff for OILP in NTC10k mode
+	PARAM_FLOAT("OILP_SH_C", g_oilp_sh_c, 6.5351e-7, -10, 10, NULL),
 
 	// @DESC: High RPM limit
 	PARAM_INT32("RPM_LIMIT", g_rpm_limit, 8000, 0, 20000, NULL),

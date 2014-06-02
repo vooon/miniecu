@@ -196,10 +196,14 @@ static void send_status(void)
 
 	/* temperature */
 	status.temperature.engine1 = temp_get_temperature();
+	status.temperature.has_engine2 = oilp_get_temperature(&status.temperature.engine2);
 
 	/* CPU status */
 	status.cpu.load = 0; /* TODO */
 	status.cpu.temperature = temp_get_int_temperature();
+
+	/* Oil pressure */
+	status.has_oil_pressure = oilp_get_pressure(&status.oil_pressure);
 
 	if (g_debug_enable_adc_raw) {
 		status.has_adc_raw = true;

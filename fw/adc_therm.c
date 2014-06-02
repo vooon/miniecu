@@ -47,7 +47,7 @@ static float m_temp;	// [C°]
 /**
  * Return CPU temp in [mC°]
  */
-uint32_t temp_get_int_temperature(void)
+int32_t temp_get_int_temperature(void)
 {
 	return m_int_temp * 1000;
 }
@@ -55,7 +55,7 @@ uint32_t temp_get_int_temperature(void)
 /**
  * Return engine temp in [mC°]
  */
-uint32_t temp_get_temperature(void)
+int32_t temp_get_temperature(void)
 {
 	return m_temp * 1000;
 }

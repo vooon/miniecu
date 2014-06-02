@@ -33,9 +33,12 @@ uint32_t batt_get_voltage(void);
 bool batt_check_voltage(void);
 bool batt_get_remaining(uint32_t *out);
 
-uint32_t temp_get_int_temperature(void);
-uint32_t temp_get_temperature(void);
+int32_t temp_get_int_temperature(void);
+int32_t temp_get_temperature(void);
 bool temp_check_temperature(void);
+
+bool oilp_get_pressure(int32_t *out);
+bool oilp_get_temperature(int32_t *out);
 
 float adc_getll_temp(void);
 float adc_getll_oilp(void);
