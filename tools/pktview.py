@@ -5,12 +5,13 @@
 import argparse
 import miniecu
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("device", help="com port device file")
     parser.add_argument("baudrate", help="com port baudrate", type=int, nargs='?', default=57600)
 
-    args = parser.parse_args();
+    args = parser.parse_args()
 
     pbstx = miniecu.PBStx(args.device, args.baudrate)
 

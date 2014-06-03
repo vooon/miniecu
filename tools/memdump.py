@@ -5,6 +5,7 @@
 import argparse
 import miniecu
 
+
 def main():
     def autoint(s):
         return int(s, 0)
@@ -17,7 +18,7 @@ def main():
     parser.add_argument("-a", "--address", help="address", type=autoint, default=0)
     parser.add_argument("-s", "--size", help="size", type=autoint, default=0)
 
-    args = parser.parse_args();
+    args = parser.parse_args()
 
     pbstx = miniecu.PBStx(args.device, args.baudrate)
 

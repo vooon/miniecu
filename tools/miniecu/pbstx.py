@@ -12,18 +12,7 @@ import serial
 import threading
 
 try:
-    from miniecu_pb2 import Status, Command, TimeReference, \
-            ParamRequest, ParamSet, ParamValue, StatusText, \
-            MemoryDumpRequest, MemoryDumpPage, \
-            STATUS as MSGID_STATUS, \
-            TIME_REFERENCE as MSGID_TIME_REFERENCE, \
-            COMMAND as MSGID_COMMAND, \
-            PARAM_REQUEST as MSGID_PARAM_REQUEST, \
-            PARAM_SET as MSGID_PARAM_SET, \
-            PARAM_VALUE as MSGID_PARAM_VALUE, \
-            STATUS_TEXT as MSGID_STATUS_TEXT, \
-            MEMORY_DUMP_REQUEST as MSGID_MEMORY_DUMP_REQUEST, \
-            MEMORY_DUMP_PAGE as MSGID_MEMORY_DUMP_PAGE
+    import miniecu_pb2 as msgs
 except ImportError as ex:
     raise ImportError(str(ex) + ": did you run protoc generator?")
 
@@ -47,13 +36,13 @@ CRC_TABLE = (
     0xde, 0xd9, 0xd0, 0xd7, 0xc2, 0xc5, 0xcc, 0xcb, 0xe6, 0xe1, 0xe8, 0xef, 0xfa, 0xfd, 0xf4, 0xf3
 )
 
+
 def _crc8(crc, buf):
     crc8 = crc
     for b in buf:
         crc8 = CRC_TABLE[crc8 ^ b]
 
     return crc8
-
 
 
 class ReceiveError(Exception):
@@ -67,15 +56,15 @@ class PBStx(object):
     MAX_LEN = 255
 
     PKT_TYPES = {
-        MSGID_STATUS: Status,
-        MSGID_TIME_REFERENCE: TimeReference,
-        MSGID_COMMAND: Command,
-        MSGID_PARAM_REQUEST: ParamRequest,
-        MSGID_PARAM_SET: ParamSet,
-        MSGID_PARAM_VALUE: ParamValue,
-        MSGID_STATUS_TEXT: StatusText,
-        MSGID_MEMORY_DUMP_REQUEST: MemoryDumpRequest,
-        MSGID_MEMORY_DUMP_PAGE: MemoryDumpPage,
+        msgs.STATUS: msgs.Status,
+        msgs.TIME_REFERENCE: msgs.TimeReference,
+        msgs.COMMAND: msgs.Command,
+        msgs.PARAM_REQUEST: msgs.ParamRequest,
+        msgs.PARAM_SET: msgs.ParamSet,
+        msgs.PARAM_VALUE: msgs.ParamValue,
+        msgs.STATUS_TEXT: msgs.StatusText,
+        msgs.MEMORY_DUMP_REQUEST: msgs.MemoryDumpRequest,
+        msgs.MEMORY_DUMP_PAGE: msgs.MemoryDumpPage,
     }
 
     def __init__(self, port, baud=57600, sysid=240):
@@ -108,7 +97,6 @@ class PBStx(object):
     def receive(self):
         state = 'HDR'
         seq = 0
-        sysid = 0
         msgid = 0
         len_ = 0
         payload = bytearray()
@@ -129,7 +117,7 @@ class PBStx(object):
 
             elif state == 'SEQ':
                 seq = c[0]
-                crc = _crc8(0, c);
+                crc = _crc8(0, c)
                 state = 'MSGID'
 
             elif state == 'MSGID':
@@ -168,4 +156,3 @@ class PBStx(object):
 
         else:
             raise ReceiveError("Unknown MSGID: {}".format(msgid))
-
