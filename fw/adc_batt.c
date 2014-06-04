@@ -48,8 +48,7 @@ static uint32_t batt_get_remaining_nimh(void)
 	else if (cell_volt < BATT_NiMH_MINV)
 		return 0;
 	else
-		/* like arduino map() */
-		return (cell_volt - BATT_NiMH_MINV) * (100 - 0) / (BATT_NiMH_MAXV - BATT_NiMH_MINV) + 0;
+		return arduino_map(cell_volt, BATT_NiMH_MINV, BATT_NiMH_MAXV, 0, 100);
 }
 
 /* TODO: add remaining functions to other type (if possible) */

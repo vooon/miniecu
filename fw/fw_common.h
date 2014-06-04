@@ -68,4 +68,7 @@ void debug_printf(enum severity severity, char *fmt, ...)
 #define MTD_DEBUG(fmt, args...)		debug_printf(DP_DEBUG, fmt, args)
 #define MTD_INFO(fmt, args...)		debug_printf(DP_INFO, fmt, args)
 
+#define arduino_map(x, in_min, in_max, out_min, out_max) \
+	(((x) - (in_min)) * ((out_max) - (out_min)) / ((in_max) - (in_min)) + out_min)
+
 #endif /* FW_COMMON_H */

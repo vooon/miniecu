@@ -40,6 +40,11 @@ bool temp_check_temperature(void);
 bool oilp_get_pressure(int32_t *out);
 bool oilp_get_temperature(int32_t *out);
 
+bool flow_get_flow(uint32_t *out);
+uint32_t flow_get_used_ml(void);
+bool flow_check_fuel(void);
+bool flow_get_remaining(uint32_t *out);
+
 float adc_getll_temp(void);
 float adc_getll_oilp(void);
 float adc_getll_flow(void);

@@ -39,11 +39,13 @@ message TemperatureStatus {
 	optional int32 engine2 = 2;
 }
 
-// TODO: check it
 message FuelFlowStatus {
+	// Fuel voluemetric flow [0.1 mL^3/min]
 	required uint32 flow_ml = 1;
-	optional uint32 remaining = 2;
-	optional uint32 total_used_ml = 3;
+	// Total used counter [mL]
+	required uint32 total_used_ml = 2;
+	// Calculated fuel remainimg [%]
+	optional uint32 remaining = 3;
 }
 
 message EngineTimerStatus {

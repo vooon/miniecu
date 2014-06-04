@@ -176,12 +176,15 @@ static void send_status(void)
 	uint32_t flags = 0;
 
 	if (time_is_known())		flags |= miniecu_Status_Flags_TIME_KNOWN;
-	if (alert_check_error())	flags |= miniecu_Status_Flags_ERROR;
-	if (batt_check_voltage())	flags |= miniecu_Status_Flags_UNDERVOLTAGE;
-	if (rpm_check_limit())		flags |= miniecu_Status_Flags_HIGH_RPM;
-	if (rpm_check_engine_running())	flags |= miniecu_Status_Flags_ENGINE_RUNNING;
 	if (command_check_ignition())	flags |= miniecu_Status_Flags_IGNITION_ENABLED;
 	if (command_check_starter())	flags |= miniecu_Status_Flags_STARTER_ENABLED;
+	if (rpm_check_engine_running())	flags |= miniecu_Status_Flags_ENGINE_RUNNING;
+
+	if (alert_check_error())	flags |= miniecu_Status_Flags_ERROR;
+	if (batt_check_voltage())	flags |= miniecu_Status_Flags_UNDERVOLTAGE;
+	if (temp_check_temperature())	flags |= miniecu_Status_Flags_OVERHEAT;
+	if (rpm_check_limit())		flags |= miniecu_Status_Flags_HIGH_RPM;
+	if (flow_check_fuel())		flags |= miniecu_Status_Flags_LOW_FUEL;
 
 	memset(&status, 0, sizeof(status));
 	status.engine_id = g_engine_id;
@@ -204,6 +207,12 @@ static void send_status(void)
 
 	/* Oil pressure */
 	status.has_oil_pressure = oilp_get_pressure(&status.oil_pressure);
+
+	/* Fuel flow status */
+	if ((status.has_fuel = flow_get_flow(&status.fuel.flow_ml)) == true) {
+		status.fuel.total_used_ml = flow_get_used_ml();
+		status.fuel.has_remaining = flow_get_remaining(&status.fuel.remaining);
+	}
 
 	if (g_debug_enable_adc_raw) {
 		status.has_adc_raw = true;

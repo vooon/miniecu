@@ -21,11 +21,20 @@ extern int32_t g_oilp_r;
 extern float g_oilp_sh_a;
 extern float g_oilp_sh_b;
 extern float g_oilp_sh_c;
+extern bool g_flow_enable;
+extern float g_flow_v0;
+extern float g_flow_dia1;
+extern float g_flow_dia2;
+extern float g_flow_cd;
+extern float g_flow_ro;
+extern float g_flow_tank_ml;
+extern float g_flow_low_ml;
 
 /* global callbacks */
 extern void on_serial1_change(const struct param_entry *p ATTR_UNUSED);
 extern void on_batt_type_change(const struct param_entry *p ATTR_UNUSED);
 extern void on_oilp_mode_change(const struct param_entry *p ATTR_UNUSED);
+extern void on_flow_params_change(const struct param_entry *p ATTR_UNUSED);
 
 /* special variables for host system (for identifying ECU) */
 static char l_engine_name[PT_STRING_SIZE];
@@ -110,6 +119,23 @@ static const struct param_entry parameter_table[] = {
 	PARAM_INT32("RPM_NPULSES", g_pulses_per_revolution, 1, 1, 64, NULL),
 	// @DESC: Low RPM limit (Idle RPM - 10%..20%)
 	PARAM_INT32("RPM_MIN_IDLE", g_rpm_min_idle, 800, 0, 3000, NULL),
+
+	// @DESC: Enable FLOW sensor
+	PARAM_BOOL("FLOW_ENABLE", g_flow_enable, false, NULL),
+	// @DESC: MP3V5004DP voltage at 0 kPa
+	PARAM_FLOAT("FLOW_V0", g_flow_v0, 0.6, 0.0, 1.5, NULL),
+	// @DESC: Diameter of the pipe [mm]
+	PARAM_FLOAT("FLOW_DIA1", g_flow_dia1, 4.0, 0.0, 50.0, on_flow_params_change),
+	// @DESC: Diameter of the orifice hole [mm]
+	PARAM_FLOAT("FLOW_DIA2", g_flow_dia2, 2.0, 0.0, 50.0, on_flow_params_change),
+	// @DESC: Coefficent of disharge
+	PARAM_FLOAT("FLOW_CD", g_flow_cd, 0.75, 0.0, 10.0, on_flow_params_change),
+	// @DESC: Fluid density [kg/m3]
+	PARAM_FLOAT("FLOW_RO", g_flow_ro, 745.0, 0.0, 2000.0, NULL),
+	// @DESC: Fuel tank volume [mL]
+	PARAM_FLOAT("TANK_VOLUME", g_flow_tank_ml, 0.0, 0.0, 100e3, NULL),
+	// @DESC: Fuel reserve alert level [mL]
+	PARAM_FLOAT("TANK_LOW", g_flow_low_ml, 0.0, 0.0, 100e3, NULL),
 
 	// @DESC: Enable debug feuture: send Status.adc_raw message
 	PARAM_BOOL("DEBUG_ADC_RAW", g_debug_enable_adc_raw, false, NULL),

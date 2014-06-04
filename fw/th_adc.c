@@ -201,7 +201,7 @@ static const ADCConversionGroup sdadc3group = {
 	.end_cb = adc_flow_cb,
 	.error_cb = adc_error_cb,
 	.u.sdadc = {
-		.cr2 = SDADC_CR2_JSWSTART | SDADC_CR2_FAST,
+		.cr2 = SDADC_CR2_JSWSTART /* | SDADC_CR2_FAST */,
 		.jchgr = SDADC_JCHGR_CH(6),
 		.confchr = {
 			SDADC_CONFCHR1_CH6(0),
@@ -215,6 +215,7 @@ static const ADCConversionGroup sdadc3group = {
 #include "adc_batt.c"
 #include "adc_therm.c"
 #include "adc_oilp.c"
+#include "adc_flow.c"
 
 float adc_getll_temp(void)
 {
@@ -287,7 +288,7 @@ THD_FUNCTION(th_adc, arg ATTR_UNUSED)
 			adc_handle_oilp();
 		}
 		if (mask & SDADC3_EVMASK) {
-			//debug_printf(DP_DEBUG, "Flow V: %3d", (int)(m_flow_volt * 1000));
+			adc_handle_flow();
 		}
 	}
 }
