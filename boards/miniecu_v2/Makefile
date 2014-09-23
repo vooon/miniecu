@@ -30,7 +30,7 @@ endif
 
 # Enable this if you want link time optimizations (LTO)
 ifeq ($(USE_LTO),)
-  USE_LTO = no
+  USE_LTO = yes
 endif
 
 # If enabled, this option allows to compile the application in THUMB mode.
@@ -50,6 +50,18 @@ endif
 ##############################################################################
 # Architecture or project specific options
 #
+
+# Stack size to be allocated to the Cortex-M process stack. This stack is
+# the stack used by the main() thread.
+ifeq ($(USE_PROCESS_STACKSIZE),)
+  USE_PROCESS_STACKSIZE = 0x400
+endif
+
+# Stack size to the allocated to the Cortex-M main/exceptions stack. This
+# stack is used for processing interrupts and exceptions.
+ifeq ($(USE_EXCEPTIONS_STACKSIZE),)
+  USE_EXCEPTIONS_STACKSIZE = 0x400
+endif
 
 # Enables the use of FPU on Cortex-M4 (no, softfp, hard).
 ifeq ($(USE_FPU),)
@@ -73,11 +85,12 @@ CHIBIOS = $(MINIECU)/ext/chibios
 FLASH25 = $(MINIECU)/ext/flash25
 BUILDDIR = $(MINIECU)/build/miniecu_v2
 
-include $(MINIECU)/boards/miniecu_v2/board.mk
-include $(CHIBIOS)/os/hal/platforms/STM32F37x/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
-include $(CHIBIOS)/os/ports/GCC/ARMCMx/STM32F3xx/port.mk
-include $(CHIBIOS)/os/kernel/kernel.mk
+include $(MINIECU)/boards/miniecu_v2/board.mk
+include $(CHIBIOS)/os/hal/ports/STM32/STM32F37x/platform.mk
+include $(CHIBIOS)/os/hal/osal/rt/osal.mk
+include $(CHIBIOS)/os/rt/rt.mk
+include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_stm32f37x.mk
 include $(MINIECU)/pb/nanopb.mk
 include $(FLASH25)/flash-mtd.mk
 include $(MINIECU)/fw/fw.mk
@@ -90,6 +103,7 @@ LDSCRIPT= $(PORTLD)/STM32F373xC.ld
 CSRC = $(PORTSRC) \
        $(KERNSRC) \
        $(HALSRC) \
+       $(OSALSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
        $(NANOPBSRC) \
@@ -127,7 +141,7 @@ TCPPSRC =
 ASMSRC = $(PORTASM)
 
 INCDIR = $(PORTINC) $(KERNINC) \
-         $(HALINC) $(PLATFORMINC) $(BOARDINC) \
+         $(HALINC) $(OSALINC) $(PLATFORMINC) $(BOARDINC) \
          $(NANOPBINC) $(FLASH25INC) $(FWINC) \
          $(CHIBIOS)/os/various
 
@@ -152,6 +166,7 @@ LD   = $(TRGT)gcc
 #LD   = $(TRGT)g++
 CP   = $(TRGT)objcopy
 AS   = $(TRGT)gcc -x assembler-with-cpp
+AR   = $(TRGT)ar
 OD   = $(TRGT)objdump
 SZ   = $(TRGT)size
 HEX  = $(CP) -O ihex
@@ -174,34 +189,11 @@ CPPWARN = -Wall -Wextra
 ##############################################################################
 
 ##############################################################################
-# Start of default section
-#
-
-# List all default C defines here, like -D_DEBUG=1
-DDEFS = -DPB_NO_ERRMSG=1
-
-# List all default ASM defines here, like -D_DEBUG=1
-DADEFS =
-
-# List all default directories to look for include files here
-DINCDIR =
-
-# List the default directory to look for the libraries here
-DLIBDIR =
-
-# List all default libraries here
-DLIBS = -lm
-
-#
-# End of default section
-##############################################################################
-
-##############################################################################
 # Start of user section
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS =
+UDEFS = -DPB_NO_ERRMSG=1
 
 # Define ASM defines here
 UADEFS =
@@ -219,5 +211,5 @@ ULIBS =
 # End of user defines
 ##############################################################################
 
-RULESPATH = $(CHIBIOS)/os/ports/GCC/ARMCMx
+RULESPATH = $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC
 include $(RULESPATH)/rules.mk
