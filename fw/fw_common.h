@@ -28,11 +28,11 @@
 #if defined(USE_RT_KERNEL)
 # include "ch.h"
 
-# define OSAL_ST_FREQUENCY		CH_FREQUENCY
-# define THD_FUNCTION(name, arg)	msg_t name(void *arg)
-# define THD_WORKING_AREA(name, size)	WORKING_AREA(name, size)
-# define MSG_OK				RDY_OK
-# define MSG_RESET			RDY_RESET
+//# define OSAL_ST_FREQUENCY		CH_FREQUENCY
+//# define THD_FUNCTION(name, arg)	msg_t name(void *arg)
+//# define THD_WORKING_AREA(name, size)	WORKING_AREA(name, size)
+//# define MSG_OK				RDY_OK
+//# define MSG_RESET			RDY_RESET
 
 #elif defined(USE_NIL_KERNEL)
 # include "nil.h"
@@ -46,7 +46,7 @@
 #include "chprintf.h"
 #include "memstreams.h"
 
-#define ST2MS(st) (st * 1000 / OSAL_ST_FREQUENCY)
+//#define ST2MS(st) (st * 1000 / OSAL_ST_FREQUENCY)
 
 #define ATTR_UNUSED __attribute__((unused))
 
