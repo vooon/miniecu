@@ -478,7 +478,7 @@
   /* System tick event code here.*/                                         \
 }
 
-void system_halt_hook(void);
+/*void system_halt_hook(void);*/
 
 /**
  * @brief   System halt hook.
@@ -487,7 +487,7 @@ void system_halt_hook(void);
  */
 #define CH_CFG_SYSTEM_HALT_HOOK(reason) {                                   \
   /* System halt code here.*/                                               \
-  system_halt_hook();                                                       \
+  /*system_halt_hook(); disabled in upgrade to 3 */                                                       \
 }
 
 /** @} */
