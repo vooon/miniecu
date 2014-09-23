@@ -81,10 +81,10 @@ struct param_entry {
 #define PARAM_STRING(_id, _var, _default, _change_cb)			\
 	{ (_id), PT_STRING, &(_var), {.s=(_default)}, {.i=0}, {.i=16}, (_change_cb) }
 
-#ifndef _PB_MINIECU_PB_H_
+#ifndef PB_MINIECU_PB_H_INCLUDED
 struct _miniecu_ParamType;
 typedef struct _miniecu_Paramtype miniecu_ParamType;
-#endif /* _PB_MINIECU_PB_H_ */
+#endif /* PB_MINIECU_PB_H_INCLUDED */
 
 msg_t param_set(const char *id, miniecu_ParamType *value);
 msg_t param_get(const char *id, miniecu_ParamType *value, size_t *idx);
