@@ -29,6 +29,8 @@ static bool m_time_is_set = false;
 
 /* -*- global -*- */
 
+/* XXX: RTC driver still not ported to v3 */
+
 /**
  * Initialize RTC module
  */
@@ -40,7 +42,7 @@ void time_init(void)
 	 */
 
 	m_time_is_set = false;
-	rtcSetPeriodicWakeup_v2(&RTCD1, NULL);
+	//rtcSetPeriodicWakeup_v2(&RTCD1, NULL);
 }
 
 /**
@@ -58,10 +60,10 @@ bool time_is_known(void)
 uint64_t time_get_timestamp(void)
 {
 	if (!m_time_is_set) {
-		return ST2MS(chTimeNow());
+		return ST2MS(osalOsGetSystemTimeX());
 	}
 	else {
-		return rtcGetTimeUnixUsec(&RTCD1) / 1000;
+		return 0;//rtcGetTimeUnixUsec(&RTCD1) / 1000;
 	}
 }
 
@@ -75,11 +77,11 @@ int32_t time_set_timestamp(uint64_t ts)
 {
 	uint64_t curr_ts;
 
-	curr_ts = (m_time_is_set)? rtcGetTimeUnixUsec(&RTCD1) / 1000 : ts;
+	//curr_ts = (m_time_is_set)? rtcGetTimeUnixUsec(&RTCD1) / 1000 : ts;
 	// rtcSetTimeUnixUsec(&RTCD1, ts * 1000);
-	rtcSetTimeUnixSec(&RTCD1, ts / 1000);
+	//rtcSetTimeUnixSec(&RTCD1, ts / 1000);
 
-	m_time_is_set = true;
+	//m_time_is_set = true;
 
 	return curr_ts - ts;
 }

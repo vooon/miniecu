@@ -68,7 +68,7 @@ void pbstx_check_usb(void)
 	else
 		m_stream = (BaseChannel *) &PBSTX_SD;
 
-	chMtxUnlock();
+	chMtxUnlock(&tx_mutex);
 #endif /* HAL_USE_SERIAL_USB */
 }
 
@@ -79,7 +79,7 @@ msg_t pbstx_receive(uint8_t *msgid, uint8_t *payload, uint8_t *payload_len)
 	static uint8_t pkt_crc = 0;
 	static enum rx_state rx_state = PR_WAIT_START;
 
-	while (!chThdShouldTerminate()) {
+	while (true /*!chThdShouldTerminate()*/) {
 		ret = chnGetTimeout(m_stream, SER_TIMEOUT);
 		if (ret == Q_TIMEOUT || ret == Q_RESET)
 			return ret;
@@ -171,7 +171,7 @@ msg_t pbstx_send(uint8_t msgid, const uint8_t *payload, uint8_t payload_len)
 	ret = chnPutTimeout(m_stream, crc, SER_TIMEOUT);
 
 unlock_ret:
-	chMtxUnlock();
+	chMtxUnlock(&tx_mutex);
 	return ret;
 }
 

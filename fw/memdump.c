@@ -31,7 +31,7 @@ int32_t memdump_int_ram(uint32_t address, void *buffer, size_t size)
 }
 
 /* defined in th_flash_log.c */
-bool_t memdump_ll_flash_readpage(uint32_t page, uint8_t *rbuff);
+extern bool memdump_ll_flash_readpage(uint32_t page, uint8_t *rbuff);
 
 /* TODO: generalize SST25 only functions */
 int32_t memdump_ext_flash(uint32_t address, void *buffer, size_t size)
@@ -45,7 +45,7 @@ int32_t memdump_ext_flash(uint32_t address, void *buffer, size_t size)
 		int32_t sz = sizeof(rd_buff) - off;
 
 		if (sz > size - size_ret)	sz = size - size_ret;
-		if (memdump_ll_flash_readpage(page, rd_buff) != CH_SUCCESS)
+		if (memdump_ll_flash_readpage(page, rd_buff) != HAL_SUCCESS)
 			return -1;
 
 		memcpy(buffer, rd_buff + off, sz);

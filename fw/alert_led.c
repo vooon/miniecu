@@ -25,62 +25,31 @@
 /* local variables */
 static enum alert_status al_status[ALS_MAX];
 
-#if defined(BOARD_MINIECU_V1)
-
-static bool _led_state = false;
-
-# define _LED_xxx_op(operation)	do {					\
-	palSetPadMode(GPIOF, GPIOF_LED, PAL_MODE_OUTPUT_PUSHPULL);	\
-	pal ## operation ## Pad(GPIOF, GPIOF_LED);			\
-	_led_state = true;						\
-} while(0)
-
-# define LED_ALL_OFF()		do {					\
-	palSetPadMode(GPIOF, GPIOF_LED, PAL_MODE_INPUT);		\
-	_led_state = false;						\
-} while(0)
-
-# define LED_FAIL_ON()		_LED_xxx_op(Set)
-# define LED_FAIL_TOGGLE()	if (_led_state) {			\
-	LED_ALL_OFF();							\
-} else {								\
-	LED_FAIL_ON();							\
-}
-
-# define LED_NORMAL_ON()	_LED_xxx_op(Clear)
-# define LED_NORMAL_TOGGLE()	if (_led_state) {			\
-	LED_ALL_OFF();							\
-} else {								\
-	LED_NORMAL_ON();						\
-}
-
-#elif defined(BOARD_MINIECU_V2)
-
-# define LED_ALL_OFF() do { \
-	palClearPad(GPIOA_LED_R); \
-	palClearPad(GPIOA_LED_G); \
-} while (0)
-
-# define _LED_op_xy(op, ledop, ledoff) do { \
-	palClearPad(GPIOA, ledoff); \
-	pal ## op ## Pad(GPIOA, ledop); \
-} while (0)
-
-# define LED_FAIL_ON()		_LED_op_xy(Set, GPIOA_LED_R, GPIOA_LED_G)
-# define LED_FAIL_TOGGLE()	_LED_op_xy(Toggle, GPIOA_LED_R, GPIOA_LED_G)
-
-# define LED_NORMAL_ON()	_LED_op_xy(Set, GPIOA_LED_G, GPIOA_LED_R)
-# define LED_NORMAL_TOGGLE()	_LED_op_xy(Toggle, GPIOA_LED_G, GPIOA_LED_R)
-
-#else
+#if !defined(BOARD_MINIECU_V2)
 # error "unknown board"
 #endif
+
+#define LED_ALL_OFF() do {		\
+	palClearPad(GPIOA_LED_R);	\
+	palClearPad(GPIOA_LED_G);	\
+} while (0)
+
+#define _LED_op_xy(op, ledop, ledoff) do {	\
+	palClearPad(GPIOA, ledoff);		\
+	pal ## op ## Pad(GPIOA, ledop);		\
+} while (0)
+
+#define LED_FAIL_ON()		_LED_op_xy(Set, GPIOA_LED_R, GPIOA_LED_G)
+#define LED_FAIL_TOGGLE()	_LED_op_xy(Toggle, GPIOA_LED_R, GPIOA_LED_G)
+
+#define LED_NORMAL_ON()		_LED_op_xy(Set, GPIOA_LED_G, GPIOA_LED_R)
+#define LED_NORMAL_TOGGLE()	_LED_op_xy(Toggle, GPIOA_LED_G, GPIOA_LED_R)
 
 /* public interface */
 
 void alert_component(enum alert_source src, enum alert_status st)
 {
-	chDbgAssert((src < ALS_MAX), "alert_component", "alert source");
+	osalDbgAssert((src < ALS_MAX), "alert source");
 
 	al_status[src] = st;
 	/* TODO: signall led thread */
@@ -106,8 +75,6 @@ bool alert_check_error(void)
 /* local functions */
 THD_FUNCTION(th_led, arg ATTR_UNUSED)
 {
-	//alert_init();
-
 	while (true) {
 		enum alert_status st = AL_NORMAL;
 		for (int i = 0; i < ALS_MAX; i++) {
@@ -133,7 +100,6 @@ THD_FUNCTION(th_led, arg ATTR_UNUSED)
 			chThdSleepMilliseconds(500);
 			break;
 		}
-
 	}
 }
 

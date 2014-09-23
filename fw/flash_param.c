@@ -53,7 +53,7 @@ static bool flash_pb_istream_read_next(pb_istream_t *stream)
 
 	state->buffer.eos = state->buffer.offset = 0;
 
-	if (blkRead(&SST25_config, state->page, state->buffer.buffer, 1) != CH_SUCCESS)
+	if (blkRead(&SST25_config, state->page, state->buffer.buffer, 1) != HAL_SUCCESS)
 		return false;
 
 	state->buffer.eos = mtdGetPageSize(&SST25_config);
@@ -121,9 +121,9 @@ static bool flash_pb_ostream_finalize(pb_ostream_t *stream)
 		return true;
 
 	/* fill tail */
-	while (chSequentialStreamPut(chp, 0xFF) == RDY_OK);
+	while (chSequentialStreamPut(chp, 0xFF) == MSG_OK);
 
-	if (blkWrite(&SST25_config, state->page, state->buffer.buffer, 1) != CH_SUCCESS)
+	if (blkWrite(&SST25_config, state->page, state->buffer.buffer, 1) != HAL_SUCCESS)
 		return false;
 
 	state->page += 1;

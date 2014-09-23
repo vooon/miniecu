@@ -111,7 +111,7 @@ CSRC = $(PORTSRC) \
        $(FWSRC) \
        $(CHIBIOS)/os/various/chprintf.c \
        $(CHIBIOS)/os/various/memstreams.c \
-       $(CHIBIOS)/os/various/chrtclib.c
+       #$(CHIBIOS)/os/various/chrtclib.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -205,7 +205,7 @@ UINCDIR =
 ULIBDIR =
 
 # List all user libraries here
-ULIBS =
+ULIBS = -lm
 
 #
 # End of user defines

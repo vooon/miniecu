@@ -45,6 +45,7 @@
 #include "hal.h"
 #include "chprintf.h"
 #include "memstreams.h"
+#include <inttypes.h>
 
 //#define ST2MS(st) (st * 1000 / OSAL_ST_FREQUENCY)
 
@@ -70,5 +71,7 @@ void debug_printf(enum severity severity, char *fmt, ...)
 
 #define arduino_map(x, in_min, in_max, out_min, out_max) \
 	(((x) - (in_min)) * ((out_max) - (out_min)) / ((in_max) - (in_min)) + out_min)
+
+#define chTimeElapsedSince(t)	(osalOsGetSystemTimeX() - t)
 
 #endif /* FW_COMMON_H */

@@ -74,7 +74,7 @@ THD_FUNCTION(th_comm, arg ATTR_UNUSED)
 	while (true) {
 		if (chTimeElapsedSince(send_time) >= MS2ST(g_status_period)) {
 			send_status();
-			send_time = chTimeNow();
+			send_time = osalOsGetSystemTimeX();
 		}
 
 		pbstx_check_usb();
@@ -158,7 +158,7 @@ void on_serial1_change(const struct param_entry *p ATTR_UNUSED)
 	case 230400:
 	case 460800:
 	case 921600:
-		debug_printf(DP_WARN, "serial baud change: %d", g_serial_baud);
+		debug_printf(DP_WARN, "serial baud change: %" PRIi32, g_serial_baud);
 		serial1_cfg.speed = g_serial_baud;
 		sdStart(&SD1, &serial1_cfg);
 		break;
@@ -256,7 +256,7 @@ static void recv_time_reference(uint8_t msg_len)
 
 	time_ref.engine_id = g_engine_id;
 	time_ref.has_system_time = true;
-	time_ref.system_time = ST2MS(chTimeNow());
+	time_ref.system_time = ST2MS(osalOsGetSystemTimeX());
 	time_ref.has_timediff = true;
 	time_ref.timediff = time_set_timestamp(time_ref.timestamp_ms);
 

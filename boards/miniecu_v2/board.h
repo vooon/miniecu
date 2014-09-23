@@ -877,7 +877,6 @@
                                      PIN_AFIO_AF(GPIOF_PIN15, 0))
 
 
-#if 0 // Disabled at update to 3.x
 /*
  * USB bus activation macro, required by the USB driver.
  */
@@ -887,7 +886,6 @@
  * USB bus de-activation macro, required by the USB driver.
  */
 #define usb_lld_disconnect_bus(usbp) board_usb_disconnect()
-#endif
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus

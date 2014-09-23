@@ -25,7 +25,7 @@
 
 #include "fw_common.h"
 
-#define PARAM_OK	RDY_OK
+#define PARAM_OK	MSG_OK
 #define PARAM_NOTEXIST	-4
 #define PARAM_ETYPE	-5
 #define PARAM_LIMIT	-6

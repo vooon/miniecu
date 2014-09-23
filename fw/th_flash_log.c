@@ -63,7 +63,7 @@ static uint8_t m_rw_buff[256]; /* note: for sst25 */
 static CONDVAR_DECL(m_cfg_operation);
 static MUTEX_DECL(m_cfg_op_mtx);
 
-static Thread *thdp_log = NULL;
+static thread_t *thdp_log = NULL;
 #define EVT_TIMEOUT			MS2ST(10000)
 #define DO_SAVE_CFG_EVMASK		EVENT_MASK(3)
 #define DO_LOAD_CFG_EVMASK		EVENT_MASK(4)
@@ -75,10 +75,10 @@ static Thread *thdp_log = NULL;
 
 /* -*- public -*- */
 
-bool_t memdump_ll_flash_readpage(uint32_t page, uint8_t *rbuff)
+bool memdump_ll_flash_readpage(uint32_t page, uint8_t *rbuff)
 {
 	if (blkGetDriverState(&SST25_chip) != BLK_ACTIVE)
-		return CH_FAILED;
+		return HAL_FAILED;
 
 	return blkRead(&SST25_chip, page, rbuff, 1);
 }
@@ -88,7 +88,7 @@ THD_FUNCTION(th_flash_log, arg ATTR_UNUSED)
 	bool is_first_loop = true;
 	eventmask_t mask = 0;
 
-	thdp_log = chThdSelf();
+	thdp_log = chThdGetSelfX();
 
 	sst25ObjectInit(&SST25_chip);
 	sst25Start(&SST25_chip, &flash_cfg);
@@ -101,7 +101,7 @@ THD_FUNCTION(th_flash_log, arg ATTR_UNUSED)
 
 		/* initialization */
 		if (blkGetDriverState(&SST25_chip) != BLK_ACTIVE) {
-			if (blkConnect(&SST25_chip) != CH_SUCCESS) {
+			if (blkConnect(&SST25_chip) != HAL_SUCCESS) {
 				alert_component(ALS_FLASH, AL_FAIL);
 				debug_printf(DP_FAIL, "FLASH connection failed");
 				continue;
@@ -143,8 +143,8 @@ bool flash_do_load_cfg(systime_t timeout)
 
 	chMtxLock(&m_cfg_op_mtx);
 	chEvtSignal(thdp_log, DO_LOAD_CFG_EVMASK);
-	if (chCondWaitTimeout(&m_cfg_operation, timeout) != RDY_TIMEOUT) {
-		chMtxUnlock();
+	if (chCondWaitTimeout(&m_cfg_operation, timeout) != MSG_TIMEOUT) {
+		chMtxUnlock(&m_cfg_op_mtx);
 		return true;
 	}
 	else
@@ -158,8 +158,8 @@ bool flash_do_save_cfg(systime_t timeout)
 
 	chMtxLock(&m_cfg_op_mtx);
 	chEvtSignal(thdp_log, DO_SAVE_CFG_EVMASK);
-	if (chCondWaitTimeout(&m_cfg_operation, timeout) != RDY_TIMEOUT) {
-		chMtxUnlock();
+	if (chCondWaitTimeout(&m_cfg_operation, timeout) != MSG_TIMEOUT) {
+		chMtxUnlock(&m_cfg_op_mtx);
 		return true;
 	}
 	else
@@ -173,8 +173,8 @@ bool flash_do_erase_cfg(systime_t timeout)
 
 	chMtxLock(&m_cfg_op_mtx);
 	chEvtSignal(thdp_log, DO_ERASE_CFG_EVMASK);
-	if (chCondWaitTimeout(&m_cfg_operation, timeout) != RDY_TIMEOUT) {
-		chMtxUnlock();
+	if (chCondWaitTimeout(&m_cfg_operation, timeout) != MSG_TIMEOUT) {
+		chMtxUnlock(&m_cfg_op_mtx);
 		return true;
 	}
 	else

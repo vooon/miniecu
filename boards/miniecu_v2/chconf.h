@@ -405,6 +405,10 @@
  */
 /*===========================================================================*/
 
+#if !defined(_FROM_ASM_)
+void system_halt_hook(void);
+#endif /* _FROM_ASM_ */
+
 /**
  * @brief   Threads descriptor structure extension.
  * @details User fields added to the end of the @p thread_t structure.
@@ -478,8 +482,6 @@
   /* System tick event code here.*/                                         \
 }
 
-/*void system_halt_hook(void);*/
-
 /**
  * @brief   System halt hook.
  * @details This hook is invoked in case to a system halting error before
@@ -487,7 +489,7 @@
  */
 #define CH_CFG_SYSTEM_HALT_HOOK(reason) {                                   \
   /* System halt code here.*/                                               \
-  /*system_halt_hook(); disabled in upgrade to 3 */                                                       \
+  system_halt_hook();                                                       \
 }
 
 /** @} */

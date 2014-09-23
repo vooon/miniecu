@@ -43,7 +43,7 @@ static size_t m_period_cnt;
 static bool m_is_overflow;
 static float m_curr_rpm;
 
-static Thread *thdp_rpm = NULL;
+static thread_t *thdp_rpm = NULL;
 #define EVT_TIMEOUT	MS2ST(1000)
 #define RPM_EVMASK	EVENT_MASK(1)
 #define RPM_TO_EVMASK	EVENT_MASK(2)
@@ -58,12 +58,12 @@ static void rpm_period_cb(ICUDriver *icup)
 		m_period_cnt++;
 
 	m_is_overflow = false;
-	m_periods[m_period_idx++] = icuGetPeriod(icup);
+	m_periods[m_period_idx++] = icuGetPeriodX(icup);
 
 	if (thdp_rpm != NULL) {
-		chSysLockFromIsr();
+		chSysLockFromISR();
 		chEvtSignalI(thdp_rpm, RPM_EVMASK);
-		chSysUnlockFromIsr();
+		chSysUnlockFromISR();
 	}
 }
 
@@ -75,9 +75,9 @@ static void rpm_overflow_cb(ICUDriver *icup ATTR_UNUSED)
 	m_period_cnt = 0;
 
 	if (thdp_rpm != NULL) {
-		chSysLockFromIsr();
+		chSysLockFromISR();
 		chEvtSignalI(thdp_rpm, RPM_TO_EVMASK);
-		chSysUnlockFromIsr();
+		chSysUnlockFromISR();
 	}
 }
 
@@ -121,7 +121,7 @@ bool rpm_check_engine_running(void)
 THD_FUNCTION(th_rpm, arg ATTR_UNUSED)
 {
 	/* set listening thread */
-	thdp_rpm = chThdSelf();
+	thdp_rpm = chThdGetSelfX();
 
 	/* clear filter data */
 	m_period_idx = 0;
@@ -136,7 +136,7 @@ THD_FUNCTION(th_rpm, arg ATTR_UNUSED)
 	icuStart(&ICUD2, &tim2cfg);
 	//ICUD2.tim->ARR = 0xffffffff;
 	ICUD2.tim->ARR = 2000000; // 2 sec overflow
-	icuEnable(&ICUD2);
+	icuEnableNotifications(&ICUD2); // XXX: try new polled API
 
 	while (true) {
 		eventmask_t mask = chEvtWaitAnyTimeout(ALL_EVENTS, EVT_TIMEOUT);

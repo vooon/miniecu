@@ -46,7 +46,7 @@ static float m_oilp_volt;	// [V] raw voltage on OIL_P
 static float m_vbat;		// [V]
 static float m_flow_volt;	// [V] before conversion to FLOW
 
-static Thread *thdp_adc = NULL;
+static thread_t *thdp_adc = NULL;
 #define EVT_TIMEOUT	MS2ST(1000)
 #define ADC1_EVMASK	EVENT_MASK(1)
 #define SDADC1_EVMASK	EVENT_MASK(2)
@@ -107,9 +107,9 @@ static void adc_temp_oilp_vbat_cb(ADCDriver *adcp ATTR_UNUSED,
 	m_temp_volt = sdadc_sez_to_voltage(buffer[2]);	// AIN6P
 
 	if (thdp_adc != NULL) {
-		chSysLockFromIsr();
+		chSysLockFromISR();
 		chEvtSignalI(thdp_adc, SDADC1_EVMASK);
-		chSysUnlockFromIsr();
+		chSysUnlockFromISR();
 	}
 }
 
@@ -119,9 +119,9 @@ static void adc_flow_cb(ADCDriver *adcp ATTR_UNUSED,
 	m_flow_volt = sdadc_sez_to_voltage(buffer[0]);	// AIN6P
 
 	if (thdp_adc != NULL) {
-		chSysLockFromIsr();
+		chSysLockFromISR();
 		chEvtSignalI(thdp_adc, SDADC3_EVMASK);
-		chSysUnlockFromIsr();
+		chSysUnlockFromISR();
 	}
 }
 
@@ -245,7 +245,7 @@ float adc_getll_vrtc(void)
 THD_FUNCTION(th_adc, arg ATTR_UNUSED)
 {
 	/* set listening thread */
-	thdp_adc = chThdSelf();
+	thdp_adc = chThdGetSelfX();
 
 	/* ADC1 */
 	adcStart(&ADCD1, NULL);

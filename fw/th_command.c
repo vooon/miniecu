@@ -25,7 +25,7 @@
 #include "th_flash_log.h"
 #include "miniecu.pb.h"
 
-static Thread *thdp_cmd;
+static thread_t *thdp_cmd;
 #define CFG_OP_TIMEOUT		MS2ST(2000)
 #define ESTOP_EVMASK		EVENT_MASK(1)
 #define DO_START_EVMASK		EVENT_MASK(2)
@@ -42,7 +42,7 @@ static Thread *thdp_cmd;
 
 THD_FUNCTION(th_command, arg ATTR_UNUSED)
 {
-	thdp_cmd = chThdSelf();
+	thdp_cmd = chThdGetSelfX();
 
 	while (true) {
 		eventmask_t mask = chEvtWaitAny(ALL_EVENTS);
