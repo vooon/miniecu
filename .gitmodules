@@ -3,7 +3,7 @@
 	url = https://code.google.com/p/nanopb/
 [submodule "ext/chibios"]
 	path = ext/chibios
-	url = https://github.com/ChibiOS-Upstream/ChibiOS-RT.git
+	url = https://github.com/ChibiOS/ChibiOS-RT.git
 [submodule "ext/flash25"]
 	path = ext/flash25
 	url = https://github.com/vooon/chibios-flash.git
