@@ -321,14 +321,14 @@ static const SerialUSBConfig serusbcfg = {
   USBD1_INTERRUPT_REQUEST_EP
 };
 
-void vcom_start(void)
+void vcom_init(void)
 {
 	/* disconnect for host negotation */
 	usbDisconnectBus(&USBD1);
 
 	sduObjectInit(&SDU1);
 	sduStart(&SDU1, &serusbcfg);
-	
+
 	usbStart(&USBD1, &usbcfg);
 };
 
@@ -337,9 +337,15 @@ void vcom_connect(void)
 	usbConnectBus(&USBD1);
 }
 
+bool vcom_is_connected(void)
+{
+	return usbGetDriverStateI(SDU1.config->usbp) == USB_ACTIVE;
+}
+
 #else /*dd HAL_USE_SERIAL_USB */
 
-void vcom_start(void) {};
+void vcom_init(void) {};
 void vcom_connect(void) {};
+bool vcom_is_connected(void) {};
 
 #endif /* HAL_USE_SERIAL_USB */

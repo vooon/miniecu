@@ -1,6 +1,6 @@
 /**
- * @file       pbstx.h
- * @brief      PB sterial transfer functions
+ * @file       usb_vcom.h
+ * @brief      USB CDC ACM support
  * @author     Vladimir Ermakov Copyright (C) 2014.
  * @see        The GNU Public License (GPL) Version 3
  */
@@ -20,44 +20,15 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef PBSTX_H
-#define PBSTX_H
+#ifndef USB_VCOM_H
+#define USB_VCOM_H
 
 #include "fw_common.h"
-#include "miniecu.pb.h"
 
+extern SerialUSBDriver SDU1;
 
-#define PBSTX_PAYLOAD_BYTES	256
+void vcom_init(void);
+void vcom_connect(void);
+void vcom_is_connected(void);
 
-enum pbstx_rx_state {
-	PR_STX = 0,
-	PR_SEQ,
-	PR_LEN1,
-	PR_LEN2,
-	PR_PAYLOAD,
-	PR_CRC1,
-	PR_CRC2
-};
-
-typedef struct PBstxDev {
-	BaseChannel *chp;
-	mutex_t tx_mutex;
-	enum pbstx_rx_state rx_state;
-	uint16_t rx_checksum;
-	uint8_t rx_seq;
-	uint8_t tx_seq;
-} PBStxDev;
-
-typedef struct pbstx_message {
-	uint8_t seq;
-	uint16_t size;
-	uint16_t checksum;
-	uint8_t payload[PBSTX_PAYLOAD_BYTES];
-} pbstx_message_t;
-
-
-extern void pbstxObjectInit(PBStxDev *instp, BaseChannel *chp);
-extern msg_t pbstxReceive(PBStxDev *instp, pbstx_message_t *msg);
-extern msg_t pbstxSend(PBStxDev *instp, pbstx_message_t *msg);
-
-#endif /* PBSTX_H */
+#endif // USB_VCOM_H

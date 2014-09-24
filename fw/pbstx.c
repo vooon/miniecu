@@ -21,157 +21,156 @@
  */
 
 #include "pbstx.h"
-#include "pios_crc.h" /* use crc functions from OpenPilot */
+#include "lib_crc16.h"
 #include "alert_led.h"
 
-/* Local variables */
-static MUTEX_DECL(tx_mutex);
-static BaseChannel *m_stream = (BaseChannel *) &PBSTX_SD;
-
-enum rx_state {
-	PR_WAIT_START = 0,
-	PR_SEQ,
-	PR_MSGID,
-	PR_LEN,
-	PR_PAYLOAD,
-	PR_CRC
-};
-
-#define HDR_START		0xa5
-#define MAX_PAYLOAD		255
+#define PBSTX_STX		0xae
 
 #define SER_TIMEOUT		MS2ST(100)
 #define SER_PAYLOAD_TIMEOUT	MS2ST(500)
 
-extern void vcom_start(void);
-extern void vcom_connect(void);
-
-#if HAL_USE_SERIAL_USB
-extern SerialUSBDriver PBSTX_SDU;
-#endif /* HAL_USE_SERIAL_USB */
-
-
-void pbstx_init(void)
+/**
+ * Initialize PBSTX protocol object
+ */
+void pbstxObjectInit(PBStxDev *instp, BaseChannel *chp)
 {
-	vcom_start();
-	/* timeout? */
-	vcom_connect();
+	osalDbgCheck(instp != NULL);
+	osalDbgCheck(chp != NULL);
+
+	instp->chp = chp;
+	instp->rx_state = PR_STX;
+	instp->rx_seq = instp->tx_seq = 0;
+	osalMutexObjectInit(&instp->tx_mutex);
 }
 
-void pbstx_check_usb(void)
-{
-#if HAL_USE_SERIAL_USB
-	chMtxLock(&tx_mutex);
-
-	if (usbGetDriverStateI(PBSTX_SDU.config->usbp) == USB_ACTIVE)
-		m_stream = (BaseChannel *) &PBSTX_SDU;
-	else
-		m_stream = (BaseChannel *) &PBSTX_SD;
-
-	chMtxUnlock(&tx_mutex);
-#endif /* HAL_USE_SERIAL_USB */
-}
-
-msg_t pbstx_receive(uint8_t *msgid, uint8_t *payload, uint8_t *payload_len)
+/**
+ * Receive one message
+ *
+ * @return MSG_OK if message parsed,
+ *         MSG_RESET if error occurs
+ *         Q_TIMEOUT if timedout, in that case restart receiving with same *msg
+ *
+ * @todo use rx_seq to calculate missing message count
+ * @todo rx/tx statistics counters
+ */
+msg_t pbstxReceive(PBStxDev *instp, pbstx_message_t *msg)
 {
 	msg_t ret;
-	static ATTR_UNUSED uint8_t seq = 0;
-	static uint8_t pkt_crc = 0;
-	static enum rx_state rx_state = PR_WAIT_START;
 
-	while (true /*!chThdShouldTerminate()*/) {
-		ret = chnGetTimeout(m_stream, SER_TIMEOUT);
-		if (ret == Q_TIMEOUT || ret == Q_RESET)
+	osalDbgCheck(instp != NULL);
+	osalDbgCheck(msg != NULL);
+
+	while (!chThdShouldTerminateX()) {
+		ret = chnGetTimeout(instp->chp, SER_TIMEOUT);
+		if (ret == Q_TIMEOUT)
 			return ret;
+		else if (ret == Q_RESET) {
+			instp->rx_state = PR_STX;
+			return ret;
+		}
 
-		switch (rx_state) {
-		case PR_WAIT_START:
-			if (ret == HDR_START) {
-				rx_state = PR_SEQ;
-			}
+		switch (instp->rx_state) {
+		case PR_STX:
+			if (ret == PBSTX_STX)
+				instp->rx_state = PR_SEQ;
 			break;
 
 		case PR_SEQ:
-			seq = ret;
-			pkt_crc = PIOS_CRC_updateByte(0, ret);
-			rx_state = PR_MSGID;
+			instp->rx_seq = msg->seq = ret;
+			instp->rx_checksum = crc16part(&msg->seq, sizeof(msg->seq), 0);
+			instp->rx_state = PR_LEN1;
 			break;
 
-		case PR_MSGID:
-			*msgid = ret;
-			pkt_crc = PIOS_CRC_updateByte(pkt_crc, ret);
-			rx_state = PR_LEN;
+		case PR_LEN1:
+			msg->size = ret;
+			instp->rx_state = PR_LEN2;
 			break;
 
-		case PR_LEN:
-			*payload_len = ret;
-			pkt_crc = PIOS_CRC_updateByte(pkt_crc, ret);
-			rx_state = PR_PAYLOAD;
-			if (*payload_len == 0) {
-				rx_state = PR_CRC;
-				break;
+		case PR_LEN2:
+			msg->size = (msg->size << 8) | ret;
+			instp->rx_state = PR_PAYLOAD;
+			instp->rx_checksum = crc16part((uint8_t*)&msg->size, sizeof(msg->size), instp->rx_checksum);
+			if (msg->size > PBSTX_PAYLOAD_BYTES) {
+				/* overflow */
+				alert_component(ALS_COMM, AL_FAIL);
+				instp->rx_state = PR_STX;
+				return MSG_RESET;
 			}
-			/* fall through if payload exists */
+			/* fall througth to payload receiving*/
 
 		case PR_PAYLOAD:
-			ret = chnReadTimeout(m_stream, payload, *payload_len,
+			ret = chnReadTimeout(instp->chp, msg->payload, msg->size,
 					SER_PAYLOAD_TIMEOUT);
 			if (ret == Q_TIMEOUT || ret == Q_RESET) {
 				alert_component(ALS_COMM, AL_FAIL);
-				rx_state = PR_WAIT_START;
+				instp->rx_state = PR_STX;
 				return ret;
 			}
 
-			pkt_crc = PIOS_CRC_updateCRC(pkt_crc, payload, *payload_len);
-			rx_state = PR_CRC;
+			instp->rx_checksum = crc16part(msg->payload, msg->size, instp->rx_checksum);
+			instp->rx_state = PR_CRC1;
 			break;
 
-		case PR_CRC:
-			rx_state = PR_WAIT_START;
+		case PR_CRC1:
+			msg->checksum = ret;
+			instp->rx_state = PR_CRC2;
+			break;
+
+		case PR_CRC2:
+			msg->checksum = (msg->checksum << 8) | ret;
+			instp->rx_state = PR_STX;
+
 			/* check crc && process pkt */
-			if (pkt_crc == ret) {
+			if (instp->rx_checksum == msg->checksum) {
 				alert_component(ALS_COMM, AL_NORMAL);
 				return MSG_OK;
-			} else {
+			}
+			else {
 				alert_component(ALS_COMM, AL_FAIL);
 				return MSG_RESET;
 			}
 			break;
 
 		default:
-			rx_state = PR_WAIT_START;
+			instp->rx_state = PR_STX;
 		}
 	}
 
 	return MSG_RESET;
 }
 
-msg_t pbstx_send(uint8_t msgid, const uint8_t *payload, uint8_t payload_len)
+/**
+ * Send pbstx_message_t
+ *
+ * This function will calculate checksum.
+ */
+msg_t pbstxSend(PBStxDev *instp, pbstx_message_t *msg)
 {
+	osalDbgCheck(instp != NULL);
+	osalDbgCheck(msg != NULL);
+	osalDbgAssert(msg->size <= PBSTX_PAYLOAD_BYTES, "message to long");
+
+	chMtxLock(&instp->tx_mutex);
+
 	msg_t ret;
-	uint8_t crc;
-	static uint8_t tx_seq = 0;
-	uint8_t header[] = { HDR_START, tx_seq++, msgid, payload_len };
+	uint8_t header[] = { PBSTX_STX, instp->tx_seq++, msg->size & 0xff, msg->size >> 8 };
 
-	chMtxLock(&tx_mutex);
-
-	crc = PIOS_CRC_updateCRC(0, header + 1, sizeof(header) - 1);
-	ret = chnWriteTimeout(m_stream, header, sizeof(header), SER_TIMEOUT);
+	msg->checksum = crc16(header + 1, sizeof(header) - 1);
+	ret = chnWriteTimeout(instp->chp, header, sizeof(header), SER_TIMEOUT);
 	if (ret == Q_TIMEOUT || ret == Q_RESET)
 		goto unlock_ret;
 
-	if (payload_len > 0) {
-		crc = PIOS_CRC_updateCRC(crc, payload, payload_len);
-		ret = chnWriteTimeout(m_stream, payload, payload_len,
-				SER_PAYLOAD_TIMEOUT);
+	if (msg->size > 0) {
+		msg->checksum = crc16part(msg->payload, msg->size, msg->checksum);
+		ret = chnWriteTimeout(instp->chp, msg->payload, msg->size, SER_PAYLOAD_TIMEOUT);
 		if (ret == Q_TIMEOUT || ret == Q_RESET)
 			goto unlock_ret;
 	}
 
-	ret = chnPutTimeout(m_stream, crc, SER_TIMEOUT);
+	ret = chnWriteTimeout(instp->chp, (uint8_t*)&msg->checksum, sizeof(msg->checksum), SER_TIMEOUT);
 
 unlock_ret:
-	chMtxUnlock(&tx_mutex);
+	chMtxUnlock(&instp->tx_mutex);
 	return ret;
 }
 
