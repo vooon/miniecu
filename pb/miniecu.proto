@@ -5,20 +5,6 @@
 
 package miniecu;
 
-enum MessageId {
-	STATUS = 1;
-	TIME_REFERENCE = 2;
-	COMMAND = 76;
-	PARAM_REQUEST = 20;
-	PARAM_SET = 23;
-	PARAM_VALUE = 22;
-	LOG_REQUEST = 117;
-	LOG_ENTRY = 119;
-	STATUS_TEXT = 253;
-	MEMORY_DUMP_REQUEST = 250;
-	MEMORY_DUMP_PAGE = 251;
-};
-
 //
 //! Engine status message
 // @{
@@ -263,3 +249,20 @@ message MemoryDumpPage {
 };
 
 // @}
+
+//! This union-like message used to transfer data
+// Only one filed must be set.
+message Message {
+	optional Status status = 1;
+	optional TimeReference time_reference = 2;
+	optional Command command = 3;
+	optional ParamRequest param_request = 10;
+	optional ParamSet param_set = 11;
+	optional ParamValue param_value = 12;
+	//optional LogRequest log_request = 20;
+	//optional LogEntry log_entry = 21;
+	optional StatusText status_text = 30;
+	optional MemoryDumpRequest memory_dump_request = 40;
+	optional MemoryDumpRequest memory_dump_page = 41;
+};
+
