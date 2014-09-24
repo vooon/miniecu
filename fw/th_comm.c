@@ -34,79 +34,117 @@
 /* global parameters */
 
 int32_t g_engine_id;
-int32_t g_serial_baud;
 int32_t g_status_period;
 bool g_debug_enable_adc_raw;
 bool g_debug_enable_memdump;
 
-/* Thread */
-static void send_status(void);
-static void recv_time_reference(uint8_t msg_len);
-static void recv_command(uint8_t msg_len);
-static void recv_param_request(uint8_t msg_len);
-static void recv_param_set(uint8_t msg_len);
-static void recv_log_request(uint8_t msg_len);
-static void recv_memory_dump_request(uint8_t msg_len);
+/* PBStx class */
 
+typedef struct {
+	PBStxDev dev;
+	pbstx_message_t msg;
+} PBStxComm;
 
-#define MEMDUMP_SIZE	64
-int32_t memdump_int_ram(uint32_t address, void *buffer, size_t size);
-int32_t memdump_ext_flash(uint32_t address, void *buffer, size_t size);
+#define MAX_INSTANCES	2
+PBStxComm *m_instances[MAX_INSTANCES] = {};
 
-/* Local varables */
-static uint8_t msg_buf[256];
-static SerialConfig serial1_cfg = {
-	.speed = SERIAL_DEFAULT_BITRATE,
-	.cr1 = 0,
-	/* 8N1, autobaud mode 1 */
-	.cr2 = USART_CR2_STOP1_BITS | USART_CR2_ABREN | USART_CR2_ABRMODE_0,
-	.cr3 = 0
-};
+/* PBStx methods */
+static void send_status(PBStxComm *self);
+//static void recv_time_reference(uint8_t msg_len);
+//static void recv_command(uint8_t msg_len);
+//static void recv_param_request(uint8_t msg_len);
+//static void recv_param_set(uint8_t msg_len);
+//static void recv_log_request(uint8_t msg_len);
+//static void recv_memory_dump_request(uint8_t msg_len);
 
+//#define MEMDUMP_SIZE	64
+//int32_t memdump_int_ram(uint32_t address, void *buffer, size_t size);
+//int32_t memdump_ext_flash(uint32_t address, void *buffer, size_t size);
 
-THD_FUNCTION(th_comm, arg ATTR_UNUSED)
+// -*- helpers -*-
+
+/**
+ * This helper function encodes union-like message miniecu.Message and send
+ *
+ * Based on nanopb example using_union_messages/encode.c
+ *
+ * @param dev		PBStx proto object
+ * @param msg		message buffer
+ * @param messagetype	submessage type defenition
+ * @param message	submessage struct
+ *
+ * @return MSG_OK on success
+ */
+msg_t pbstxEncodeSend(PBStxDev *dev, pbstx_message_t *msg, const pb_field_t messagetype[], const void *message)
 {
-	msg_t ret;
-	uint8_t msgid;
-	uint8_t in_msg_len;
-	systime_t send_time = 0;
+	pb_ostream_t outstream = pb_ostream_from_buffer(msg->payload, PBSTX_PAYLOAD_BYTES);
 
-	while (true) {
-		if (chTimeElapsedSince(send_time) >= MS2ST(g_status_period)) {
-			send_status();
+	const pb_field_t *field;
+	for (field = miniecu_Message_fields; field->tag != 0; field++) {
+		if (field->ptr == messagetype) {
+			if (!pb_encode_tag_for_field(&outstream, field))
+				goto err_out;
+
+			if (!pb_encode_submessage(&outstream, messagetype, message))
+				goto err_out;
+
+			msg->size = outstream.bytes_written;
+			return pbstxSend(dev, msg);
+		}
+	}
+
+err_out:
+	alert_component(ALS_COMM, AL_FAIL);
+	return MSG_RESET;
+}
+
+/**
+ * Variation of @a pbstxEncodeSend for PBStxComm objects
+ */
+msg_t pbstxEncodeSendComm(PBStxComm *self, const pb_field_t messagetype[], const void *message)
+{
+	return pbstxEncodeSend(&self->dev, &self->msg, messagetype, message);
+}
+
+// -*- thread main -*-
+
+THD_FUNCTION(th_comm, arg)
+{
+	osalDbgCheck(arg != NULL);
+
+	msg_t ret;
+	int instance_id;
+	systime_t send_time = 0;
+	PBStxComm self;
+
+	chRegSetThreadName("pbstx");
+	pbstxObjectInit(&self.dev, (BaseChannel*)arg);
+
+	// store instance m_instances
+	for (instance_id = 0; instance_id < MAX_INSTANCES; instance_id++) {
+		if (m_instances[instance_id] == NULL) {
+			m_instances[instance_id] = &self;
+			break;
+		}
+	}
+	osalDbgAssert(instance_id < ARRAY_SIZE(m_instances), "pbstx: no space");
+
+	while (!chThdShouldTerminateX()) {
+		if (chVTTimeElapsedSinceX(send_time) >= MS2ST(g_status_period)) {
+			send_status(&self);
 			send_time = osalOsGetSystemTimeX();
 		}
 
-		pbstx_check_usb();
-		ret = pbstx_receive(&msgid, msg_buf, &in_msg_len);
+		ret = pbstxReceive(&self.dev, &self.msg);
 		if (ret == MSG_OK) {
-			switch (msgid) {
-				case miniecu_MessageId_TIME_REFERENCE:
-					recv_time_reference(in_msg_len);
-					break;
-				case miniecu_MessageId_COMMAND:
-					recv_command(in_msg_len);
-					break;
-				case miniecu_MessageId_PARAM_REQUEST:
-					recv_param_request(in_msg_len);
-					break;
-				case miniecu_MessageId_PARAM_SET:
-					recv_param_set(in_msg_len);
-					break;
-				case miniecu_MessageId_LOG_REQUEST:
-					recv_log_request(in_msg_len);
-					break;
-				case miniecu_MessageId_MEMORY_DUMP_REQUEST:
-					if (g_debug_enable_memdump)
-						recv_memory_dump_request(in_msg_len);
-					break;
-
-				default:
-					/* ALARM? */
-					break;
-			}
+			// TODO
 		}
 	}
+
+	if (m_instances[instance_id] != NULL)
+		m_instances[instance_id] = NULL;
+
+	return MSG_OK;
 }
 
 /**
@@ -118,6 +156,9 @@ THD_FUNCTION(th_comm, arg ATTR_UNUSED)
  */
 void debug_printf(enum severity severity, char *fmt, ...)
 {
+#if 0
+	// XXX: relocate it to better module
+	// XXX:
 	va_list ap;
 	MemoryStream ms;
 	BaseSequentialStream *chp;
@@ -145,34 +186,12 @@ void debug_printf(enum severity severity, char *fmt, ...)
 
 	pbstx_send(miniecu_MessageId_STATUS_TEXT,
 			local_msg_buf, outstream.bytes_written);
+#endif
 }
 
-void on_serial1_change(const struct param_entry *p ATTR_UNUSED)
+static void send_status(PBStxComm *self)
 {
-	switch (g_serial_baud) {
-	case 9600:
-	case 19200:
-	case 38400:
-	case 57600:
-	case 115200:
-	case 230400:
-	case 460800:
-	case 921600:
-		debug_printf(DP_WARN, "serial baud change: %" PRIi32, g_serial_baud);
-		serial1_cfg.speed = g_serial_baud;
-		sdStart(&SD1, &serial1_cfg);
-		break;
-
-	default:
-		g_serial_baud = serial1_cfg.speed;
-		break;
-	}
-}
-
-static void send_status(void)
-{
-	pb_ostream_t outstream = pb_ostream_from_buffer(msg_buf, sizeof(msg_buf));
-	miniecu_Status status;
+	miniecu_Status status = miniecu_Status_init_default;
 	uint32_t flags = 0;
 
 	if (time_is_known())		flags |= miniecu_Status_Flags_TIME_KNOWN;
@@ -186,7 +205,6 @@ static void send_status(void)
 	if (rpm_check_limit())		flags |= miniecu_Status_Flags_HIGH_RPM;
 	if (flow_check_fuel())		flags |= miniecu_Status_Flags_LOW_FUEL;
 
-	memset(&status, 0, sizeof(status));
 	status.engine_id = g_engine_id;
 	status.status = flags;
 	status.timestamp_ms = time_get_timestamp();
@@ -194,7 +212,6 @@ static void send_status(void)
 
 	/* battery */
 	status.battery.voltage = batt_get_voltage();
-	// status.battery.current = batt_get_current(); /* Not supported by hw_v2 */
 	status.battery.has_remaining = batt_get_remaining(&status.battery.remaining);
 
 	/* temperature */
@@ -202,7 +219,7 @@ static void send_status(void)
 	status.temperature.has_engine2 = oilp_get_temperature(&status.temperature.engine2);
 
 	/* CPU status */
-	status.cpu.load = 0; /* TODO */
+	//status.cpu.load = 0; /* TODO */
 	status.cpu.temperature = temp_get_int_temperature();
 
 	/* Oil pressure */
@@ -225,18 +242,10 @@ static void send_status(void)
 
 	/* TODO: Fill status */
 
-	if (!pb_encode(&outstream, miniecu_Status_fields, &status)) {
-		alert_component(ALS_COMM, AL_FAIL);
-		return;
-	}
-	else {
-		alert_component(ALS_COMM, AL_NORMAL);
-	}
-
-	pbstx_send(miniecu_MessageId_STATUS,
-			msg_buf, outstream.bytes_written);
+	pbstxEncodeSendComm(self, miniecu_Status_fields, &status);
 }
 
+#if 0
 static void recv_time_reference(uint8_t msg_len)
 {
 	pb_istream_t instream = pb_istream_from_buffer(msg_buf, msg_len);
@@ -470,3 +479,4 @@ static void recv_memory_dump_request(uint8_t msg_len)
 	}
 }
 
+#endif

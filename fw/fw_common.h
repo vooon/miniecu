@@ -28,12 +28,6 @@
 #if defined(USE_RT_KERNEL)
 # include "ch.h"
 
-//# define OSAL_ST_FREQUENCY		CH_FREQUENCY
-//# define THD_FUNCTION(name, arg)	msg_t name(void *arg)
-//# define THD_WORKING_AREA(name, size)	WORKING_AREA(name, size)
-//# define MSG_OK				RDY_OK
-//# define MSG_RESET			RDY_RESET
-
 #elif defined(USE_NIL_KERNEL)
 # include "nil.h"
 # error "ChibiOS/Nil not supported by now. "\
@@ -66,12 +60,10 @@ void debug_printf(enum severity severity, char *fmt, ...)
 	__attribute__((format (printf, 2, 3)));
 
 /* flash-mtd driver messages */
-#define MTD_DEBUG(fmt, args...)		debug_printf(DP_DEBUG, fmt, args)
-#define MTD_INFO(fmt, args...)		debug_printf(DP_INFO, fmt, args)
+//#define MTD_DEBUG(fmt, args...)		debug_printf(DP_DEBUG, fmt, args)
+//#define MTD_INFO(fmt, args...)		debug_printf(DP_INFO, fmt, args)
 
 #define arduino_map(x, in_min, in_max, out_min, out_max) \
 	(((x) - (in_min)) * ((out_max) - (out_min)) / ((in_max) - (in_min)) + out_min)
-
-#define chTimeElapsedSince(t)	(osalOsGetSystemTimeX() - t)
 
 #endif /* FW_COMMON_H */

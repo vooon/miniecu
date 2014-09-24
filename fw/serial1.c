@@ -1,6 +1,6 @@
 /**
- * @file       th_comm.h
- * @brief      Communication thread
+ * @file       th_comm.c
+ * @brief      communication thread
  * @author     Vladimir Ermakov Copyright (C) 2014.
  * @see        The GNU Public License (GPL) Version 3
  */
@@ -20,15 +20,39 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef TH_COMM_H
-#define TH_COMM_H
+#include "alert_led.h"
+#include "param.h"
 
-#include "fw_common.h"
+/* global parameters */
 
-THD_FUNCTION(th_comm, arg);
+int32_t g_serial_baud;
 
-/* public functions */
-void send_command_response(uint32_t operation, uint32_t response);
-/* debug_printf() defined in fw_common.h */
+static SerialConfig serial1_cfg = {
+	.speed = SERIAL_DEFAULT_BITRATE,
+	.cr1 = 0,
+	/* 8N1, autobaud mode 1 */
+	.cr2 = USART_CR2_STOP1_BITS | USART_CR2_ABREN | USART_CR2_ABRMODE_0,
+	.cr3 = 0
+};
 
-#endif /* TH_COMM_H */
+void on_serial1_change(const struct param_entry *p ATTR_UNUSED)
+{
+	switch (g_serial_baud) {
+	case 9600:
+	case 19200:
+	case 38400:
+	case 57600:
+	case 115200:
+	case 230400:
+	case 460800:
+	case 921600:
+		debug_printf(DP_WARN, "serial baud change: %" PRIi32, g_serial_baud);
+		serial1_cfg.speed = g_serial_baud;
+		sdStart(&SD1, &serial1_cfg);
+		break;
+
+	default:
+		g_serial_baud = serial1_cfg.speed;
+		break;
+	}
+}

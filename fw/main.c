@@ -62,13 +62,13 @@ int main(void) {
 	halInit();
 	chSysInit();
 
-	sdStart(&PBSTX_SD, NULL);
+	sdStart(&SERIAL1_SD, NULL);
 	alert_init();
 	time_init();
 	param_init();
 
 	chThdCreateStatic(wa_led, sizeof(wa_led), LOWPRIO, th_led, NULL);
-	chThdCreateStatic(wa_comm, sizeof(wa_comm), NORMALPRIO, th_comm, NULL);
+	chThdCreateStatic(wa_comm, sizeof(wa_comm), NORMALPRIO, th_comm, &SERIAL1_SD);
 	//chThdCreateStatic(wa_flash_log, sizeof(wa_flash_log), NORMALPRIO - 2, th_flash_log, NULL);
 	//chThdCreateStatic(wa_adc, sizeof(wa_adc), NORMALPRIO + 1, th_adc, NULL);
 	//chThdCreateStatic(wa_rpm, sizeof(wa_rpm), NORMALPRIO - 1, th_rpm, NULL);

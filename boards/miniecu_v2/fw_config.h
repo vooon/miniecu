@@ -1,8 +1,7 @@
 #ifndef _FW_CONFIG_H_
 #define _FW_CONFIG_H_
 
-#define PBSTX_SD	SD1
-#define PBSTX_SDU	SDU1
+#define SERIAL1_SD	SD1
 
 #define USE_RT_KERNEL
 

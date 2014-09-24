@@ -156,16 +156,13 @@ msg_t pbstxSend(PBStxDev *instp, pbstx_message_t *msg)
 	uint8_t header[] = { PBSTX_STX, instp->tx_seq++, msg->size & 0xff, msg->size >> 8 };
 
 	msg->checksum = crc16(header + 1, sizeof(header) - 1);
-	ret = chnWriteTimeout(instp->chp, header, sizeof(header), SER_TIMEOUT);
-	if (ret == Q_TIMEOUT || ret == Q_RESET)
-		goto unlock_ret;
+	msg->checksum = crc16part(msg->payload, msg->size, msg->checksum);
 
-	if (msg->size > 0) {
-		msg->checksum = crc16part(msg->payload, msg->size, msg->checksum);
-		ret = chnWriteTimeout(instp->chp, msg->payload, msg->size, SER_PAYLOAD_TIMEOUT);
-		if (ret == Q_TIMEOUT || ret == Q_RESET)
-			goto unlock_ret;
-	}
+	ret = chnWriteTimeout(instp->chp, header, sizeof(header), SER_TIMEOUT);
+	if (ret < 0) goto unlock_ret;
+
+	ret = chnWriteTimeout(instp->chp, msg->payload, msg->size, SER_PAYLOAD_TIMEOUT);
+	if (ret < 0) goto unlock_ret;
 
 	ret = chnWriteTimeout(instp->chp, (uint8_t*)&msg->checksum, sizeof(msg->checksum), SER_TIMEOUT);
 
