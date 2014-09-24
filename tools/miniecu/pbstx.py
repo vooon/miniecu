@@ -1,12 +1,14 @@
-# Protocol Buffers serial transfer
-#
-# Simple protocol for transfer PB messages defined in miniecu.proto.
-# Each message should have MessageId number defined in enum.
-#
-# Message format:
-#    <HDR><SEQ><MSGID><LEN><PAYLOAD[LEN]><CRC>
-#
+# -*- python -*-
 # vim:set ts=4 sw=4 et
+
+"""
+Protocol Buffers serial transfer
+
+Simple protocol for transfer PB messages defined in miniecu.proto.
+
+Message format:
+   <STX><SEQ><LEN[2]><PAYLOAD[LEN]><CRC[2]>
+"""
 
 __all__ = (
     'PBStx',
@@ -17,7 +19,7 @@ __all__ = (
 import serial
 import threading
 import struct
-import crcmod.predefined as pcrc
+from xmodem_crc16 import xmodem_crc16
 
 try:
     import miniecu_pb2 as msgs
@@ -37,7 +39,6 @@ class PBStx(object):
     DHEADER = '<BH'     # Decode header: SEQ, LEN
     MAX_LEN = 256
     CRCFMT = '<H'       # CRC16 (xmodem)
-    CRCTYPE = 'xmodem'
 
     def __init__(self, port, baud=57600, sysid=240):
         self.terminate = threading.Event()
@@ -45,14 +46,9 @@ class PBStx(object):
         self.ser.setTimeout(2.0)
         self._tx_seq = 0
         self._rx_seq = 0
-        self._tx_crc = pcrc.PredefinedCrc(PBStx.CRCTYPE)
-        self._rx_crc = pcrc.PredefinedCrc(PBStx.CRCTYPE)
 
     def __del__(self):
         self.terminate.set()
-
-    def _reset_crc(self, obj):
-        obj.crcValue = obj.initValue
 
     def send(self, pbobj):
         if not isinstance(pbobj, msgs.Message):
@@ -65,55 +61,46 @@ class PBStx(object):
         buf = struct.pack(PBStx.EHEADER, PBStx.STX, self._tx_seq, len(payload))
         buf += payload
 
-        self._reset_crc(self._tx_crc)
-        self._tx_crc.update(buf[1:])
-        buf += struct.pack(PBStx.CRCFMT, self._tx_crc.crcValue)
+        tx_crc = xmodem_crc16(buf[1:])
+        buf += struct.pack(PBStx.CRCFMT, tx_crc)
 
         self._tx_seq += 1
         self.ser.write(buf)
 
     def receive(self):
-        state = 'STX'
         seq = 0
         len_ = 0
         payload = bytearray()
         crc = 0
+        rx_crc = 0
         hdr_len = struct.calcsize(PBStx.DHEADER)
         crc_len = struct.calcsize(PBStx.CRCFMT)
 
         while not self.terminate.is_set():
-            if state == 'STX':
-                c = self.ser.read(1)
-                if len(c) == 0 or c[0] != PBStx.STX:
-                    continue
+            # 1. wait start marker
+            c = self.ser.read(1)
+            if len(c) == 0 or ord(c[0]) != PBStx.STX:
+                continue
 
-                state = 'HDR'
+            # 2. read header
+            buf = self._read_or_die(hdr_len)
+            rx_crc = xmodem_crc16(buf)
+            seq, len_ = struct.unpack(PBStx.DHEADER, buf)
 
-            if state == 'HDR':
-                buf = self._read_or_die(hdr_len)
+            # 3. read payload
+            payload = self._read_or_die(len_)
+            rx_crc = xmodem_crc16(payload, rx_crc)
 
-                self._reset_crc(self._rx_crc)
-                self._rx_crc.update(buf)
+            # 4. read crc
+            buf = self._read_or_die(crc_len)
+            crc, = struct.unpack(PBStx.CRCFMT, buf)
 
-                seq, len_ = struct.unpack(PBStx.DHEADER, buf)
-                state = 'PAYLOAD'
-
-            if state == 'PAYLOAD':
-                payload = self._read_or_die(len_)
-
-                self._reset_crc(self._rx_crc)
-                self._rx_crc.update(payload)
-
-                state = 'CRC'
-
-            if state == 'CRC':
-                buf = self._read_or_die(crc_len)
-
-                crc = struct.unpack(PBStx.CRCFMT, buf)
-                if crc == self._rx_crc.crcValue:
-                    return self._deserialize(seq, payload)
-                else:
-                    raise ReceiveError("CRC mismatch")
+            # 5. check crc
+            if crc == rx_crc:
+                return self._deserialize(seq, payload)
+            else:
+                raise ReceiveError("CRC mismatch: 0x{:04x} != 0x{:04x}".format(
+                    crc, rx_crc))
 
     def _read_or_die(self, rq_len):
         buf = self.ser.read(rq_len)
