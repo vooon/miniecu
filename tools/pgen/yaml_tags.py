@@ -41,9 +41,16 @@ class Parameter(object):
 
         return minmax((self._norm_type(v) for v in values))
 
+    def get_var_name(self, param_id):
+        if self.var is not None:
+            return self.var
+        else:
+            return 'gp_' + param_id.lower()
+
     def __setstate__(self, definition):
         # copy common fields
         self.desc = definition.get('desc')
+        self.var = definition.get('var')
         self.onchange = definition.get('onchange')
         self.default = definition.get('default')
         self.read_only = definition.get('read_only', False)

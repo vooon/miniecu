@@ -52,7 +52,7 @@ parameters:
     values: [9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600]
     default: 57600
     onchange: on_change_serial1_baud
-  SERIAL1_PROTOCOL: !ptstring
+  SERIAL1_PROTO: !ptstring
     desc: Serial 1 protocol selector
     values: ["PBStx"]
 
