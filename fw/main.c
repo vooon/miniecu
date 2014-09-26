@@ -32,6 +32,8 @@ static THD_WORKING_AREA(wa_rpm, 256);
 static THD_WORKING_AREA(wa_flash_log, 1024);
 static THD_WORKING_AREA(wa_command, 256);
 
+#define COMMPRIO	(NORMALPRIO - 5)
+
 /**
  * @brief safety hook
  * Called from SYSTEM_HALT_HOOK() macro.
@@ -68,19 +70,15 @@ int main(void) {
 	param_init();
 
 	chThdCreateStatic(wa_led, sizeof(wa_led), LOWPRIO, th_led, NULL);
-	chThdCreateStatic(wa_serial1, sizeof(wa_serial1), NORMALPRIO + 5, th_comm_pbstx, &SERIAL1_SD);
+	chThdCreateStatic(wa_serial1, sizeof(wa_serial1), COMMPRIO, th_comm_pbstx, &SERIAL1_SD);
 	//chThdCreateStatic(wa_flash_log, sizeof(wa_flash_log), NORMALPRIO - 2, th_flash_log, NULL);
 	//chThdCreateStatic(wa_adc, sizeof(wa_adc), NORMALPRIO + 1, th_adc, NULL);
 	//chThdCreateStatic(wa_rpm, sizeof(wa_rpm), NORMALPRIO - 1, th_rpm, NULL);
 	//chThdCreateStatic(wa_command, sizeof(wa_command), NORMALPRIO - 2, th_command, NULL);
 
-	/* we use main thread as idle */
-	chThdSetPriority(IDLEPRIO);
-
-	/* This is now the idle thread loop, you may perform here a low priority
-	   task but you must never try to sleep or wait in this loop. Note that
-	   this tasks runs at the lowest priority level so any instruction added
-	   here will be executed after all other tasks have been started.*/
+	chRegSetThreadName("main");
+	chThdSetPriority(LOWPRIO);
 	while (true) {
+		// TODO: check USB status and start/stop comm thread.
 	}
 }

@@ -75,7 +75,7 @@ static void send_status(PBStxComm *self);
  *
  * @return MSG_OK on success
  */
-msg_t pbstxEncodeSend(PBStxDev *dev, pbstx_message_t *msg, const pb_field_t messagetype[], const void *message)
+static msg_t pbstxEncodeSend(PBStxDev *dev, pbstx_message_t *msg, const pb_field_t messagetype[], const void *message)
 {
 	pb_ostream_t outstream = pb_ostream_from_buffer(msg->payload, PBSTX_PAYLOAD_BYTES);
 
@@ -101,10 +101,67 @@ err_out:
 /**
  * Variation of @a pbstxEncodeSend for PBStxComm objects
  */
-msg_t pbstxEncodeSendComm(PBStxComm *self, const pb_field_t messagetype[], const void *message)
+static msg_t pbstxEncodeSendComm(PBStxComm *self, const pb_field_t messagetype[], const void *message)
 {
 	return pbstxEncodeSend(&self->dev, &self->msg, messagetype, message);
 }
+
+/**
+ * Encode and send message via all available channels
+ *
+ * @return MSG_OK if no errors on send.
+ *         or last send error.
+ */
+static void pbstxEncodeSendBroadcast(pbstx_message_t *msg, const pb_field_t messagetype[], const void *message)
+{
+	msg_t ret = MSG_OK;
+	msg_t sret;
+
+	msg->size = 0; // force encode
+	for (int i = 0; i < MAX_INSTANCES; i++)
+		if (m_instances[i] != NULL) {
+			if (msg->size == 0)
+				sret = pbstxEncodeSend(&m_instances[i]->dev, msg, messagetype, message);
+			else
+				sret = pbstxSend(&m_instances[i]->dev, msg);
+
+			if (sret < 0)
+				ret = sret;
+		}
+
+	return ret;
+}
+
+/**
+ * @brief Send STATUS_TEXT message
+ * @param severity message level
+ * @param fmt formatting string @a chprintf()
+ *
+ * NOTE: baed on @a chsnprintf()
+ */
+void debug_printf(enum severity severity, char *fmt, ...)
+{
+	va_list ap;
+	MemoryStream ms;
+	BaseSequentialStream *chp;
+	pbstx_message_t msg;
+	miniecu_StatusText st;
+
+	msObjectInit(&ms, (uint8_t *)st.text, sizeof(st.text), 0);
+	chp = (BaseSequentialStream *)&ms;
+
+	st.engine_id = g_engine_id;
+	st.severity = severity;
+	va_start(ap, fmt);
+	chvprintf(chp, fmt, ap);
+	va_end(ap);
+
+	/* final zero */
+	chSequentialStreamPut(chp, 0);
+
+	pbstxEncodeSendBroadcast(&msg, miniecu_StatusText_fields, &st);
+}
+
 
 // -*- thread main -*-
 
@@ -120,7 +177,7 @@ THD_FUNCTION(th_comm_pbstx, arg)
 	chRegSetThreadName("pbstx");
 	pbstxObjectInit(&self.dev, (BaseChannel*)arg);
 
-	// store instance m_instances
+	// store instance m_instances for broadcast messages
 	for (instance_id = 0; instance_id < MAX_INSTANCES; instance_id++) {
 		if (m_instances[instance_id] == NULL) {
 			m_instances[instance_id] = &self;
@@ -145,48 +202,6 @@ THD_FUNCTION(th_comm_pbstx, arg)
 		m_instances[instance_id] = NULL;
 
 	return MSG_OK;
-}
-
-/**
- * @brief Send STATUS_TEXT message
- * @param severity message level
- * @param fmt formatting string @a chprintf()
- *
- * NOTE: baed on @a chsnprintf()
- */
-void debug_printf(enum severity severity, char *fmt, ...)
-{
-#if 0
-	// XXX: relocate it to better module
-	// XXX:
-	va_list ap;
-	MemoryStream ms;
-	BaseSequentialStream *chp;
-	uint8_t local_msg_buf[82];
-	pb_ostream_t outstream = pb_ostream_from_buffer(local_msg_buf,
-			sizeof(local_msg_buf));
-	miniecu_StatusText st;
-
-	msObjectInit(&ms, (uint8_t *)st.text, sizeof(st.text), 0);
-	chp = (BaseSequentialStream *)&ms;
-
-	st.engine_id = g_engine_id;
-	st.severity = severity;
-	va_start(ap, fmt);
-	chvprintf(chp, fmt, ap);
-	va_end(ap);
-
-	/* final zero */
-	chSequentialStreamPut(chp, 0);
-
-	if (!pb_encode(&outstream, miniecu_StatusText_fields, &st)) {
-		alert_component(ALS_COMM, AL_FAIL);
-		return;
-	}
-
-	pbstx_send(miniecu_MessageId_STATUS_TEXT,
-			local_msg_buf, outstream.bytes_written);
-#endif
 }
 
 static void send_status(PBStxComm *self)
