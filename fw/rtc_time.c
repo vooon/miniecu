@@ -25,41 +25,37 @@
 
 /* -*- local -*- */
 
-static bool m_time_is_set = false;
+static bool m_time_is_known = false;
 
 /* -*- global -*- */
 
 /* XXX: RTC driver still not ported to v3 */
 
-/**
- * Initialize RTC module
+/** Initialize RTC module
  */
-void time_init(void)
+void rtc_time_init(void)
 {
 	/* TODO:
 	 * - chack that RTC configured (RTC battery exists)
-	 * - check that LSE exist and select RTC source LSE or LSI
 	 */
 
-	m_time_is_set = false;
+	m_time_is_known = false;
 	//rtcSetPeriodicWakeup_v2(&RTCD1, NULL);
 }
 
-/**
- * Get timestamp state flag
+/** Get timestamp state flag
  */
 bool time_is_known(void)
 {
-	return m_time_is_set;
+	return m_time_is_known;
 }
 
-/**
- * Get timestamp for comm and log
+/** Get timestamp for comm and log
  * @return sys time or RTC time
  */
 uint64_t time_get_timestamp(void)
 {
-	if (!m_time_is_set) {
+	if (!m_time_is_known) {
 		return ST2MS(osalOsGetSystemTimeX());
 	}
 	else {
@@ -81,7 +77,7 @@ int32_t time_set_timestamp(uint64_t ts)
 	// rtcSetTimeUnixUsec(&RTCD1, ts * 1000);
 	//rtcSetTimeUnixSec(&RTCD1, ts / 1000);
 
-	//m_time_is_set = true;
+	//m_time_is_known = true;
 
 	return curr_ts - ts;
 }

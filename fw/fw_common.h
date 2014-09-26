@@ -27,7 +27,6 @@
 
 #if defined(USE_RT_KERNEL)
 # include "ch.h"
-
 #elif defined(USE_NIL_KERNEL)
 # include "nil.h"
 # error "ChibiOS/Nil not supported by now. "\
@@ -41,13 +40,12 @@
 #include "memstreams.h"
 #include <inttypes.h>
 
-//#define ST2MS(st) (st * 1000 / OSAL_ST_FREQUENCY)
-
-#define ATTR_UNUSED __attribute__((unused))
+#define ATTR_UNUSED	__attribute__((unused))
+#define ATTR_NORETURN	__attribute__((noreturn))
 
 #define ARRAY_SIZE(_arr)	(sizeof((_arr)) / sizeof((_arr)[0]))
 
-/* NOTE same as in miniecu.proto */
+/* NOTE same as in miniecu.StatusText.Severity */
 enum severity {
 	DP_DEBUG = 0,
 	DP_INFO,
@@ -63,6 +61,8 @@ void debug_printf(enum severity severity, char *fmt, ...)
 //#define MTD_DEBUG(fmt, args...)		debug_printf(DP_DEBUG, fmt, args)
 //#define MTD_INFO(fmt, args...)		debug_printf(DP_INFO, fmt, args)
 
+/** Arduino Wiring map() function
+ */
 #define arduino_map(x, in_min, in_max, out_min, out_max) \
 	(((x) - (in_min)) * ((out_max) - (out_min)) / ((in_max) - (in_min)) + out_min)
 

@@ -21,60 +21,19 @@
  */
 
 #include "alert_led.h"
+#include "hw/led.h"
 
 /* local variables */
+
 static enum alert_status al_status[ALS_MAX];
+static THD_WORKING_AREA(wa_led, 128);
 
-#if !defined(BOARD_MINIECU_V2)
-# error "unknown board"
-#endif
+/* thread */
 
-#define LED_ALL_OFF() do {		\
-	palClearPad(GPIOA_LED_R);	\
-	palClearPad(GPIOA_LED_G);	\
-} while (0)
-
-#define _LED_op_xy(op, ledop, ledoff) do {	\
-	palClearPad(GPIOA, ledoff);		\
-	pal ## op ## Pad(GPIOA, ledop);		\
-} while (0)
-
-#define LED_FAIL_ON()		_LED_op_xy(Set, GPIOA_LED_R, GPIOA_LED_G)
-#define LED_FAIL_TOGGLE()	_LED_op_xy(Toggle, GPIOA_LED_R, GPIOA_LED_G)
-
-#define LED_NORMAL_ON()		_LED_op_xy(Set, GPIOA_LED_G, GPIOA_LED_R)
-#define LED_NORMAL_TOGGLE()	_LED_op_xy(Toggle, GPIOA_LED_G, GPIOA_LED_R)
-
-/* public interface */
-
-void alert_component(enum alert_source src, enum alert_status st)
+static THD_FUNCTION(th_led, arg ATTR_UNUSED)
 {
-	osalDbgAssert((src < ALS_MAX), "alert source");
+	chRegSetThreadName("led");
 
-	al_status[src] = st;
-	/* TODO: signall led thread */
-}
-
-void alert_init(void)
-{
-	for (int i = 0; i < ALS_MAX; i++)
-		al_status[i] = AL_INIT;
-
-	LED_FAIL_ON();
-}
-
-bool alert_check_error(void)
-{
-	for (int i = 0; i < ALS_MAX; i++)
-		if (al_status[i] == AL_FAIL)
-			return true;
-
-	return false;
-}
-
-/* local functions */
-THD_FUNCTION(th_led, arg ATTR_UNUSED)
-{
 	while (true) {
 		enum alert_status st = AL_NORMAL;
 		for (int i = 0; i < ALS_MAX; i++) {
@@ -86,20 +45,55 @@ THD_FUNCTION(th_led, arg ATTR_UNUSED)
 
 		switch (st) {
 		case AL_INIT:
-			LED_FAIL_TOGGLE();
+			led_init_toggle();
 			chThdSleepMilliseconds(150);
 			break;
 
 		case AL_FAIL:
-			LED_FAIL_ON();
+			led_fail_toggle();
 			chThdSleepMilliseconds(500);
 			break;
 
 		case AL_NORMAL:
-			LED_NORMAL_TOGGLE();
+			led_normal_toggle();
 			chThdSleepMilliseconds(500);
 			break;
 		}
 	}
+
+	return MSG_RESET;
 }
 
+/* public interface */
+
+/** Set component status
+ */
+void alert_component(enum alert_source src, enum alert_status st)
+{
+	osalDbgAssert((src < ALS_MAX), "alert source");
+
+	al_status[src] = st;
+}
+
+/** Check that there no component in error state.
+ */
+bool alert_check_error(void)
+{
+	for (int i = 0; i < ALS_MAX; i++)
+		if (al_status[i] == AL_FAIL)
+			return true;
+
+	return false;
+}
+
+/** Start alert led subsytem
+ *
+ * Starts @a th_led thread
+ */
+void alert_led_init(void)
+{
+	for (int i = 0; i < ALS_MAX; i++)
+		al_status[i] = AL_INIT;
+
+	chThdCreateStatic(wa_led, sizeof(wa_led), LOWPRIO, th_led, NULL);
+}

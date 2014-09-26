@@ -24,9 +24,10 @@
 #include "rtc_time.h"
 #include "pbstx.h"
 #include "param.h"
+#include "hw/led.h"
+
 
 static THD_WORKING_AREA(wa_serial1, 1024);
-static THD_WORKING_AREA(wa_led, 128);
 static THD_WORKING_AREA(wa_adc, 512);
 static THD_WORKING_AREA(wa_rpm, 256);
 static THD_WORKING_AREA(wa_flash_log, 1024);
@@ -45,8 +46,7 @@ void system_halt_hook(void)
 	palClearPad(GPIOE, GPIOE_STARTER);
 
 	/* indication */
-	palSetPad(GPIOA, GPIOA_LED_R);
-	palSetPad(GPIOA, GPIOA_LED_G);
+	led_halt_state();
 }
 
 /*
@@ -65,20 +65,19 @@ int main(void) {
 	chSysInit();
 
 	sdStart(&SERIAL1_SD, NULL);
-	alert_init();
-	time_init();
+	alert_led_init();
+	rtc_time_init();
 	param_init();
 
-	chThdCreateStatic(wa_led, sizeof(wa_led), LOWPRIO, th_led, NULL);
-	chThdCreateStatic(wa_serial1, sizeof(wa_serial1), COMMPRIO, th_comm_pbstx, &SERIAL1_SD);
+	//chThdCreateStatic(wa_serial1, sizeof(wa_serial1), COMMPRIO, th_comm_pbstx, &SERIAL1_SD);
 	//chThdCreateStatic(wa_flash_log, sizeof(wa_flash_log), NORMALPRIO - 2, th_flash_log, NULL);
 	//chThdCreateStatic(wa_adc, sizeof(wa_adc), NORMALPRIO + 1, th_adc, NULL);
 	//chThdCreateStatic(wa_rpm, sizeof(wa_rpm), NORMALPRIO - 1, th_rpm, NULL);
 	//chThdCreateStatic(wa_command, sizeof(wa_command), NORMALPRIO - 2, th_command, NULL);
 
-	chRegSetThreadName("main");
 	chThdSetPriority(LOWPRIO);
 	while (true) {
 		// TODO: check USB status and start/stop comm thread.
+		chThdSleepMilliseconds(250);
 	}
 }

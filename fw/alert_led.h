@@ -32,15 +32,14 @@ enum alert_status {
 };
 
 enum alert_source {
-	ALS_COMM = 0,
-	ALS_ADC,
-	//ALS_RTC,
-	ALS_FLASH,
-	ALS_MAX /* max size of alert array */
+	ALS_COMM = 0,	//!< Communication subsystem
+	ALS_ADC,	//!< ADC subsystem
+	//ALS_RTC,	//!< RTC subsystem
+	ALS_FLASH,	//!< Ext FLASH subsutem
+	ALS_MAX		//!< max size of alert array
 };
 
-THD_FUNCTION(th_led, arg ATTR_UNUSED);
-void alert_init(void);
+void alert_led_init(void);
 void alert_component(enum alert_source src, enum alert_status st);
 bool alert_check_error(void);
 
