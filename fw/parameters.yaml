@@ -1,0 +1,154 @@
+# ECU Parameters definition file
+# vim: set ts=2 sw=2 et:
+
+format_version: "1.1.0"
+parameters:
+  ENGINE_NAME: !ptstring
+    desc: "Engine manufacturer and model"
+    default: "mfg & name"
+  ENGINE_SERIAL: !ptstring
+    desc: "Engine serial number"
+    default: "serial no"
+  ENGINE_ID: !ptint32
+    desc: "ECU address"
+    min: 1
+    max: 255
+
+  ECU_SERIAL_NO: !ptstring
+    desc: "Module serial number"
+    default: "SETUP ERROR"
+    read_only: true
+  ECU_FW_VERSION: !ptstring
+    desc: "Firmware version string"
+    default: "SETUP ERROR"
+    read_only: true;
+  ECU_HW_VERSION: !ptstring
+    desc: "Hardware version string"
+    default: "SETUP ERROR"
+    read_only: true;
+
+  SERIAL1_BAUD: !ptint32
+    desc: "Serial 1 baudrate"
+    values: [9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600]
+    default: 57600
+    onchange: on_change_serial1_baud
+  SERIAL1_PROTOCOL: !ptstring
+    desc: "Serial 1 protocol selector"
+    values: ["PBStx"]
+
+  STATUS_PERIOD: !ptint32
+    desc: "Status report period in milliseconds"
+    min: 100
+    max: 60000
+    default: 1000
+
+  BATT_VD1_VDROP: !ptfloat
+    desc: "Voltage drop on VD1 diode (hw 2.0a bug compensation)"
+    min: 0.0
+    max: 1.0
+    default: 0.4
+
+  BATT_CELLS: !ptint32
+    desc: "Number of cells in battery"
+    min: 1
+    max: 10
+    default: 4
+  BATT_TYPE: !ptstring
+    desc: "Battery chemistry type"
+    values: ["NiMH", "NiCd", "LiIon", "LiPo", "LiFePo", "Pb"]
+    onchange: on_change_batt_type
+
+  TEMP_R: !ptint32 &r_mode
+    desc: "Input mode R1 or R2"
+    enum: {R1: 1, R2: 2}
+    default: R2
+  TEMP_OVERHEAT: !ptfloat
+    desc: "Engine overheat temperature"
+    min: 0
+    max: 200
+    default: 110.0
+  TEMP_SH_A: !ptfloat &sh_a
+    desc: "Steinhart-Hart A koeff"
+    min: -10
+    max: 10
+    default: 2.1085e-3
+  TEMP_SH_B: !ptfloat &sh_b
+    desc: "Steinhart-Hart B koeff"
+    min: -10
+    max: 10
+    default: 0.7979e-4
+  TEMP_SH_C: !ptfloat &sh_c
+    desc: "Steinhart-Hart C koeff"
+    min: -10
+    max: 10
+    default: 6.5351e-7
+
+  OILP_MODE: !ptstring
+    desc: "OIL_P input mode"
+    values: ["Disabled", "NTC10k"]
+    onchange: on_change_oilp_mode
+  OILP_R: *r_mode
+  OILP_SH_A: *sh_a
+  OILP_SH_B: *sh_b
+  OILP_SH_C: *sh_c
+
+  RPM_LIMIT: !ptint32
+    desc: "High RPM limit"
+    min: 0
+    max: 20000
+    default: 8000
+  RPM_NPULSES: !ptint32
+    desc: "Number of pulses per revolution of crankshaft"
+    min: 1
+    max: 64
+    var: gp_pulses_per_revolution
+  RPM_MIN_IDLE: !ptint32
+    desc: "Low RPM limit (Idle RPM - 10%..20%)"
+    min: 0
+    max: 3000
+    default: 800
+
+  FLOW_ENABLE: !ptbool
+    desc: "Enable FLOW sensor"
+  FLOW_V0: !ptfloat
+    desc: "MP3V5004DP voltage at 0 kPa"
+    min: 0
+    max: 1.5
+    default: 0.6
+  FLOW_DIA1: !ptfloat
+    desc: "Diameter of the pipe [mm]"
+    min: 0
+    max: 50
+    default: 9
+    onchange: on_change_flow_params
+  FLOW_DIA2: !ptfloat
+    desc: "Diameter of the orifice hole [mm]"
+    min: 0
+    max: 50
+    deafult: 0.9
+    onchange: on_change_flow_params
+  FLOW_CD: !ptfloat
+    desc: "Coefficent of disharge"
+    min: 0
+    max: 10
+    default: 0.75
+    onchange: on_change_flow_params
+  FLOW_RO: !ptfloat
+    desc: "Fluid density [kg/m3]"
+    min: 0
+    max: 2000
+    default: 745.0 # gasoline Ai95
+
+  TANK_VOLUME: !ptint32
+    desc: "Fuel tank volume [mL]"
+    min: 0
+    max: 100e3
+  TANK_LOW: !ptint32
+    desc: "Fuel reserve alert level [mL]"
+    min: 0
+    max: 100e3
+
+  DEBUG_ADC_RAW: !ptbool
+    desc: "Enable debug feauture: send Status.adc_raw message"
+  DEBUG_MEMDUMP: !ptbool
+    desc: "Enable memdump subsystem (used for debugging)"
