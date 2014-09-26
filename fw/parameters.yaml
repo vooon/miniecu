@@ -1,6 +1,29 @@
 # ECU Parameters definition file
 # vim: set ts=2 sw=2 et:
 
+# reduce duplication
+common_data:
+  R_MODE: &r_mode
+    # XXX: strange bug, enum map are empty after parsing
+    # so copy enum tag every time
+    enum: {R1: 1, R2: 2}
+    default: R2
+  SH_A: &sh_a
+    min: -10
+    max: 10
+    default: 2.1085e-3
+  SH_B: &sh_b
+    min: -10
+    max: 10
+    default: 0.7979e-4
+  SH_C: &sh_c
+    min: -10
+    max: 10
+    default: 6.5351e-7
+  RO_INIT: &ro_init
+    default: "SETUP ERROR"
+    read_only: true
+
 format_version: "1.1.0"
 parameters:
   ENGINE_NAME: !ptstring
@@ -15,17 +38,14 @@ parameters:
     max: 255
 
   ECU_SERIAL_NO: !ptstring
+    <<: *ro_init
     desc: "Module serial number"
-    default: "SETUP ERROR"
-    read_only: true
   ECU_FW_VERSION: !ptstring
+    <<: *ro_init
     desc: "Firmware version string"
-    default: "SETUP ERROR"
-    read_only: true;
   ECU_HW_VERSION: !ptstring
+    <<: *ro_init
     desc: "Hardware version string"
-    default: "SETUP ERROR"
-    read_only: true;
 
   SERIAL1_BAUD: !ptint32
     desc: "Serial 1 baudrate"
@@ -58,39 +78,42 @@ parameters:
     values: ["NiMH", "NiCd", "LiIon", "LiPo", "LiFePo", "Pb"]
     onchange: on_change_batt_type
 
-  TEMP_R: !ptint32 &r_mode
-    desc: "Input mode R1 or R2"
+  TEMP_R: !ptint32
+    <<: *r_mode
+    desc: "TEMP input mode R1 or R2"
     enum: {R1: 1, R2: 2}
-    default: R2
   TEMP_OVERHEAT: !ptfloat
     desc: "Engine overheat temperature"
     min: 0
     max: 200
     default: 110.0
-  TEMP_SH_A: !ptfloat &sh_a
-    desc: "Steinhart-Hart A koeff"
-    min: -10
-    max: 10
-    default: 2.1085e-3
-  TEMP_SH_B: !ptfloat &sh_b
-    desc: "Steinhart-Hart B koeff"
-    min: -10
-    max: 10
-    default: 0.7979e-4
-  TEMP_SH_C: !ptfloat &sh_c
-    desc: "Steinhart-Hart C koeff"
-    min: -10
-    max: 10
-    default: 6.5351e-7
+  TEMP_SH_A: !ptfloat
+    <<: *sh_a
+    desc: "Steinhart-Hart A koeff for TEMP"
+  TEMP_SH_B: !ptfloat
+    <<: *sh_b
+    desc: "Steinhart-Hart B koeff for TEMP"
+  TEMP_SH_C: !ptfloat
+    <<: *sh_c
+    desc: "Steinhart-Hart C koeff for TEMP"
 
   OILP_MODE: !ptstring
     desc: "OIL_P input mode"
     values: ["Disabled", "NTC10k"]
     onchange: on_change_oilp_mode
-  OILP_R: *r_mode
-  OILP_SH_A: *sh_a
-  OILP_SH_B: *sh_b
-  OILP_SH_C: *sh_c
+  OILP_R: !ptint32
+    <<: *r_mode
+    desc: "OILP input resistance mode R1 or R2"
+    enum: {R1: 1, R2: 2}
+  OILP_SH_A: !ptfloat
+    <<: *sh_a
+    desc: "Steinhart-Hart A koeff for OILP"
+  OILP_SH_B: !ptfloat
+    <<: *sh_b
+    desc: "Steinhart-Hart B koeff for OILP"
+  OILP_SH_C: !ptfloat
+    <<: *sh_c
+    desc: "Steinhart-Hart C koeff for OILP"
 
   RPM_LIMIT: !ptint32
     desc: "High RPM limit"
@@ -142,11 +165,11 @@ parameters:
   TANK_VOLUME: !ptint32
     desc: "Fuel tank volume [mL]"
     min: 0
-    max: 100e3
+    max: 100000
   TANK_LOW: !ptint32
     desc: "Fuel reserve alert level [mL]"
     min: 0
-    max: 100e3
+    max: 100000
 
   DEBUG_ADC_RAW: !ptbool
     desc: "Enable debug feauture: send Status.adc_raw message"
