@@ -52,8 +52,8 @@ PBStxComm *m_instances[MAX_INSTANCES] = {};
 static void send_status(PBStxComm *self);
 //static void recv_time_reference(uint8_t msg_len);
 //static void recv_command(uint8_t msg_len);
-//static void recv_param_request(uint8_t msg_len);
-//static void recv_param_set(uint8_t msg_len);
+static void recv_param_request(PBStxComm *self, pb_istream_t *instream);
+static void recv_param_set(PBStxComm *self, pb_istream_t *instream);
 //static void recv_log_request(uint8_t msg_len);
 //static void recv_memory_dump_request(uint8_t msg_len);
 
@@ -112,7 +112,7 @@ static msg_t pbstxEncodeSendComm(PBStxComm *self, const pb_field_t messagetype[]
  * @return MSG_OK if no errors on send.
  *         or last send error.
  */
-static void pbstxEncodeSendBroadcast(pbstx_message_t *msg, const pb_field_t messagetype[], const void *message)
+static msg_t pbstxEncodeSendBroadcast(pbstx_message_t *msg, const pb_field_t messagetype[], const void *message)
 {
 	msg_t ret = MSG_OK;
 	msg_t sret;
@@ -130,6 +130,48 @@ static void pbstxEncodeSendBroadcast(pbstx_message_t *msg, const pb_field_t mess
 		}
 
 	return ret;
+}
+
+/**
+ * This helper function decodes type of miniecu.Message
+ *
+ * Based on nanopb example using_union_messages/decode.c
+ */
+static const pb_field_t *pbstxDecodeType(pb_istream_t *stream)
+{
+	pb_wire_type_t wire_type;
+	uint32_t tag;
+	bool eof;
+
+	while (pb_decode_tag(stream, &wire_type, &tag, &eof)) {
+		if (wire_type == PB_WT_STRING) {
+			const pb_field_t *field;
+			for (field = miniecu_Message_fields; field->tag != 0; field++) {
+				if (field->tag == tag && (field->type & PB_LTYPE_SUBMESSAGE))
+					/* Found our field. */
+					return field->ptr;
+			}
+		}
+
+		/* Wasn't our field.. */
+		pb_skip_field(stream, wire_type);
+	}
+
+	return NULL;
+}
+
+/** Decode message content
+ */
+static bool pbstxDecodeMessage(pb_istream_t *stream, const pb_field_t messagetype[], void *dest_struct)
+{
+	pb_istream_t substream;
+	bool status;
+	if (!pb_make_string_substream(stream, &substream))
+		return false;
+
+	status = pb_decode(&substream, messagetype, dest_struct);
+	pb_close_string_substream(stream, &substream);
+	return status;
 }
 
 /**
@@ -163,9 +205,10 @@ void debug_printf(enum severity severity, char *fmt, ...)
 }
 
 
-// -*- thread main -*-
-
-THD_FUNCTION(th_comm_pbstx, arg)
+/** PBStxComm thread
+ * @param[in] arg	pointer to BaseChannel device
+ */
+static THD_FUNCTION(th_comm_pbstx, arg)
 {
 	osalDbgCheck(arg != NULL);
 
@@ -184,8 +227,12 @@ THD_FUNCTION(th_comm_pbstx, arg)
 			break;
 		}
 	}
-	osalDbgAssert(instance_id < ARRAY_SIZE(m_instances), "pbstx: no space");
+	if (instance_id >= MAX_INSTANCES)
+		return MSG_RESET;
 
+	alert_component(ALS_COMM, AL_NORMAL);
+
+	//debug_printf(DP_DEBUG, "pbstx%d: started", instance_id);
 	while (!chThdShouldTerminateX()) {
 		if (chVTTimeElapsedSinceX(send_time) >= MS2ST(g_status_period)) {
 			send_status(&self);
@@ -193,17 +240,41 @@ THD_FUNCTION(th_comm_pbstx, arg)
 		}
 
 		ret = pbstxReceive(&self.dev, &self.msg);
-		if (ret == MSG_OK) {
-			// TODO
-		}
+		if (ret != MSG_OK)
+			continue;
+
+		pb_istream_t instream = pb_istream_from_buffer(self.msg.payload, self.msg.size);
+		const pb_field_t *field = pbstxDecodeType(&instream);
+
+		if (field == miniecu_ParamRequest_fields)
+			recv_param_request(&self, &instream);
+		else if (field == miniecu_ParamSet_fields)
+			recv_param_set(&self, &instream);
 	}
 
 	if (m_instances[instance_id] != NULL)
 		m_instances[instance_id] = NULL;
 
+	debug_printf(DP_DEBUG, "pbstx%d: terminated", instance_id);
 	return MSG_OK;
 }
 
+/** PBStxComm constructor
+ * This function starts @a th_comm_pbstx thread
+ *
+ * @param chn	BaseChannel device pointer
+ */
+thread_t *pbstxCreate(void *chn, size_t size, tprio_t prio)
+{
+	return chThdCreateFromHeap(NULL, size, prio, th_comm_pbstx, chn);
+}
+
+/** PBStxComm methods
+ * @{
+ */
+
+/** Send miniecu.Status message
+ */
 static void send_status(PBStxComm *self)
 {
 	miniecu_Status status = miniecu_Status_init_default;
@@ -330,28 +401,22 @@ static void recv_command(uint8_t msg_len)
 	/* note: th_command can send response later */
 	send_command_response(cmd.operation, command_request(cmd.operation));
 }
+#endif
 
-static void send_param_value(miniecu_ParamValue *pv_msg)
+/** Broadcasts miniecu.ParamValue
+ */
+static void send_param_value(pbstx_message_t *msg, miniecu_ParamValue *pv_msg)
 {
-	pb_ostream_t outstream = pb_ostream_from_buffer(msg_buf, sizeof(msg_buf));
-
-	if (!pb_encode(&outstream, miniecu_ParamValue_fields, pv_msg)) {
-		alert_component(ALS_COMM, AL_FAIL);
-		return;
-	}
-
-	pbstx_send(miniecu_MessageId_PARAM_VALUE,
-			msg_buf, outstream.bytes_written);
+	pbstxEncodeSendBroadcast(msg, miniecu_ParamValue_fields, pv_msg);
 }
 
-static void recv_param_request(uint8_t msg_len)
+static void recv_param_request(PBStxComm *self, pb_istream_t *instream)
 {
-	pb_istream_t instream = pb_istream_from_buffer(msg_buf, msg_len);
 	miniecu_ParamRequest param_req;
 	miniecu_ParamValue param_value;
 	size_t idx, count = param_count();
 
-	if (!pb_decode(&instream, miniecu_ParamRequest_fields, &param_req)) {
+	if (!pbstxDecodeMessage(instream, miniecu_ParamRequest_fields, &param_req)) {
 		alert_component(ALS_COMM, AL_FAIL);
 		return;
 	}
@@ -371,7 +436,7 @@ static void recv_param_request(uint8_t msg_len)
 		param_value.param_count = count;
 		strncpy(param_value.param_id, param_req.param_id, PT_ID_SIZE);
 
-		send_param_value(&param_value);
+		send_param_value(&self->msg, &param_value);
 	}
 	else {
 		/* request all */
@@ -383,41 +448,41 @@ static void recv_param_request(uint8_t msg_len)
 			param_value.param_index = idx;
 			param_value.param_count = count;
 
-			send_param_value(&param_value);
+			send_param_value(&self->msg, &param_value);
 		}
 	}
 }
 
-static void recv_param_set(uint8_t msg_len)
+static void recv_param_set(PBStxComm *self, pb_istream_t *instream)
 {
-	pb_istream_t instream = pb_istream_from_buffer(msg_buf, msg_len);
-	miniecu_ParamSet _param_set;
+	miniecu_ParamSet param_set_;
 	miniecu_ParamValue param_value;
 	size_t idx, count = param_count();
 
-	if (!pb_decode(&instream, miniecu_ParamSet_fields, &_param_set)) {
+	if (!pbstxDecodeMessage(instream, miniecu_ParamSet_fields, &param_set_)) {
 		alert_component(ALS_COMM, AL_FAIL);
 		return;
 	}
 
-	if (_param_set.engine_id != (unsigned)g_engine_id)
+	if (param_set_.engine_id != (unsigned)g_engine_id)
 		return;
 
-	msg_t ret = param_set(_param_set.param_id, &_param_set.value);
+	msg_t ret = param_set(param_set_.param_id, &param_set_.value);
 	if (ret != PARAM_OK && ret != PARAM_LIMIT)
 		return;
 
-	if (param_get(_param_set.param_id, &param_value.value, &idx) != PARAM_OK)
+	if (param_get(param_set_.param_id, &param_value.value, &idx) != PARAM_OK)
 		return;
 
 	param_value.engine_id = g_engine_id;
 	param_value.param_index = idx;
 	param_value.param_count = count;
-	strncpy(param_value.param_id, _param_set.param_id, PT_ID_SIZE);
+	strncpy(param_value.param_id, param_set_.param_id, PT_ID_SIZE);
 
-	send_param_value(&param_value);
+	send_param_value(&self->msg, &param_value);
 }
 
+#if 0
 static void recv_log_request(uint8_t msg_len)
 {
 	pb_istream_t instream = pb_istream_from_buffer(msg_buf, msg_len);

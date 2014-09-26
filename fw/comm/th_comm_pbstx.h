@@ -20,15 +20,14 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef TH_COMM_H
-#define TH_COMM_H
+#ifndef TH_COMM_PBSTX_H
+#define TH_COMM_PBSTX_H
 
 #include "fw_common.h"
 
-THD_FUNCTION(th_comm_pbstx, arg);
-
 /* public functions */
+thread_t *pbstxCreate(void *chn, size_t size, tprio_t prio);
 void send_command_response(uint32_t operation, uint32_t response);
 /* debug_printf() defined in fw_common.h */
 
-#endif /* TH_COMM_H */
+#endif /* TH_COMM_PBSTX_H */

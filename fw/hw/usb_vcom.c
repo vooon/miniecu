@@ -346,6 +346,6 @@ bool vcom_is_connected(void)
 
 void vcom_init(void) {};
 void vcom_connect(void) {};
-bool vcom_is_connected(void) {};
+bool vcom_is_connected(void) { return false; };
 
 #endif /* HAL_USE_SERIAL_USB */

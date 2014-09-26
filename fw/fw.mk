@@ -5,11 +5,11 @@ FWSRC = ${MINIECU}/fw/main.c \
 	${MINIECU}/fw/lib/ntc.c \
 	${MINIECU}/fw/hw/usb_vcom.c \
 	${MINIECU}/fw/hw/serial1.c \
+	${MINIECU}/fw/hw/rtc_time.c \
 	${MINIECU}/fw/comm/pbstx.c \
 	${MINIECU}/fw/comm/th_comm_pbstx.c \
 	${MINIECU}/fw/adc/th_adc.c \
 	${MINIECU}/fw/param/param.c \
-	${MINIECU}/fw/rtc_time.c \
 	${MINIECU}/fw/memdump.c \
 	${MINIECU}/fw/th_rpm.c \
 	${MINIECU}/fw/th_flash_log.c \

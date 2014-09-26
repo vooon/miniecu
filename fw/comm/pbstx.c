@@ -29,6 +29,11 @@
 #define SER_TIMEOUT		MS2ST(100)
 #define SER_PAYLOAD_TIMEOUT	MS2ST(500)
 
+struct pbstx_header {
+	uint8_t seq;
+	uint16_t len;
+} __attribute__((packed));
+
 /**
  * Initialize PBSTX protocol object
  */
@@ -38,7 +43,6 @@ void pbstxObjectInit(PBStxDev *instp, BaseChannel *chp)
 	osalDbgCheck(chp != NULL);
 
 	instp->chp = chp;
-	instp->rx_state = PR_STX;
 	instp->rx_seq = instp->tx_seq = 0;
 	osalMutexObjectInit(&instp->tx_mutex);
 }
@@ -61,78 +65,54 @@ msg_t pbstxReceive(PBStxDev *instp, pbstx_message_t *msg)
 	osalDbgCheck(msg != NULL);
 
 	while (!chThdShouldTerminateX()) {
+		struct pbstx_header hdr;
+
+		// 1. wait STX
 		ret = chnGetTimeout(instp->chp, SER_TIMEOUT);
-		if (ret == Q_TIMEOUT)
+		if (ret != PBSTX_STX)
 			return ret;
-		else if (ret == Q_RESET) {
-			instp->rx_state = PR_STX;
+
+		// 2. read header
+		ret = chnReadTimeout(instp->chp, (uint8_t*)&hdr, sizeof(hdr), SER_TIMEOUT);
+		if (ret < 0) {
+			alert_component(ALS_COMM, AL_FAIL);
 			return ret;
 		}
 
-		switch (instp->rx_state) {
-		case PR_STX:
-			if (ret == PBSTX_STX)
-				instp->rx_state = PR_SEQ;
-			break;
+		instp->rx_checksum = crc16((uint8_t*)&hdr, sizeof(hdr));
+		msg->size = hdr.len;
+		msg->seq = instp->rx_seq = hdr.seq;
 
-		case PR_SEQ:
-			instp->rx_seq = msg->seq = ret;
-			instp->rx_checksum = crc16part(&msg->seq, sizeof(msg->seq), 0);
-			instp->rx_state = PR_LEN1;
-			break;
+		if (msg->size > PBSTX_PAYLOAD_BYTES) {
+			/* overflow */
+			alert_component(ALS_COMM, AL_FAIL);
+			return MSG_RESET;
+		}
 
-		case PR_LEN1:
-			msg->size = ret;
-			instp->rx_state = PR_LEN2;
-			break;
+		// 3. read payload
+		ret = chnReadTimeout(instp->chp, msg->payload, msg->size, SER_PAYLOAD_TIMEOUT);
+		if (ret < 0) {
+			alert_component(ALS_COMM, AL_FAIL);
+			return ret;
+		}
 
-		case PR_LEN2:
-			msg->size = (msg->size << 8) | ret;
-			instp->rx_state = PR_PAYLOAD;
-			instp->rx_checksum = crc16part((uint8_t*)&msg->size, sizeof(msg->size), instp->rx_checksum);
-			if (msg->size > PBSTX_PAYLOAD_BYTES) {
-				/* overflow */
-				alert_component(ALS_COMM, AL_FAIL);
-				instp->rx_state = PR_STX;
-				return MSG_RESET;
-			}
-			/* fall througth to payload receiving*/
+		instp->rx_checksum = crc16part(msg->payload, msg->size, instp->rx_checksum);
 
-		case PR_PAYLOAD:
-			ret = chnReadTimeout(instp->chp, msg->payload, msg->size,
-					SER_PAYLOAD_TIMEOUT);
-			if (ret == Q_TIMEOUT || ret == Q_RESET) {
-				alert_component(ALS_COMM, AL_FAIL);
-				instp->rx_state = PR_STX;
-				return ret;
-			}
+		// 4. read crc16
+		ret = chnReadTimeout(instp->chp, (uint8_t*)&msg->checksum, sizeof(msg->checksum), SER_TIMEOUT);
+		if (ret < 0) {
+			alert_component(ALS_COMM, AL_FAIL);
+			return ret;
+		}
 
-			instp->rx_checksum = crc16part(msg->payload, msg->size, instp->rx_checksum);
-			instp->rx_state = PR_CRC1;
-			break;
-
-		case PR_CRC1:
-			msg->checksum = ret;
-			instp->rx_state = PR_CRC2;
-			break;
-
-		case PR_CRC2:
-			msg->checksum = (msg->checksum << 8) | ret;
-			instp->rx_state = PR_STX;
-
-			/* check crc && process pkt */
-			if (instp->rx_checksum == msg->checksum) {
-				alert_component(ALS_COMM, AL_NORMAL);
-				return MSG_OK;
-			}
-			else {
-				alert_component(ALS_COMM, AL_FAIL);
-				return MSG_RESET;
-			}
-			break;
-
-		default:
-			instp->rx_state = PR_STX;
+		// 5. check crc && process pkt
+		if (instp->rx_checksum == msg->checksum) {
+			alert_component(ALS_COMM, AL_NORMAL);
+			return MSG_OK;
+		}
+		else {
+			alert_component(ALS_COMM, AL_FAIL);
+			return MSG_RESET;
 		}
 	}
 

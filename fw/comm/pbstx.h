@@ -29,20 +29,9 @@
 
 #define PBSTX_PAYLOAD_BYTES	256
 
-enum pbstx_rx_state {
-	PR_STX = 0,
-	PR_SEQ,
-	PR_LEN1,
-	PR_LEN2,
-	PR_PAYLOAD,
-	PR_CRC1,
-	PR_CRC2
-};
-
 typedef struct PBstxDev {
 	BaseChannel *chp;
 	mutex_t tx_mutex;
-	enum pbstx_rx_state rx_state;
 	uint16_t rx_checksum;
 	uint8_t rx_seq;
 	uint8_t tx_seq;

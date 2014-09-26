@@ -25,7 +25,7 @@
 
 #include "fw_common.h"
 
-void time_init(void);
+void rtc_time_init(void);
 bool time_is_known(void);
 uint64_t time_get_timestamp(void);
 int32_t time_set_timestamp(uint64_t ts);

@@ -29,6 +29,6 @@ extern SerialUSBDriver SDU1;
 
 void vcom_init(void);
 void vcom_connect(void);
-void vcom_is_connected(void);
+bool vcom_is_connected(void);
 
 #endif // USB_VCOM_H
