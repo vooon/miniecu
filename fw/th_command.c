@@ -37,6 +37,9 @@ static thread_t *thdp_cmd;
 
 /*
  * TODO: ENGINE_START script.
+ *
+ *
+ * XXX: rewrite whole module.
  */
 
 
@@ -59,21 +62,21 @@ THD_FUNCTION(th_command, arg ATTR_UNUSED)
 			send_command_response(miniecu_Command_Operation_LOAD_CONFIG,
 					(flash_do_load_cfg(CFG_OP_TIMEOUT))?
 						miniecu_Command_Response_ACK :
-						miniecu_Command_Response_NACK);
+						miniecu_Command_Response_NAK);
 		}
 
 		if (mask & SAVE_CFG_EVMASK) {
 			send_command_response(miniecu_Command_Operation_SAVE_CONFIG,
 					(flash_do_save_cfg(CFG_OP_TIMEOUT))?
 						miniecu_Command_Response_ACK :
-						miniecu_Command_Response_NACK);
+						miniecu_Command_Response_NAK);
 		}
 
 		if (mask & DO_ERASE_CFG_EVMASK) {
 			send_command_response(miniecu_Command_Operation_DO_ERASE_CONFIG,
 					(flash_do_erase_cfg(CFG_OP_TIMEOUT))?
 						miniecu_Command_Response_ACK :
-						miniecu_Command_Response_NACK);
+						miniecu_Command_Response_NAK);
 		}
 	}
 }
@@ -101,12 +104,12 @@ uint32_t command_request(uint32_t cmdid)
 		palClearPad(GPIOE, GPIOE_STARTER);
 		return miniecu_Command_Response_ACK;
 
-	case miniecu_Command_Operation_DO_ENGINE_START:
-		//mask = DO_START_EVMASK;
-		break;
-	case miniecu_Command_Operation_STOP_ENGINE_START:
-		//mask = DO_STOP_EVMASK;
-		break;
+	//case miniecu_Command_Operation_DO_ENGINE_START:
+	//	//mask = DO_START_EVMASK;
+	//	break;
+	//case miniecu_Command_Operation_STOP_ENGINE_START:
+	//	//mask = DO_STOP_EVMASK;
+	//	break;
 
 	case miniecu_Command_Operation_REFUEL_DONE:
 		break;
@@ -135,10 +138,10 @@ uint32_t command_request(uint32_t cmdid)
 
 	if (mask && thdp_cmd != NULL) {
 		chEvtSignal(thdp_cmd, mask);
-		return miniecu_Command_Response_IN_PROGRESS;
+		//return miniecu_Command_Response_IN_PROGRESS;
 	}
 
-	return miniecu_Command_Response_NACK;
+	return miniecu_Command_Response_NAK;
 }
 
 bool command_check_ignition(void)
