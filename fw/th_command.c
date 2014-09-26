@@ -21,7 +21,7 @@
  */
 
 #include "alert_led.h"
-#include "th_comm.h"
+#include "th_comm_pbstx.h"
 #include "th_flash_log.h"
 #include "miniecu.pb.h"
 

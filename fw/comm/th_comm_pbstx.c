@@ -21,7 +21,7 @@
  */
 
 #include "alert_led.h"
-#include "th_comm.h"
+#include "th_comm_pbstx.h"
 #include "pbstx.h"
 #include "pb_encode.h"
 #include "pb_decode.h"
@@ -108,7 +108,7 @@ msg_t pbstxEncodeSendComm(PBStxComm *self, const pb_field_t messagetype[], const
 
 // -*- thread main -*-
 
-THD_FUNCTION(th_comm, arg)
+THD_FUNCTION(th_comm_pbstx, arg)
 {
 	osalDbgCheck(arg != NULL);
 

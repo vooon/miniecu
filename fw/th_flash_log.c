@@ -71,7 +71,7 @@ static thread_t *thdp_log = NULL;
 #define DO_ERASE_LOG_EVMASK		EVENT_MASK(6)
 
 /* -*- submodules -*- */
-#include "flash_param.c"
+#include "param_flash.c"
 
 /* -*- public -*- */
 

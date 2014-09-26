@@ -25,7 +25,7 @@
 
 #include "fw_common.h"
 
-THD_FUNCTION(th_comm, arg);
+THD_FUNCTION(th_comm_pbstx, arg);
 
 /* public functions */
 void send_command_response(uint32_t operation, uint32_t response);
