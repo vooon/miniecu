@@ -22,7 +22,7 @@
 
 #include "pb_encode.h"
 #include "pb_decode.h"
-#include "pios_crc.h"
+#include "lib_crc16.h"
 
 // For big endian:
 //#define PARAM_SIGNATURE		0x706172616d763130
@@ -87,21 +87,20 @@ static bool flash_pb_istream_cb(pb_istream_t *stream, uint8_t *buf, size_t count
 static bool flash_decode_repeated_parameter_storage(pb_istream_t *stream,
 		const pb_field_t *field ATTR_UNUSED, void **arg ATTR_UNUSED)
 {
-	flash_ParamStorage storage;
+	flash_ParamStorage storage = flash_ParamStorage_init_default;
 
-	memset(&storage, 0, sizeof(storage));
 	if (!pb_decode_noinit(stream, flash_ParamStorage_fields, &storage)) {
 		debug_printf(DP_FAIL, "parameter decode error");
 		return false;
 	}
 
-	uint8_t crc8 = PIOS_CRC_updateCRC(0, (uint8_t *)storage.param_id, PT_ID_SIZE);
-	crc8 = PIOS_CRC_updateCRC(crc8, (uint8_t *)&storage.value, sizeof(storage.value));
+	//uint8_t crc8 = PIOS_CRC_updateCRC(0, (uint8_t *)storage.param_id, PT_ID_SIZE);
+	//crc8 = PIOS_CRC_updateCRC(crc8, (uint8_t *)&storage.value, sizeof(storage.value));
 
-	if (crc8 != storage.crc8) {
-		debug_printf(DP_FAIL, "parameter CRC error '%16s'", storage.param_id);
-		return true; /* we read corrupted parameter, but try check next items */
-	}
+	//if (crc8 != storage.crc8) {
+	//	debug_printf(DP_FAIL, "parameter CRC error '%16s'", storage.param_id);
+	//	return true; /* we read corrupted parameter, but try check next items */
+	//}
 
 	if (param_set(storage.param_id, &storage.value) != PARAM_OK)
 		debug_printf(DP_WARN, "parameter '%s' set error", storage.param_id);
@@ -160,8 +159,8 @@ static bool flash_encode_repeated_parameter_storage(pb_ostream_t *stream,
 		if (param_get_by_idx(idx, storage.param_id, &storage.value) != PARAM_OK)
 			continue;
 
-		uint8_t crc8 = PIOS_CRC_updateCRC(0, (uint8_t *)storage.param_id, PT_ID_SIZE);
-		storage.crc8 = PIOS_CRC_updateCRC(crc8, (uint8_t *)&storage.value, sizeof(storage.value));
+		//uint8_t crc8 = PIOS_CRC_updateCRC(0, (uint8_t *)storage.param_id, PT_ID_SIZE);
+		//storage.crc8 = PIOS_CRC_updateCRC(crc8, (uint8_t *)&storage.value, sizeof(storage.value));
 
 		if (!pb_encode_tag_for_field(stream, field))
 			return false;

@@ -10,7 +10,7 @@ package flash;
 message ParamStorage {
 	required string param_id = 1;
 	required miniecu.ParamType value = 2;
-	required uint32 crc8 = 3;
+	required uint32 crc16 = 3;
 }
 
 message ParamStorageArray {
