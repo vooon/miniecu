@@ -33,14 +33,16 @@ parameters:
   ENGINE_SERIAL: !ptstring
     desc: Engine serial number
     default: "serial no"
+    var: gp_engine_serial_no
   ENGINE_ID: !ptint32
     desc: ECU address
     min: 1
-    max: 255
+    max: 0xffff
 
   ECU_SERIAL_NO: !ptstring
     <<: *ro_init
     desc: Module serial number
+    onchange: roinit_ecu_serial_no
   ECU_FW_VERSION: !ptstring
     <<: *ro_init
     desc: Firmware version string

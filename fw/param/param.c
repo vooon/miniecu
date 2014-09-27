@@ -20,13 +20,11 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "miniecu.pb.h"
-#include "param.h"
 #include <string.h>
+#include "miniecu.pb.h"
+#include "param_internal.h"
+#include "param_table.h"
 
-/* -*- local -*- */
-
-#include "param_table.c"
 
 /* -*- local functions -*- */
 
@@ -106,7 +104,7 @@ static const struct param_entry *_prt_find(const char *id, size_t *idx)
 	const struct param_entry *p = parameter_table;
 	*idx = 0;
 
-	for (; *idx < ARRAY_SIZE(parameter_table); (*idx)++, p++) {
+	for (; *idx < parameter_table_size; (*idx)++, p++) {
 		if (strncmp(p->id, id, PT_ID_SIZE) == 0)
 			return p;
 	}
@@ -159,6 +157,9 @@ msg_t param_set(const char *id, miniecu_ParamType *value)
 	if (p == NULL)
 		return PARAM_NOTEXIST;
 
+	if (p->flags & PT_RDONLY)
+		return PARAM_LIMIT;
+
 	switch (p->type) {
 	case PT_BOOL:
 		ret = _pr_set_bool(p, value);
@@ -198,7 +199,7 @@ msg_t param_get(const char *id, miniecu_ParamType *value, size_t *idx)
 
 msg_t param_get_by_idx(size_t idx, char *id, miniecu_ParamType *value)
 {
-	if (idx >= ARRAY_SIZE(parameter_table))
+	if (idx >= parameter_table_size)
 		return PARAM_NOTEXIST;
 
 	strncpy(id, parameter_table[idx].id, PT_ID_SIZE);
@@ -209,7 +210,7 @@ msg_t param_get_by_idx(size_t idx, char *id, miniecu_ParamType *value)
 
 size_t param_count(void)
 {
-	return ARRAY_SIZE(parameter_table);
+	return parameter_table_size;
 }
 
 void param_init(void)
@@ -217,10 +218,14 @@ void param_init(void)
 	size_t i = 0;
 	const struct param_entry *p = parameter_table;
 
-	for (; i < ARRAY_SIZE(parameter_table); i++, p++)
+	for (; i < parameter_table_size; i++, p++) {
 		_pr_set(p, (void *)&p->default_value);
 
-	/* special init */
-	on_ecu_serial_no_change(NULL);
+		// initialize read-only params if it has initializer
+		if (p->flags & PT_RDONLY && p->change_cb != NULL)
+			p->change_cb(p);
+	}
+
+	// TODO: load from flash
 }
 

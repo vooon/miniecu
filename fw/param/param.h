@@ -33,6 +33,9 @@
 #define PT_ID_SIZE	16
 #define PT_STRING_SIZE	16
 
+#define PT_RDONLY	(1<<0)
+#define PT_NSAVE	(1<<1)
+
 enum param_type {
 	PT_BOOL,	// pointer to bool
 	PT_INT32,	// pointer to int32
@@ -68,18 +71,11 @@ struct param_entry {
 	union param_minmax min;
 	//! maximum (int32 or float)
 	union param_minmax max;
+	//! special flags
+	uint8_t flags;
 	//! optional callback
 	void (*change_cb)(const struct param_entry *self);
 };
-
-#define PARAM_BOOL(_id, _var, _default, _change_cb)			\
-	{ (_id), PT_BOOL, &(_var), {.b=(_default)}, {.i=0}, {.i=1}, (_change_cb) }
-#define PARAM_INT32(_id, _var, _default, _min, _max, _change_cb)	\
-	{ (_id), PT_INT32, &(_var), {.i=(_default)}, {.i=(_min)}, {.i=(_max)}, (_change_cb) }
-#define PARAM_FLOAT(_id, _var, _default, _min, _max, _change_cb)	\
-	{ (_id), PT_FLOAT, &(_var), {.f=(_default)}, {.f=(_min)}, {.f=(_max)}, (_change_cb) }
-#define PARAM_STRING(_id, _var, _default, _change_cb)			\
-	{ (_id), PT_STRING, &(_var), {.s=(_default)}, {.i=0}, {.i=16}, (_change_cb) }
 
 #ifndef PB_MINIECU_PB_H_INCLUDED
 struct _miniecu_ParamType;
