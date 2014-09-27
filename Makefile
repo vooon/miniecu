@@ -13,6 +13,7 @@ miniecu_v2_flash: miniecu_v2
 
 %: ./boards/%
 	make -C ./pb
+	make -C ./fw/param
 	make -C ./boards/$@
 
 clean:
