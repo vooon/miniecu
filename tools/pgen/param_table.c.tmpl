@@ -91,7 +91,7 @@ PARAM_STRING("${param_id}", ${var_name(param_id, var_def)}, "${var_def.default}"
 % endif
 </%def>
 
-<%def name="sep(loop)">\
+<%def name="comma(loop)">\
 % if not loop.last:
 ,\
 % endif
@@ -99,7 +99,7 @@ PARAM_STRING("${param_id}", ${var_name(param_id, var_def)}, "${var_def.default}"
 
 /** Param definition table
  */
-const param_entry param_table[] = {
+const struct param_entry parameter_table[] = {
 % for k, v in sorted(param_table.parameters.iteritems()):
 	// @DESC: ${v.desc}
 % if v._accept_values and v.values is not None:
@@ -111,9 +111,9 @@ const param_entry param_table[] = {
 % if v.read_only:
 	// @READ-ONLY
 % endif
-	${entry_definition(k, v)}${sep(loop)}
+	${entry_definition(k, v)}${comma(loop)}
 % endfor
 };
 
-const size_t param_table_size = ARRAY_SIZE(param_table);
+const size_t parameter_table_size = ARRAY_SIZE(parameter_table);
 

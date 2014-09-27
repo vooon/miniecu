@@ -107,6 +107,7 @@ def main(argv=None):
 
     param_table = ParameterTable()
     param_table.load(args.definition)
+    param_table.validate()
 
     generator = Generator()
     generator.generate(path.abspath(args.definition.name), args.out_dir,

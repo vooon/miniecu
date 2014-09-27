@@ -9,10 +9,16 @@
 
 #include "param.h"
 
+<%def name="comma(loop)">\
+% if not loop.last:
+,\
+% endif
+</%def>
+
 <%def name="enum_definition(param_id, var_def)">\
 enum ${param_id.lower()} {
 % for k, v in sorted(var_def.enum.iteritems()):
-	${param_id.upper()}_${k} = ${v};
+	${param_id.upper()}_${k} = ${v}${comma(loop)}
 % endfor
 }\
 </%def>
@@ -30,7 +36,7 @@ ${enum_definition(k, v)};
 /** @} */
 
 const uint32_t param_format_version_be32;
-const param_entry param_table[];
-const size_t param_table_size;
+const struct param_entry parameter_table[];
+const size_t parameter_table_size;
 
 #endif /* PARAM_TABLE_H_INCLUEDED */
