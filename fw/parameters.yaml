@@ -23,7 +23,7 @@ common_data:
   RO_INIT: &ro_init
     default: "SETUP ERROR"
     read_only: true
-    no_save: true
+    dont_save: true
 
 format_version: "1.1.0"
 parameters:

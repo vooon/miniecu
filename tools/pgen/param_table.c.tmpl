@@ -53,6 +53,15 @@ extern ${var_definition(k, v)};
 % endfor
 /** @} */
 
+<%
+def strflags(var_def):
+    f = []
+    if var_def.read_only: f.append("PT_RDONLY")
+    if var_def.dont_save: f.append("PT_NSAVE")
+
+    return 0 if not f else "|".join(f)
+%>
+
 <%def name="strbool(b)">\
 % if b:
 true\
@@ -69,19 +78,16 @@ ${var_def.onchange}\
 % endif
 </%def>
 
-/* XXX TODO: Support for read-only params
- */
-
 ## translate Pt* objects to param macro
 <%def name="entry_definition(param_id, var_def)">\
 % if var_def._norm_type is bool:
-PARAM_BOOL("${param_id}", ${var_name(param_id, var_def)}, ${strbool(var_def.default)}, ${stronchange(var_def)})\
+PARAM_BOOL("${param_id}", ${var_name(param_id, var_def)}, ${strbool(var_def.default)}, ${strflags(var_def)}, ${stronchange(var_def)})\
 % elif var_def._norm_type is int:
-PARAM_INT32("${param_id}", ${var_name(param_id, var_def)}, ${var_def.default}, ${var_def.min}, ${var_def.max}, ${stronchange(var_def)})\
+PARAM_INT32("${param_id}", ${var_name(param_id, var_def)}, ${var_def.default}, ${var_def.min}, ${var_def.max}, ${strflags(var_def)}, ${stronchange(var_def)})\
 % elif var_def._norm_type is float:
-PARAM_FLOAT("${param_id}", ${var_name(param_id, var_def)}, ${var_def.default}, ${var_def.min}, ${var_def.max}, ${stronchange(var_def)})\
+PARAM_FLOAT("${param_id}", ${var_name(param_id, var_def)}, ${var_def.default}, ${var_def.min}, ${var_def.max}, ${strflags(var_def)}, ${stronchange(var_def)})\
 % elif var_def._norm_type is str:
-PARAM_STRING("${param_id}", ${var_name(param_id, var_def)}, "${var_def.default}", ${stronchange(var_def)})\
+PARAM_STRING("${param_id}", ${var_name(param_id, var_def)}, "${var_def.default}", ${strflags(var_def)}, ${stronchange(var_def)})\
 % endif
 </%def>
 
