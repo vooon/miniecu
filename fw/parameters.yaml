@@ -23,6 +23,7 @@ common_data:
   RO_INIT: &ro_init
     default: "SETUP ERROR"
     read_only: true
+    no_save: true
 
 format_version: "1.1.0"
 parameters:
@@ -173,5 +174,7 @@ parameters:
 
   DEBUG_ADC_RAW: !ptbool
     desc: Enable sending Status.adc_raw data
+    dont_save: true
   DEBUG_MEMDUMP: !ptbool
     desc: Enable memdump subsystem (used for debugging)
+    dont_save: true
