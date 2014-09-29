@@ -35,8 +35,8 @@ ${enum_definition(k, v)};
 % endfor
 /** @} */
 
-const uint32_t param_format_version_be32;
-const struct param_entry parameter_table[${len(param_table.parameters)}];
-const size_t parameter_table_size;
+extern const uint32_t param_format_version_be32;
+extern const struct param_entry parameter_table[${len(param_table.parameters)}];
+extern const size_t parameter_table_size;
 
 #endif /* PARAM_TABLE_H_INCLUEDED */
