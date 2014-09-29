@@ -29,9 +29,8 @@
 # error "unsupported board"
 #endif
 
-/* -*- global parameters -*- */
-
-float g_vbat_vd1_voltage_drop; // [V]
+/* -*- parameters -*- */
+float gp_batt_vd1_voltage_drop;	// [V]
 
 /* -*- private vars -*- */
 
@@ -101,7 +100,7 @@ static void adc_temp_oilp_vbat_cb(ADCDriver *adcp ATTR_UNUSED,
 		adcsample_t *buffer, size_t n ATTR_UNUSED)
 {
 	// note: Vbat source after VD1, we add voltage drop
-	m_vbat = g_vbat_vd1_voltage_drop +
+	m_vbat = gp_batt_vd1_voltage_drop +
 		3 * sdadc_sez_to_voltage(buffer[0]);	// AIN4P
 	m_oilp_volt = sdadc_sez_to_voltage(buffer[1]);	// AIN5P
 	m_temp_volt = sdadc_sez_to_voltage(buffer[2]);	// AIN6P

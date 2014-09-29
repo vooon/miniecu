@@ -33,10 +33,10 @@
 
 /* global parameters */
 
-int32_t g_engine_id;
-int32_t g_status_period;
-bool g_debug_enable_adc_raw;
-bool g_debug_enable_memdump;
+int32_t gp_engine_id;
+int32_t gp_status_period;
+bool gp_debug_enable_adc_raw;
+bool gp_debug_enable_memdump;
 
 /* PBStx class */
 
@@ -192,7 +192,7 @@ void debug_printf(enum severity severity, char *fmt, ...)
 	msObjectInit(&ms, (uint8_t *)st.text, sizeof(st.text), 0);
 	chp = (BaseSequentialStream *)&ms;
 
-	st.engine_id = g_engine_id;
+	st.engine_id = gp_engine_id;
 	st.severity = severity;
 	va_start(ap, fmt);
 	chvprintf(chp, fmt, ap);
@@ -234,7 +234,7 @@ static THD_FUNCTION(th_comm_pbstx, arg)
 
 	//debug_printf(DP_DEBUG, "pbstx%d: started", instance_id);
 	while (!chThdShouldTerminateX()) {
-		if (chVTTimeElapsedSinceX(send_time) >= MS2ST(g_status_period)) {
+		if (chVTTimeElapsedSinceX(send_time) >= MS2ST(gp_status_period)) {
 			send_status(&self);
 			send_time = osalOsGetSystemTimeX();
 		}
@@ -291,7 +291,7 @@ static void send_status(PBStxComm *self)
 	if (rpm_check_limit())		flags |= miniecu_Status_Flags_HIGH_RPM;
 	if (flow_check_fuel())		flags |= miniecu_Status_Flags_LOW_FUEL;
 
-	status.engine_id = g_engine_id;
+	status.engine_id = gp_engine_id;
 	status.status = flags;
 	status.timestamp_ms = time_get_timestamp();
 	status.rpm = rpm_get_filtered();
@@ -318,7 +318,7 @@ static void send_status(PBStxComm *self)
 		status.fuel.has_remaining = flow_get_remaining(&status.fuel.remaining);
 	}
 
-	if (g_debug_enable_adc_raw) {
+	if (gp_debug_enable_adc_raw) {
 		status.has_adc_raw = true;
 		status.adc_raw.temp = adc_getll_temp();
 		status.adc_raw.oilp = adc_getll_oilp();
@@ -422,7 +422,7 @@ static void recv_param_request(PBStxComm *self, pb_istream_t *instream)
 	}
 
 	/* we answer to broadcast reqest too */
-	if (param_req.engine_id != (unsigned)g_engine_id &&
+	if (param_req.engine_id != (unsigned)gp_engine_id &&
 			param_req.engine_id != 0)
 		return;
 
@@ -431,7 +431,7 @@ static void recv_param_request(PBStxComm *self, pb_istream_t *instream)
 		if (param_get(param_req.param_id, &param_value.value, &idx) != PARAM_OK)
 			return;
 
-		param_value.engine_id = g_engine_id;
+		param_value.engine_id = gp_engine_id;
 		param_value.param_index = idx;
 		param_value.param_count = count;
 		strncpy(param_value.param_id, param_req.param_id, PT_ID_SIZE);
@@ -444,7 +444,7 @@ static void recv_param_request(PBStxComm *self, pb_istream_t *instream)
 			if (param_get_by_idx(idx, param_value.param_id, &param_value.value) != PARAM_OK)
 				continue;
 
-			param_value.engine_id = g_engine_id;
+			param_value.engine_id = gp_engine_id;
 			param_value.param_index = idx;
 			param_value.param_count = count;
 
@@ -464,7 +464,7 @@ static void recv_param_set(PBStxComm *self, pb_istream_t *instream)
 		return;
 	}
 
-	if (param_set_.engine_id != (unsigned)g_engine_id)
+	if (param_set_.engine_id != (unsigned)gp_engine_id)
 		return;
 
 	msg_t ret = param_set(param_set_.param_id, &param_set_.value);
@@ -474,7 +474,7 @@ static void recv_param_set(PBStxComm *self, pb_istream_t *instream)
 	if (param_get(param_set_.param_id, &param_value.value, &idx) != PARAM_OK)
 		return;
 
-	param_value.engine_id = g_engine_id;
+	param_value.engine_id = gp_engine_id;
 	param_value.param_index = idx;
 	param_value.param_count = count;
 	strncpy(param_value.param_id, param_set_.param_id, PT_ID_SIZE);

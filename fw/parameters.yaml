@@ -74,8 +74,9 @@ parameters:
   BATT_VD1_VDROP: !ptfloat
     desc: Voltage drop on VD1 diode (hw 2.0a bug compensation)
     min: 0.0
-    max: 1.0
+    max: 1.4
     default: 0.4
+    var: gp_batt_vd1_voltage_drop
 
   BATT_CELLS: !ptint32
     desc: Number of cells in battery
@@ -175,14 +176,18 @@ parameters:
     desc: Fuel tank volume [mL]
     min: 0
     max: 100000
+    var: gp_flow_tank_ml
   TANK_LOW: !ptint32
     desc: Fuel reserve alert level [mL]
     min: 0
     max: 100000
+    var: gp_flow_low_ml
 
   DEBUG_ADC_RAW: !ptbool
     desc: Enable sending Status.adc_raw data
+    var: gp_debug_enable_adc_raw
     dont_save: true
   DEBUG_MEMDUMP: !ptbool
     desc: Enable memdump subsystem (used for debugging)
+    var: gp_debug_enable_memdump
     dont_save: true

@@ -30,9 +30,9 @@
 #endif
 
 /* -*- module settings -*- */
-int32_t g_pulses_per_revolution;
-int32_t g_rpm_limit;
-int32_t g_rpm_min_idle;
+int32_t gp_pulses_per_revolution;
+int32_t gp_rpm_limit;
+int32_t gp_rpm_min_idle;
 
 /* -*- private data -*- */
 
@@ -91,7 +91,7 @@ static uint32_t rpm_get_average(void)
 	return accu / m_period_cnt;
 }
 
-static const ICUConfig tim2cfg = {
+static const ICUConfig tim2_cfg = {
 	.mode = ICU_INPUT_ACTIVE_LOW,
 	.frequency = 1000000,		// 1 MHz
 	.width_cb = NULL,
@@ -110,12 +110,12 @@ uint32_t rpm_get_filtered(void)
 
 bool rpm_check_limit(void)
 {
-	return m_curr_rpm > g_rpm_limit;
+	return m_curr_rpm > gp_rpm_limit;
 }
 
 bool rpm_check_engine_running(void)
 {
-	return m_curr_rpm > g_rpm_min_idle;
+	return m_curr_rpm > gp_rpm_min_idle;
 }
 
 THD_FUNCTION(th_rpm, arg ATTR_UNUSED)
@@ -133,7 +133,7 @@ THD_FUNCTION(th_rpm, arg ATTR_UNUSED)
 	 * HACK: TIM2 32-bit timer, but driver uses it as 16-bit
 	 * by setting ARR to 0xffff.
 	 */
-	icuStart(&ICUD2, &tim2cfg);
+	icuStart(&ICUD2, &tim2_cfg);
 	//ICUD2.tim->ARR = 0xffffffff;
 	ICUD2.tim->ARR = 2000000; // 2 sec overflow
 	icuEnableNotifications(&ICUD2); // XXX: try new polled API
@@ -145,7 +145,7 @@ THD_FUNCTION(th_rpm, arg ATTR_UNUSED)
 			uint32_t period = rpm_get_average();
 
 			if (period > 100) /* 100 usec RPM over 90000 */
-				m_curr_rpm = 1e6 / period * 60.0f * g_pulses_per_revolution;
+				m_curr_rpm = 1e6 / period * 60.0f * gp_pulses_per_revolution;
 			else
 				m_curr_rpm = 0.0f;
 		}

@@ -24,8 +24,8 @@
 
 /* -*- parameters -*-  */
 
-int32_t g_batt_cells;
-char g_batt_type[PT_STRING_SIZE];
+int32_t gp_batt_cells;
+char gp_batt_type[PT_STRING_SIZE];
 
 /* -*- battery types -*- */
 
@@ -41,7 +41,7 @@ char g_batt_type[PT_STRING_SIZE];
 
 static uint32_t batt_get_remaining_nimh(void)
 {
-	float cell_volt = m_vbat / g_batt_cells;
+	float cell_volt = m_vbat / gp_batt_cells;
 
 	if (cell_volt > BATT_NiMH_MAXV)
 		return 100;
@@ -58,36 +58,36 @@ static uint32_t (*m_batt_remaining_func)(void) = batt_get_remaining_nimh;
 
 /* -*- global -*- */
 
-void on_batt_type_change(struct param_entry *p ATTR_UNUSED)
+void on_change_batt_type(struct param_entry *p ATTR_UNUSED)
 {
-	if (strcasecmp(g_batt_type, "NiMH") == 0) {
+	if (strcasecmp(gp_batt_type, "NiMH") == 0) {
 		m_batt_min_cell_volt = BATT_CELL_NiMH;
 		m_batt_remaining_func = batt_get_remaining_nimh;
 	}
-	else if (strcasecmp(g_batt_type, "NiCd") == 0) {
+	else if (strcasecmp(gp_batt_type, "NiCd") == 0) {
 		m_batt_min_cell_volt = BATT_CELL_NiCd;
 		m_batt_remaining_func = batt_get_remaining_nimh;
 	}
-	else if (strcasecmp(g_batt_type, "LiIon") == 0) {
+	else if (strcasecmp(gp_batt_type, "LiIon") == 0) {
 		m_batt_min_cell_volt = BATT_CELL_LiIon;
 		m_batt_remaining_func = NULL;
 	}
-	else if (strcasecmp(g_batt_type, "LiPo") == 0) {
+	else if (strcasecmp(gp_batt_type, "LiPo") == 0) {
 		m_batt_min_cell_volt = BATT_CELL_LiPo;
 		m_batt_remaining_func = NULL;
 	}
-	else if (strcasecmp(g_batt_type, "LiFePo") == 0) {
+	else if (strcasecmp(gp_batt_type, "LiFePo") == 0) {
 		m_batt_min_cell_volt = BATT_CELL_LiFePo;
 		m_batt_remaining_func = NULL;
 	}
-	else if (strcasecmp(g_batt_type, "Pb") == 0) {
+	else if (strcasecmp(gp_batt_type, "Pb") == 0) {
 		m_batt_min_cell_volt = BATT_CELL_Pb;
 		m_batt_remaining_func = NULL;
 	}
 	else {
 		m_batt_min_cell_volt = 0.0;
 		m_batt_remaining_func = NULL;
-		strcpy(g_batt_type, "UNK");
+		strcpy(gp_batt_type, "UNK");
 		debug_printf(DP_ERROR, "unknown battery type");
 	}
 }
@@ -106,7 +106,7 @@ uint32_t batt_get_voltage(void)
  */
 bool batt_check_voltage(void)
 {
-	return (m_batt_min_cell_volt * g_batt_cells) > m_vbat;
+	return (m_batt_min_cell_volt * gp_batt_cells) > m_vbat;
 }
 
 /**

@@ -24,8 +24,9 @@
 #include "param.h"
 
 /* global parameters */
+int32_t gp_serial1_baud;
+char gp_serial1_proto[PT_STRING_SIZE];
 
-int32_t g_serial_baud;
 
 static SerialConfig serial1_cfg = {
 	.speed = SERIAL_DEFAULT_BITRATE,
@@ -35,9 +36,9 @@ static SerialConfig serial1_cfg = {
 	.cr3 = 0
 };
 
-void on_serial1_change(const struct param_entry *p ATTR_UNUSED)
+void on_change_serial1_baud(const struct param_entry *p ATTR_UNUSED)
 {
-	switch (g_serial_baud) {
+	switch (gp_serial1_baud) {
 	case 9600:
 	case 19200:
 	case 38400:
@@ -46,13 +47,13 @@ void on_serial1_change(const struct param_entry *p ATTR_UNUSED)
 	case 230400:
 	case 460800:
 	case 921600:
-		debug_printf(DP_WARN, "serial baud change: %" PRIi32, g_serial_baud);
-		serial1_cfg.speed = g_serial_baud;
-		sdStart(&SD1, &serial1_cfg);
+		debug_printf(DP_WARN, "serial1 baud change: %i", gp_serial1_baud);
+		serial1_cfg.speed = gp_serial1_baud;
+		sdStart(&SERIAL1_SD, &serial1_cfg);
 		break;
 
 	default:
-		g_serial_baud = serial1_cfg.speed;
+		gp_serial1_baud = serial1_cfg.speed;
 		break;
 	}
 }

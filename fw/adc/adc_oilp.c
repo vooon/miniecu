@@ -24,19 +24,15 @@
 
 #include "ntc.h"
 #include <math.h>
+#include "param_table.h"
 
 /* -*- parameters -*-  */
 
-enum {
-	OILP_R1 = 1,
-	OILP_R2 = 2
-};
-
-char g_oilp_mode[PT_STRING_SIZE];
-int32_t g_oilp_r;
-float g_oilp_sh_a;
-float g_oilp_sh_b;
-float g_oilp_sh_c;
+char gp_oilp_mode[PT_STRING_SIZE];
+int32_t gp_oilp_r;
+float gp_oilp_sh_a;
+float gp_oilp_sh_b;
+float gp_oilp_sh_c;
 
 /* -*- module variables -*- */
 
@@ -52,28 +48,28 @@ static void oilp_handle_ntc10k(void)
 {
 	float ntc_r;
 
-	if (g_oilp_r == OILP_R1)
+	if (gp_oilp_r == OILP_R_R1)
 		ntc_r = ntc_get_R1(m_oilp_volt, OILP_AVCC, OILP_NTC_R);
 	else
 		ntc_r = ntc_get_R2(m_oilp_volt, OILP_AVCC, OILP_NTC_R);
 
-	m_oilp_temp = ntc_K_to_C(ntc_get_K(ntc_r, g_oilp_sh_a, g_oilp_sh_b, g_oilp_sh_c));
+	m_oilp_temp = ntc_K_to_C(ntc_get_K(ntc_r, gp_oilp_sh_a, gp_oilp_sh_b, gp_oilp_sh_c));
 }
 
 /* -*- global -*- */
 
-void on_oilp_mode_change(struct param_entry *p ATTR_UNUSED)
+void on_change_oilp_mode(struct param_entry *p)
 {
 	m_oilp_temp = NAN;
-	if (strcasecmp(g_oilp_mode, "Disabled") == 0) {
+	if (strcasecmp(gp_oilp_mode, "Disabled") == 0) {
 		m_oilp_handle_func = NULL;
 	}
-	else if (strcasecmp(g_oilp_mode, "NTC10k") == 0) {
+	else if (strcasecmp(gp_oilp_mode, "NTC10k") == 0) {
 		m_oilp_handle_func = oilp_handle_ntc10k;
 	}
 	else {
 		m_oilp_handle_func = NULL;
-		strcpy(g_oilp_mode, "Disabled");
+		strcpy(gp_oilp_mode, p->default_value.s);
 		debug_printf(DP_ERROR, "unknown oilp mode");
 	}
 }

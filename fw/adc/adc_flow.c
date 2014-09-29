@@ -26,14 +26,14 @@
 
 /* -*- parameters -*-  */
 
-bool g_flow_enable;
-float g_flow_v0;	// V
-float g_flow_dia1;	// mm
-float g_flow_dia2;	// mm
-float g_flow_cd;
-float g_flow_ro;	// kg/m3
-float g_flow_tank_ml;	// mL
-float g_flow_low_ml;	// mL
+bool gp_flow_enable;
+float gp_flow_v0;	// V
+float gp_flow_dia1;	// mm
+float gp_flow_dia2;	// mm
+float gp_flow_cd;
+float gp_flow_ro;	// kg/m3
+int32_t gp_flow_tank_ml;	// mL
+int32_t gp_flow_low_ml;		// mL
 
 /* -*- private variabled -*- */
 
@@ -48,24 +48,24 @@ static float m_flow_mlsec;	// mL3/sec
 
 /* -*- global -*- */
 
-void on_flow_params_change(struct param_entry *p ATTR_UNUSED)
+void on_change_flow_params(struct param_entry *p ATTR_UNUSED)
 {
-	m_A2 = M_PI * powf(g_flow_dia2 / 1000.0, 2) / 4.0;
-	m_C = g_flow_cd / sqrtf(1 - powf(g_flow_dia2 / g_flow_dia1, 4));
+	m_A2 = M_PI * powf(gp_flow_dia2 / 1000.0, 2) / 4.0;
+	m_C = gp_flow_cd / sqrtf(1 - powf(gp_flow_dia2 / gp_flow_dia1, 4));
 }
 
 /**
- * Return current flow [ml3/min]
+ * Return current flow [mL/min]
  */
 bool flow_get_flow(uint32_t *out)
 {
 	/* out in 0.1 mL/min */
 	*out = m_flow_mlsec * 600.0;
-	return g_flow_enable;
+	return gp_flow_enable;
 }
 
 /**
- * Return fuel usage [ml]
+ * Return fuel usage [mL]
  */
 uint32_t flow_get_used_ml(void)
 {
@@ -78,10 +78,10 @@ uint32_t flow_get_used_ml(void)
  */
 bool flow_check_fuel(void)
 {
-	if (g_flow_low_ml == 0.0 || g_flow_tank_ml == 0.0)
+	if (gp_flow_low_ml == 0.0 || gp_flow_tank_ml == 0.0)
 		return false;
 
-	return (g_flow_tank_ml - m_total_used_ml) <= g_flow_low_ml;
+	return (gp_flow_tank_ml - m_total_used_ml) <= gp_flow_low_ml;
 }
 
 /**
@@ -92,14 +92,14 @@ bool flow_check_fuel(void)
  */
 bool flow_get_remaining(uint32_t *out)
 {
-	if (g_flow_tank_ml == 0.0)
+	if (gp_flow_tank_ml == 0.0)
 		return false;
 
-	float rem_ml = g_flow_tank_ml - m_total_used_ml;
-	if (rem_ml > g_flow_tank_ml)	rem_ml = g_flow_tank_ml;
+	float rem_ml = gp_flow_tank_ml - m_total_used_ml;
+	if (rem_ml > gp_flow_tank_ml)	rem_ml = gp_flow_tank_ml;
 	else if (rem_ml < 0)		rem_ml = 0;
 
-	*out = arduino_map(rem_ml, 0.0, g_flow_tank_ml, 0, 100);
+	*out = arduino_map(rem_ml, 0.0, gp_flow_tank_ml, 0, 100);
 	return true;
 }
 
@@ -107,11 +107,11 @@ static void adc_handle_flow(void)
 {
 	static bool is_inited = false;
 	if (!is_inited) {
-		on_flow_params_change(NULL);
+		on_change_flow_params(NULL);
 		is_inited = true;
 	}
 
-	if (!g_flow_enable)
+	if (!gp_flow_enable)
 		return;
 
 	/* TODO average filter */
@@ -120,8 +120,8 @@ static void adc_handle_flow(void)
 	 * http://en.wikipedia.org/wiki/Orifice_plate
 	 */
 
-	float dP = arduino_map(m_flow_volt, g_flow_v0, FLOW_MAXV, MP3V5004DP_MINP, MP3V5004DP_MAXP);
-	float Q = m_C * m_A2 * sqrtf(2.0 * dP / g_flow_ro);
+	float dP = arduino_map(m_flow_volt, gp_flow_v0, FLOW_MAXV, MP3V5004DP_MINP, MP3V5004DP_MAXP);
+	float Q = m_C * m_A2 * sqrtf(2.0 * dP / gp_flow_ro);
 
 	m_flow_mlsec = Q * 1e6;
 

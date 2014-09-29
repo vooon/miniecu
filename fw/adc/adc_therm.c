@@ -23,19 +23,15 @@
 /* NOTE: this file includes in th_adc.c ! */
 
 #include "ntc.h"
+#include "param_table.h"
 
 /* -*- parameters -*-  */
 
-enum {
-	TEMPR_R1 = 1,
-	TEMPR_R2 = 2
-};
-
-int32_t g_temp_r;
-float g_temp_overheat;
-float g_temp_sh_a;
-float g_temp_sh_b;
-float g_temp_sh_c;
+int32_t gp_temp_r;
+float gp_temp_overheat;
+float gp_temp_sh_a;
+float gp_temp_sh_b;
+float gp_temp_sh_c;
 
 /* -*- module variables -*- */
 
@@ -66,19 +62,19 @@ int32_t temp_get_temperature(void)
  */
 bool temp_check_temperature(void)
 {
-	return m_temp > g_temp_overheat || m_int_temp > 90.0;
+	return m_temp > gp_temp_overheat || m_int_temp > 90.0;
 }
 
 static void adc_handle_temperature(void)
 {
 	float ntc_r;
 
-	if (g_temp_r == TEMPR_R1)
+	if (gp_temp_r == TEMP_R_R1)
 		ntc_r = ntc_get_R1(m_temp_volt, TEMP_AVCC, TEMP_NTC_R);
 	else
 		ntc_r = ntc_get_R2(m_temp_volt, TEMP_AVCC, TEMP_NTC_R);
 
-	m_temp = ntc_K_to_C(ntc_get_K(ntc_r, g_temp_sh_a, g_temp_sh_b, g_temp_sh_c));
+	m_temp = ntc_K_to_C(ntc_get_K(ntc_r, gp_temp_sh_a, gp_temp_sh_b, gp_temp_sh_c));
 
 	/* TODO: send event to Log */
 }
