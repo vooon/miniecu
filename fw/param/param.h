@@ -33,8 +33,8 @@
 #define PT_ID_SIZE	16
 #define PT_STRING_SIZE	16
 
-#define PT_RDONLY	(1<<0)
-#define PT_NSAVE	(1<<1)
+#define PT_RDONLY	(1<<0)	//!< Read-only flag
+#define PT_NSAVE	(1<<1)	//!< Don't save flag
 
 enum param_type {
 	PT_BOOL,	// pointer to bool
@@ -85,7 +85,10 @@ typedef struct _miniecu_Paramtype miniecu_ParamType;
 msg_t param_set(const char *id, miniecu_ParamType *value);
 msg_t param_get(const char *id, miniecu_ParamType *value, size_t *idx);
 msg_t param_get_by_idx(size_t idx, char *id, miniecu_ParamType *value);
+msg_t param_get_flags_by_idx(size_t idx);
 size_t param_count(void);
 void param_init(void);
+void param_load(void);
+void param_save(void);
 
 #endif /* PARAM_H */

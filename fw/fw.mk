@@ -1,14 +1,13 @@
 include ${MINIECU}/fw/param/param.mk
+include ${MINIECU}/fw/hw/hw.mk
 
 # List of all the board related files.
 FWSRC = ${MINIECU}/fw/main.c \
 	${MINIECU}/fw/alert_led.c \
 	${PARAMSRC} \
+	${HWSRC} \
 	${MINIECU}/fw/lib/lib_crc16.c \
 	${MINIECU}/fw/lib/ntc.c \
-	${MINIECU}/fw/hw/usb_vcom.c \
-	${MINIECU}/fw/hw/serial1.c \
-	${MINIECU}/fw/hw/rtc_time.c \
 	${MINIECU}/fw/comm/pbstx.c \
 	${MINIECU}/fw/comm/th_comm_pbstx.c \
 	${MINIECU}/fw/adc/th_adc.c \
@@ -21,6 +20,6 @@ FWSRC = ${MINIECU}/fw/main.c \
 FWINC = ${MINIECU}/fw \
 	${MINIECU}/fw/adc \
 	${MINIECU}/fw/comm \
-	${MINIECU}/fw/hw \
 	${MINIECU}/fw/lib \
+	${HWINC} \
 	${PARAMINC}

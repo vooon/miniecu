@@ -26,6 +26,7 @@
 #include "hw/led.h"
 #include "hw/usb_vcom.h"
 #include "hw/rtc_time.h"
+#include "hw/ext_flash.h"
 
 
 static THD_WORKING_AREA(wa_adc, 512);
@@ -69,6 +70,7 @@ int main(void) {
 	alert_led_init();
 	vcom_init();
 	rtc_time_init();
+	flash_init();
 	param_init();
 
 	//chThdCreateStatic(wa_flash_log, sizeof(wa_flash_log), NORMALPRIO - 2, th_flash_log, NULL);

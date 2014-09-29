@@ -27,7 +27,7 @@ char gp_engine_name[PT_STRING_SIZE];
 char gp_engine_serial_no[PT_STRING_SIZE];
 char gp_ecu_serial_no[PT_STRING_SIZE];
 char gp_ecu_fw_version[PT_STRING_SIZE];
-char gp_ecu_hw_version[PT_STRING_SIZE];
+char gp_ecu_hw_version[PT_STRING_SIZE] = BOARD_NAME;
 
 
 void roinit_ecu_serial_no(struct param_entry *self ATTR_UNUSED)

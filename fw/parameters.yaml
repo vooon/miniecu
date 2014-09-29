@@ -49,6 +49,12 @@ parameters:
   ECU_HW_VERSION: !ptstring
     <<: *ro_init
     desc: Hardware version string
+  PARAM_SAVE_CNT: !ptint32
+    <<: *ro_init
+    desc: Parameter save operations count (config flash erase cycles)
+    min: 0
+    max: 0x7fffffff
+    default: 0
 
   SERIAL1_BAUD: !ptint32
     desc: Serial 1 baudrate

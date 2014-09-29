@@ -24,6 +24,7 @@
 #include "miniecu.pb.h"
 #include "param_internal.h"
 #include "param_table.h"
+#include "hw/ext_flash.h"
 
 
 /* -*- local functions -*- */
@@ -208,6 +209,14 @@ msg_t param_get_by_idx(size_t idx, char *id, miniecu_ParamType *value)
 	return PARAM_OK;
 }
 
+msg_t param_get_flags_by_idx(size_t idx)
+{
+	if (idx >= parameter_table_size)
+		return PARAM_NOTEXIST;
+
+	return parameter_table[idx].flags;
+}
+
 size_t param_count(void)
 {
 	return parameter_table_size;
@@ -226,6 +235,8 @@ void param_init(void)
 			p->change_cb(p);
 	}
 
-	// TODO: load from flash
+	// load from flash
+	if (flash_connect() == MSG_OK)
+		param_load();
 }
 

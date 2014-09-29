@@ -21,6 +21,7 @@
  */
 
 #include "fw_common.h"
+#include "hw/ext_flash.h"
 #include <string.h>
 
 int32_t memdump_int_ram(uint32_t address, void *buffer, size_t size)
@@ -30,22 +31,22 @@ int32_t memdump_int_ram(uint32_t address, void *buffer, size_t size)
 	return size;
 }
 
-/* defined in th_flash_log.c */
-extern bool memdump_ll_flash_readpage(uint32_t page, uint8_t *rbuff);
-
-/* TODO: generalize SST25 only functions */
 int32_t memdump_ext_flash(uint32_t address, void *buffer, size_t size)
 {
-	uint8_t rd_buff[256]; /* SST25 */
+	uint8_t rd_buff[mtdGetPageSize(&FLASHD1)];	// C99 dynamic array
 	int32_t size_ret = 0;
+
+	if (blkGetDriverState(&FLASHD1) != BLK_ACTIVE)
+		return -1;
 
 	while (size_ret < size) {
 		uint32_t page = address / sizeof(rd_buff);
 		uint32_t off = address % sizeof(rd_buff);
 		int32_t sz = sizeof(rd_buff) - off;
 
-		if (sz > size - size_ret)	sz = size - size_ret;
-		if (memdump_ll_flash_readpage(page, rd_buff) != HAL_SUCCESS)
+		if (sz > size - size_ret)
+			sz = size - size_ret;
+		if (blkRead(&FLASHD1, page, rd_buff, 1) != HAL_SUCCESS)
 			return -1;
 
 		memcpy(buffer, rd_buff + off, sz);
