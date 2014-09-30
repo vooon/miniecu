@@ -147,6 +147,12 @@ static void _pr_set_ParamType(miniecu_ParamType *value, const struct param_entry
 	};
 }
 
+static THD_FUNCTION(th_param_load, arg ATTR_UNUSED)
+{
+	if (flash_connect() == MSG_OK)
+		param_load();
+}
+
 /* -*- global -*- */
 
 msg_t param_set(const char *id, miniecu_ParamType *value)
@@ -236,10 +242,10 @@ void param_init(void)
 	}
 
 	// load from flash
-	// XXX: buggy when param_load() called from main() thread.
-	//      don't understand why, but it completely freeze cpu.
-	//      But it is not halt (no led indication).
-	//if (flash_connect() == MSG_OK)
-	//	param_load();
+	// Buggy when param_load() called from main() thread (it require large stack space).
+	// Workaround: start temporary dynamic thread with large stack.
+	thread_t *paramld = chThdCreateFromHeap(NULL, PARAMLD_WASZ, PARAMLD_PRIO, th_param_load, NULL);
+	chThdWait(paramld);
+	chThdRelease(paramld);
 }
 
