@@ -26,7 +26,7 @@
 #include "pb_encode.h"
 #include "pb_decode.h"
 #include "param.h"
-#include "th_adc.h"
+#include "adc/th_adc.h"
 #include "th_rpm.h"
 #include "command.h"
 #include "hw/rtc_time.h"

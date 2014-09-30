@@ -15,12 +15,11 @@
 */
 
 #include "fw_common.h"
-#include "th_comm_pbstx.h"
-#include "th_adc.h"
-#include "th_rpm.h"
-#include "th_flash_log.h"
 #include "alert_led.h"
-#include "pbstx.h"
+#include "comm/th_comm_pbstx.h"
+#include "adc/th_adc.h"
+#include "log/th_log.h"
+#include "th_rpm.h"
 #include "param.h"
 #include "hw/led.h"
 #include "hw/usb_vcom.h"
@@ -33,13 +32,7 @@
 bool gp_rtc_init_ignore_alert_led;
 
 
-/* -*- main -*- */
-static THD_WORKING_AREA(wa_adc, 512);
-static THD_WORKING_AREA(wa_rpm, 256);
-static THD_WORKING_AREA(wa_flash_log, 1024);
-
-#define COMM_PRIO	(NORMALPRIO - 5)
-#define PBSTX_WASZ	2048
+/* -*- main module -*- */
 
 /**
  * @brief safety hook
@@ -77,12 +70,6 @@ int main(void) {
 	flash_init();
 	param_init();
 
-	flash_connect();
-
-	//chThdCreateStatic(wa_flash_log, sizeof(wa_flash_log), NORMALPRIO - 2, th_flash_log, NULL);
-	//chThdCreateStatic(wa_adc, sizeof(wa_adc), NORMALPRIO + 1, th_adc, NULL);
-	//chThdCreateStatic(wa_rpm, sizeof(wa_rpm), NORMALPRIO - 1, th_rpm, NULL);
-
 	// XXX temp init, while modules disabled
 	alert_component(ALS_ADC, AL_NORMAL);
 	//alert_component(ALS_RPM, AL_NORMAL);
@@ -92,7 +79,10 @@ int main(void) {
 		alert_component(ALS_RTC, AL_NORMAL);
 
 	// TODO: check serial1 protocol selector
-	pbstxCreate(&SERIAL1_SD, PBSTX_WASZ, COMM_PRIO);
+	pbstxCreate(&SERIAL1_SD, PBSTX_WASZ, PBSTX_PRIO);
+
+	// start logging after pbstx, so we can hear errors
+	log_init();
 
 	vcom_connect();
 	chThdSetPriority(LOWPRIO);
@@ -108,7 +98,7 @@ int main(void) {
 		// start/stop PBStxComm on USB serial device
 		if (vcom_is_connected()) {
 			if (usb_comm == NULL)
-				usb_comm = pbstxCreate(&SDU1, PBSTX_WASZ, COMM_PRIO);
+				usb_comm = pbstxCreate(&SDU1, PBSTX_WASZ, PBSTX_PRIO);
 		}
 		else if (usb_comm != NULL) {
 			chThdTerminate(usb_comm);

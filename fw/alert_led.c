@@ -26,7 +26,7 @@
 /* local variables */
 
 static enum alert_status al_status[ALS_MAX];
-static THD_WORKING_AREA(wa_led, 128);
+static THD_WORKING_AREA(wa_led, LED_WASZ);
 
 /* thread */
 
@@ -95,5 +95,5 @@ void alert_led_init(void)
 	for (int i = 0; i < ALS_MAX; i++)
 		al_status[i] = AL_INIT;
 
-	chThdCreateStatic(wa_led, sizeof(wa_led), LOWPRIO, th_led, NULL);
+	chThdCreateStatic(wa_led, sizeof(wa_led), LED_PRIO, th_led, NULL);
 }

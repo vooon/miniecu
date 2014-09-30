@@ -20,16 +20,11 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef TH_FLASH_LOG_H
-#define TH_FLASH_LOG_H
+#ifndef TH_LOG_H
+#define TH_LOG_H
 
 #include "fw_common.h"
 
-THD_FUNCTION(th_flash_log, arg ATTR_UNUSED);
+void log_init(void);
 
-/* subsystem functions */
-bool flash_do_load_cfg(systime_t timeout);
-bool flash_do_save_cfg(systime_t timeout);
-bool flash_do_erase_cfg(systime_t timeout);
-
-#endif /* TH_FLASH_LOG_H */
+#endif /* TH_LOG_H */
