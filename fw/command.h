@@ -1,6 +1,6 @@
 /**
- * @file       th_comm.h
- * @brief      Communication thread
+ * @file       command.h
+ * @brief      Command processor
  * @author     Vladimir Ermakov Copyright (C) 2014.
  * @see        The GNU Public License (GPL) Version 3
  */
@@ -20,13 +20,12 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef TH_COMM_PBSTX_H
-#define TH_COMM_PBSTX_H
+#ifndef COMMAND_H
+#define COMMAND_H
 
 #include "fw_common.h"
 
-/* public functions */
-thread_t *pbstxCreate(void *chn, size_t size, tprio_t prio);
-/* debug_printf() defined in fw_common.h */
+/* subsystem functions */
+uint32_t command_request(uint32_t cmdid);
 
-#endif /* TH_COMM_PBSTX_H */
+#endif /* COMMAND_H */

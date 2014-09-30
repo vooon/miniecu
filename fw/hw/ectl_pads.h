@@ -1,6 +1,6 @@
 /**
- * @file       th_command.h
- * @brief      Command task
+ * @file       ectl_pads.h
+ * @brief      Engine control
  * @author     Vladimir Ermakov Copyright (C) 2014.
  * @see        The GNU Public License (GPL) Version 3
  */
@@ -20,16 +20,43 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef TH_COMMAND_H
-#define TH_COMMAND_H
+#ifndef HW_ECTL_PADS_H
+#define HW_ECTL_PADS_H
 
 #include "fw_common.h"
 
-THD_FUNCTION(th_command, arg ATTR_UNUSED);
+static inline bool ctl_ignition_state(void)
+{
+	return palReadPad(GPIOE, GPIOE_IGN_EN);
+}
 
-/* subsystem functions */
-uint32_t command_request(uint32_t cmdid);
-bool command_check_ignition(void);
-bool command_check_starter(void);
+static inline bool ctl_starter_state(void)
+{
+	return palReadPad(GPIOE, GPIOE_STARTER);
+}
 
-#endif /* TH_FLASH_LOG_H */
+/** Set ignition state
+ *
+ * @param state  true: On, flase: Off
+ */
+static inline void ctl_ignition_set(bool state)
+{
+	if (state)
+		palSetPad(GPIOE, GPIOE_IGN_EN);
+	else
+		palClearPad(GPIOE, GPIOE_IGN_EN);
+}
+
+/** Set starter state
+ *
+ * @param state  true: On, flase: Off
+ */
+static inline void ctl_starter_set(bool state)
+{
+	if (state)
+		palSetPad(GPIOE, GPIOE_STARTER);
+	else
+		palClearPad(GPIOE, GPIOE_STARTER);
+}
+
+#endif /* HW_ECTL_PADS_H */

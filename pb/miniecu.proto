@@ -259,8 +259,8 @@ message Message {
 	optional ParamRequest param_request = 10;
 	optional ParamSet param_set = 11;
 	optional ParamValue param_value = 12;
-	//optional LogRequest log_request = 20;
-	//optional LogEntry log_entry = 21;
+	optional LogRequest log_request = 20;
+	optional LogEntry log_entry = 21;
 	optional StatusText status_text = 30;
 	optional MemoryDumpRequest memory_dump_request = 40;
 	optional MemoryDumpRequest memory_dump_page = 41;

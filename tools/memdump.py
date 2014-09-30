@@ -3,7 +3,37 @@
 # vim:set ts=4 sw=4 et
 
 import argparse
-import miniecu
+from miniecu import msgs, PBStx, ReceiveError
+
+
+MSG_MAP = (
+    ('param_set', msgs.ParamSet),
+    ('memory_dump_request', msgs.MemoryDumpRequest)
+)
+
+
+def wrap_msg(msg):
+    for k, t in MSG_MAP:
+        if isinstance(msg, t):
+            return msgs.Message(**{k: msg})
+
+    raise TypeError("Unknown message type: %s" % repr(msg))
+
+
+def make_ParamSet(engine_id, param_id, value):
+    ps = msgs.ParamSet(engine_id=engine_id, param_id=param_id)
+    if isinstance(value, bool):
+        ps.value.u_bool = value
+    elif isinstance(value, int):
+        ps.value.u_int32 = value
+    elif isinstance(value, float):
+        ps.value.u_float = value
+    elif isinstance(value, basestring):
+        ps.value.u_string = value
+    else:
+        raise TypeError("Unsupported param type: %s" % repr(value))
+
+    return wrap_msg(ps)
 
 
 def main():
@@ -20,35 +50,34 @@ def main():
 
     args = parser.parse_args()
 
-    pbstx = miniecu.PBStx(args.device, args.baudrate)
+    pbstx = PBStx(args.device, args.baudrate)
 
-    status_period = miniecu.ParamSet(engine_id=args.id, param_id='STATUS_PERIOD')
-    status_period.value.u_int32 = 30000
+    status_period = make_ParamSet(args.id, 'STATUS_PERIOD', 30000)
+    dump_enable = make_ParamSet(args.id, 'DEBUG_MEMDUMP', True)
 
-    dump_enable = miniecu.ParamSet(engine_id=args.id, param_id='DEBUG_MEMDUMP')
-    dump_enable.value.u_bool = True
+    pbstx.send(status_period)
+    pbstx.send(dump_enable)
 
-    dump_request = miniecu.MemoryDumpRequest(engine_id=args.id,
-                                             type=args.type,
-                                             stream_id=256,
-                                             address=args.address,
-                                             size=args.size)
+    dump_request = wrap_msg(msgs.MemoryDumpRequest(
+        engine_id=args.id,
+        type=args.type,
+        stream_id=256,
+        address=args.address,
+        size=args.size))
+
     print '-' * 40
     print dump_request
     print '-' * 40
 
-    pbstx.send(status_period)
-    pbstx.send(dump_enable)
     pbstx.send(dump_request)
 
     while True:
         try:
             p = pbstx.receive()
-            print '-' * 80
-            print repr(p)
+            print '-' * 40
             print p
-        except miniecu.ReceiveError as ex:
-            print '-' * 80
+        except ReceiveError as ex:
+            print '-' * 40
             print ex
 
 

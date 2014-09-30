@@ -39,7 +39,7 @@ int32_t memdump_ext_flash(uint32_t address, void *buffer, size_t size)
 	if (blkGetDriverState(&FLASHD1) != BLK_ACTIVE)
 		return -1;
 
-	while (size_ret < size) {
+	while (size_ret < (signed)size) {
 		uint32_t page = address / sizeof(rd_buff);
 		uint32_t off = address % sizeof(rd_buff);
 		int32_t sz = sizeof(rd_buff) - off;

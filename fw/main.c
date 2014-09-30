@@ -19,7 +19,6 @@
 #include "th_adc.h"
 #include "th_rpm.h"
 #include "th_flash_log.h"
-#include "th_command.h"
 #include "alert_led.h"
 #include "pbstx.h"
 #include "param.h"
@@ -27,15 +26,15 @@
 #include "hw/usb_vcom.h"
 #include "hw/rtc_time.h"
 #include "hw/ext_flash.h"
+#include "hw/ectl_pads.h"
 
 
 static THD_WORKING_AREA(wa_adc, 512);
 static THD_WORKING_AREA(wa_rpm, 256);
 static THD_WORKING_AREA(wa_flash_log, 1024);
-static THD_WORKING_AREA(wa_command, 256);
 
 #define COMM_PRIO	(NORMALPRIO - 5)
-#define PBSTX_WASZ	1024*2
+#define PBSTX_WASZ	1024
 
 /**
  * @brief safety hook
@@ -44,8 +43,8 @@ static THD_WORKING_AREA(wa_command, 256);
 void system_halt_hook(void)
 {
 	/* safe gpio state */
-	palClearPad(GPIOE, GPIOE_IGN_EN);
-	palClearPad(GPIOE, GPIOE_STARTER);
+	ctl_ignition_set(false);
+	ctl_starter_set(false);
 
 	/* indication */
 	led_halt_state();
@@ -76,7 +75,6 @@ int main(void) {
 	//chThdCreateStatic(wa_flash_log, sizeof(wa_flash_log), NORMALPRIO - 2, th_flash_log, NULL);
 	//chThdCreateStatic(wa_adc, sizeof(wa_adc), NORMALPRIO + 1, th_adc, NULL);
 	//chThdCreateStatic(wa_rpm, sizeof(wa_rpm), NORMALPRIO - 1, th_rpm, NULL);
-	//chThdCreateStatic(wa_command, sizeof(wa_command), NORMALPRIO - 2, th_command, NULL);
 
 	// TODO: check serial1 protocol selector
 	pbstxCreate(&SERIAL1_SD, PBSTX_WASZ, COMM_PRIO);

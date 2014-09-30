@@ -26,10 +26,11 @@
 #include "pb_encode.h"
 #include "pb_decode.h"
 #include "param.h"
-#include "rtc_time.h"
 #include "th_adc.h"
 #include "th_rpm.h"
-#include "th_command.h"
+#include "command.h"
+#include "hw/rtc_time.h"
+#include "hw/ectl_pads.h"
 
 /* global parameters */
 
@@ -51,15 +52,16 @@ PBStxComm *m_instances[MAX_INSTANCES] = {};
 /* PBStx methods */
 static void send_status(PBStxComm *self);
 static void recv_time_reference(PBStxComm *self, pb_istream_t *instream);
-//static void recv_command(uint8_t msg_len);
+static void recv_command(PBStxComm *self, pb_istream_t *instream);
 static void recv_param_request(PBStxComm *self, pb_istream_t *instream);
 static void recv_param_set(PBStxComm *self, pb_istream_t *instream);
-//static void recv_log_request(uint8_t msg_len);
-//static void recv_memory_dump_request(uint8_t msg_len);
+static void recv_log_request(PBStxComm *self, pb_istream_t *instream);
+static void recv_memory_dump_request(PBStxComm *self, pb_istream_t *instream);
 
-//#define MEMDUMP_SIZE	64
-//int32_t memdump_int_ram(uint32_t address, void *buffer, size_t size);
-//int32_t memdump_ext_flash(uint32_t address, void *buffer, size_t size);
+/* memdump.c */
+#define MEMDUMP_SIZE	64
+int32_t memdump_int_ram(uint32_t address, void *buffer, size_t size);
+int32_t memdump_ext_flash(uint32_t address, void *buffer, size_t size);
 
 // -*- helpers -*-
 
@@ -252,6 +254,12 @@ static THD_FUNCTION(th_comm_pbstx, arg)
 			recv_param_set(&self, &instream);
 		else if (field == miniecu_TimeReference_fields)
 			recv_time_reference(&self, &instream);
+		else if (field == miniecu_Command_fields)
+			recv_command(&self, &instream);
+		else if (field == miniecu_LogRequest_fields)
+			recv_log_request(&self, &instream);
+		else if (field == miniecu_MemoryDumpRequest_fields && gp_debug_enable_memdump)
+			recv_memory_dump_request(&self, &instream);
 	}
 
 	if (m_instances[instance_id] != NULL)
@@ -283,8 +291,8 @@ static void send_status(PBStxComm *self)
 	uint32_t flags = 0;
 
 	if (time_is_known())		flags |= miniecu_Status_Flags_TIME_KNOWN;
-	if (command_check_ignition())	flags |= miniecu_Status_Flags_IGNITION_ENABLED;
-	if (command_check_starter())	flags |= miniecu_Status_Flags_STARTER_ENABLED;
+	if (ctl_ignition_state())	flags |= miniecu_Status_Flags_IGNITION_ENABLED;
+	if (ctl_starter_state())	flags |= miniecu_Status_Flags_STARTER_ENABLED;
 	if (rpm_check_engine_running())	flags |= miniecu_Status_Flags_ENGINE_RUNNING;
 
 	if (alert_check_error())	flags |= miniecu_Status_Flags_ERROR;
@@ -361,44 +369,31 @@ static void recv_time_reference(PBStxComm *self, pb_istream_t *instream)
 	pbstxEncodeSendComm(self, miniecu_TimeReference_fields, &time_ref);
 }
 
-#if 0
-void send_command_response(uint32_t operation, uint32_t response)
+static void recv_command(PBStxComm *self, pb_istream_t *instream)
 {
-	uint8_t local_msg_buf[32];
-	pb_ostream_t outstream = pb_ostream_from_buffer(local_msg_buf, sizeof(local_msg_buf));
 	miniecu_Command cmd;
 
-	cmd.engine_id = g_engine_id;
-	cmd.operation = operation;
+	if (!pbstxDecodeMessage(instream, miniecu_Command_fields, &cmd)) {
+		alert_component(ALS_COMM, AL_FAIL);
+		return;
+	}
+
+	// accept only our command
+	if (cmd.engine_id != (unsigned)gp_engine_id)
+		return;
+
+	// don't accept response
+	if (cmd.has_response)
+		return;
+
+	//cmd.engine_id = gp_engine_id;
+	//cmd.operation = cmd.operation;
 	cmd.has_response = true;
-	cmd.response = response;
+	cmd.response = command_request(cmd.operation);
 
-	if (!pb_encode(&outstream, miniecu_Command_fields, &cmd)) {
-		alert_component(ALS_COMM, AL_FAIL);
-		return;
-	}
-
-	pbstx_send(miniecu_MessageId_COMMAND,
-			local_msg_buf, outstream.bytes_written);
+	// new version of command proto don't allow delayed response
+	pbstxEncodeSendComm(self, miniecu_Command_fields, &cmd);
 }
-
-static void recv_command(uint8_t msg_len)
-{
-	pb_istream_t instream = pb_istream_from_buffer(msg_buf, msg_len);
-	miniecu_Command cmd;
-
-	if (!pb_decode(&instream, miniecu_Command_fields, &cmd)) {
-		alert_component(ALS_COMM, AL_FAIL);
-		return;
-	}
-
-	if (cmd.engine_id != (unsigned)g_engine_id)
-		return;
-
-	/* note: th_command can send response later */
-	send_command_response(cmd.operation, command_request(cmd.operation));
-}
-#endif
 
 /** Broadcasts miniecu.ParamValue
  */
@@ -479,13 +474,11 @@ static void recv_param_set(PBStxComm *self, pb_istream_t *instream)
 	send_param_value(&self->msg, &param_value);
 }
 
-#if 0
-static void recv_log_request(uint8_t msg_len)
+static void recv_log_request(PBStxComm *self, pb_istream_t *instream)
 {
-	pb_istream_t instream = pb_istream_from_buffer(msg_buf, msg_len);
 	miniecu_LogRequest log_req;
 
-	if (!pb_decode(&instream, miniecu_LogRequest_fields, &log_req)) {
+	if (!pbstxDecodeMessage(instream, miniecu_LogRequest_fields, &log_req)) {
 		alert_component(ALS_COMM, AL_FAIL);
 		return;
 	}
@@ -493,25 +486,11 @@ static void recv_log_request(uint8_t msg_len)
 	/* TODO */
 }
 
-static void send_memory_dump_page(miniecu_MemoryDumpPage *page_msg)
+static void recv_memory_dump_request(PBStxComm *self, pb_istream_t *instream)
 {
-	pb_ostream_t outstream = pb_ostream_from_buffer(msg_buf, sizeof(msg_buf));
-
-	if (!pb_encode(&outstream, miniecu_MemoryDumpPage_fields, page_msg)) {
-		alert_component(ALS_COMM, AL_FAIL);
-		return;
-	}
-
-	pbstx_send(miniecu_MessageId_MEMORY_DUMP_PAGE,
-			msg_buf, outstream.bytes_written);
-}
-
-static void recv_memory_dump_request(uint8_t msg_len)
-{
-	pb_istream_t instream = pb_istream_from_buffer(msg_buf, msg_len);
 	miniecu_MemoryDumpRequest dump_req;
 
-	if (!pb_decode(&instream, miniecu_MemoryDumpRequest_fields, &dump_req)) {
+	if (!pbstxDecodeMessage(instream, miniecu_MemoryDumpRequest_fields, &dump_req)) {
 		alert_component(ALS_COMM, AL_FAIL);
 		return;
 	}
@@ -521,6 +500,9 @@ static void recv_memory_dump_request(uint8_t msg_len)
 	uint32_t address = dump_req.address;
 	int32_t bytes_rem = dump_req.size;
 	int32_t (*memdump)(uint32_t address, void *buffer, size_t size) = NULL;
+
+	if (dump_req.engine_id != (unsigned)gp_engine_id)
+		return;
 
 	switch (dump_req.type) {
 	case miniecu_MemoryDumpRequest_Type_RAM:
@@ -545,7 +527,7 @@ static void recv_memory_dump_request(uint8_t msg_len)
 			return;
 		}
 
-		page_msg.engine_id = g_engine_id;
+		page_msg.engine_id = gp_engine_id;
 		page_msg.stream_id = dump_req.stream_id;
 		page_msg.address = address;
 		page_msg.page.size = ret;
@@ -553,8 +535,6 @@ static void recv_memory_dump_request(uint8_t msg_len)
 		address += ret;
 		bytes_rem -= ret;
 
-		send_memory_dump_page(&page_msg);
+		pbstxEncodeSendComm(self, miniecu_MemoryDumpPage_fields, &page_msg);
 	}
 }
-
-#endif
