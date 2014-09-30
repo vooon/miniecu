@@ -27,15 +27,15 @@ char gp_engine_name[PT_STRING_SIZE];
 char gp_engine_serial_no[PT_STRING_SIZE];
 char gp_ecu_serial_no[PT_STRING_SIZE];
 char gp_ecu_fw_version[PT_STRING_SIZE];
-char gp_ecu_hw_version[PT_STRING_SIZE] = BOARD_NAME;
+char gp_ecu_hw_version[PT_STRING_SIZE];
 
 
 void roinit_ecu_serial_no(struct param_entry *self ATTR_UNUSED)
 {
 #define STM32F37x_UID_BASE	0x1FFFF7AC
-	uint32_t uid0 = *((vuc32 *) (STM32F37x_UID_BASE + 0x00));
-	uint32_t uid1 = *((vuc32 *) (STM32F37x_UID_BASE + 0x04));
-	uint32_t uid2 = *((vuc32 *) (STM32F37x_UID_BASE + 0x08));
+	uint32_t uid0 = *((__I uint32_t *) (STM32F37x_UID_BASE + 0x00));
+	uint32_t uid1 = *((__I uint32_t *) (STM32F37x_UID_BASE + 0x04));
+	uint32_t uid2 = *((__I uint32_t *) (STM32F37x_UID_BASE + 0x08));
 
 	/* same number as calculated in USB DFU bootloader
 	 * See @a https://my.st.com/public/STe2ecommunities/mcu/Tags.aspx?tags=id%20unique%20meaning%20shortening
@@ -51,3 +51,7 @@ void roinit_ecu_serial_no(struct param_entry *self ATTR_UNUSED)
 	chsnprintf(gp_ecu_serial_no, PT_STRING_SIZE, "SN%04x%08x", sn_hi, sn_lo);
 }
 
+void roinit_ecu_hw_version(struct param_entry *self ATTR_UNUSED)
+{
+	strncpy(gp_ecu_hw_version, BOARD_NAME, PT_STRING_SIZE);
+}

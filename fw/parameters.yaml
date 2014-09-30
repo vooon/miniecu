@@ -49,6 +49,7 @@ parameters:
   ECU_HW_VERSION: !ptstring
     <<: *ro_init
     desc: Hardware version string
+    onchange: roinit_ecu_hw_version
   PARAM_SAVE_CNT: !ptint32
     <<: *ro_init
     desc: Parameter save operations count (config flash erase cycles)
