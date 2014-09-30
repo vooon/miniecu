@@ -226,6 +226,28 @@ message StatusText {
 	required string text = 3;
 }
 
+// Request mem dump
+message MemoryDumpRequest {
+	enum Type {
+		RAM = 0;
+		FLASH = 1;
+	};
+
+	required uint32 engine_id = 1;
+	required Type type = 2;
+	required uint32 stream_id = 3;
+	required uint32 address = 4;
+	required uint32 size = 5;
+};
+
+// Ansver to MemoryDumpRequest
+message MemoryDumpPage {
+	required uint32 engine_id = 1;
+	required uint32 stream_id = 2;
+	required uint32 address = 3;
+	required bytes page = 4;
+};
+
 // @}
 
 //! This union-like message used to transfer data
@@ -240,5 +262,7 @@ message Message {
 	optional LogRequest log_request = 20;
 	optional LogEntry log_entry = 21;
 	optional StatusText status_text = 30;
+	optional MemoryDumpRequest memory_dump_request = 40;
+	optional MemoryDumpRequest memory_dump_page = 41;
 };
 

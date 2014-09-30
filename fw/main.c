@@ -86,8 +86,9 @@ int main(void) {
 	while (true) {
 		// start/stop PBStxComm on USB serial device
 		if (vcom_is_connected()) {
-			if (usb_comm == NULL)
+			if (usb_comm == NULL) {
 				usb_comm = pbstxCreate(&SDU1, PBSTX_WASZ, COMM_PRIO);
+			}
 		}
 		else if (usb_comm != NULL) {
 			if (chThdTerminatedX(usb_comm)) {

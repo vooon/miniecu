@@ -11,6 +11,7 @@ FWSRC = ${MINIECU}/fw/main.c \
 	${MINIECU}/fw/comm/pbstx.c \
 	${MINIECU}/fw/comm/th_comm_pbstx.c \
 	${MINIECU}/fw/adc/th_adc.c \
+	${MINIECU}/fw/memdump.c \
 	${MINIECU}/fw/command.c \
 	${MINIECU}/fw/th_rpm.c \
 	${MINIECU}/fw/th_flash_log.c

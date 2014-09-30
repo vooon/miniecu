@@ -37,6 +37,7 @@
 int32_t gp_engine_id;
 int32_t gp_status_period;
 bool gp_debug_enable_adc_raw;
+bool gp_debug_enable_memdump;
 
 /* PBStx class */
 
@@ -55,6 +56,12 @@ static void recv_command(PBStxComm *self, pb_istream_t *instream);
 static void recv_param_request(PBStxComm *self, pb_istream_t *instream);
 static void recv_param_set(PBStxComm *self, pb_istream_t *instream);
 static void recv_log_request(PBStxComm *self, pb_istream_t *instream);
+static void recv_memory_dump_request(PBStxComm *self, pb_istream_t *instream);
+
+/* memdump.c */
+#define MEMDUMP_SIZE	64
+int32_t memdump_int_ram(uint32_t address, void *buffer, size_t size);
+int32_t memdump_ext_flash(uint32_t address, void *buffer, size_t size);
 
 // -*- helpers -*-
 
@@ -251,6 +258,8 @@ static THD_FUNCTION(th_comm_pbstx, arg)
 			recv_command(&self, &instream);
 		else if (field == miniecu_LogRequest_fields)
 			recv_log_request(&self, &instream);
+		else if (field == miniecu_MemoryDumpRequest_fields && gp_debug_enable_memdump)
+			recv_memory_dump_request(&self, &instream);
 	}
 
 	if (m_instances[instance_id] != NULL)
@@ -477,3 +486,55 @@ static void recv_log_request(PBStxComm *self, pb_istream_t *instream)
 	/* TODO */
 }
 
+static void recv_memory_dump_request(PBStxComm *self, pb_istream_t *instream)
+{
+	miniecu_MemoryDumpRequest dump_req;
+
+	if (!pbstxDecodeMessage(instream, miniecu_MemoryDumpRequest_fields, &dump_req)) {
+		alert_component(ALS_COMM, AL_FAIL);
+		return;
+	}
+
+	/* NOTE: ssize_t missing in chibios so we use int32_t instead */
+	miniecu_MemoryDumpPage page_msg;
+	uint32_t address = dump_req.address;
+	int32_t bytes_rem = dump_req.size;
+	int32_t (*memdump)(uint32_t address, void *buffer, size_t size) = NULL;
+
+	if (dump_req.engine_id != (unsigned)gp_engine_id)
+		return;
+
+	switch (dump_req.type) {
+	case miniecu_MemoryDumpRequest_Type_RAM:
+		memdump = memdump_int_ram;
+		break;
+	case miniecu_MemoryDumpRequest_Type_FLASH:
+		memdump = memdump_ext_flash;
+		break;
+
+	default:
+		debug_printf(DP_ERROR, "MemDump: unknown type");
+		return;
+	};
+
+	while (bytes_rem > 0) {
+		int32_t ret = memdump(address,
+				page_msg.page.bytes,
+				(bytes_rem > MEMDUMP_SIZE)? MEMDUMP_SIZE : bytes_rem);
+
+		if (ret <= 0) {
+			debug_printf(DP_ERROR, "MemDump: read error");
+			return;
+		}
+
+		page_msg.engine_id = gp_engine_id;
+		page_msg.stream_id = dump_req.stream_id;
+		page_msg.address = address;
+		page_msg.page.size = ret;
+
+		address += ret;
+		bytes_rem -= ret;
+
+		pbstxEncodeSendComm(self, miniecu_MemoryDumpPage_fields, &page_msg);
+	}
+}
