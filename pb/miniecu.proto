@@ -263,6 +263,6 @@ message Message {
 	optional LogEntry log_entry = 21;
 	optional StatusText status_text = 30;
 	optional MemoryDumpRequest memory_dump_request = 40;
-	optional MemoryDumpRequest memory_dump_page = 41;
+	optional MemoryDumpPage memory_dump_page = 41;
 };
 
