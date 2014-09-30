@@ -50,7 +50,7 @@ PBStxComm *m_instances[MAX_INSTANCES] = {};
 
 /* PBStx methods */
 static void send_status(PBStxComm *self);
-//static void recv_time_reference(uint8_t msg_len);
+static void recv_time_reference(PBStxComm *self, pb_istream_t *instream);
 //static void recv_command(uint8_t msg_len);
 static void recv_param_request(PBStxComm *self, pb_istream_t *instream);
 static void recv_param_set(PBStxComm *self, pb_istream_t *instream);
@@ -250,6 +250,8 @@ static THD_FUNCTION(th_comm_pbstx, arg)
 			recv_param_request(&self, &instream);
 		else if (field == miniecu_ParamSet_fields)
 			recv_param_set(&self, &instream);
+		else if (field == miniecu_TimeReference_fields)
+			recv_time_reference(&self, &instream);
 	}
 
 	if (m_instances[instance_id] != NULL)
@@ -332,39 +334,34 @@ static void send_status(PBStxComm *self)
 	pbstxEncodeSendComm(self, miniecu_Status_fields, &status);
 }
 
-#if 0
-static void recv_time_reference(uint8_t msg_len)
+static void recv_time_reference(PBStxComm *self, pb_istream_t *instream)
 {
-	pb_istream_t instream = pb_istream_from_buffer(msg_buf, msg_len);
 	miniecu_TimeReference time_ref;
 
-	if (!pb_decode(&instream, miniecu_TimeReference_fields, &time_ref)) {
+	if (!pbstxDecodeMessage(instream, miniecu_TimeReference_fields, &time_ref)) {
 		alert_component(ALS_COMM, AL_FAIL);
 		return;
 	}
 
 	/* answer to broadcast too */
-	if (time_ref.engine_id != (unsigned)g_engine_id
+	if (time_ref.engine_id != (unsigned)gp_engine_id
 			&& time_ref.engine_id != 0)
 		return;
 
-	pb_ostream_t outstream = pb_ostream_from_buffer(msg_buf, sizeof(msg_buf));
+	/* don't accept response messages */
+	if (time_ref.has_timediff)
+		return;
 
-	time_ref.engine_id = g_engine_id;
+	time_ref.engine_id = gp_engine_id;
 	time_ref.has_system_time = true;
 	time_ref.system_time = ST2MS(osalOsGetSystemTimeX());
 	time_ref.has_timediff = true;
 	time_ref.timediff = time_set_timestamp(time_ref.timestamp_ms);
 
-	if (!pb_encode(&outstream, miniecu_TimeReference_fields, &time_ref)) {
-		alert_component(ALS_COMM, AL_FAIL);
-		return;
-	}
-
-	pbstx_send(miniecu_MessageId_TIME_REFERENCE,
-			msg_buf, outstream.bytes_written);
+	pbstxEncodeSendComm(self, miniecu_TimeReference_fields, &time_ref);
 }
 
+#if 0
 void send_command_response(uint32_t operation, uint32_t response)
 {
 	uint8_t local_msg_buf[32];

@@ -34,7 +34,7 @@ enum alert_status {
 enum alert_source {
 	ALS_COMM = 0,	//!< Communication subsystem
 	ALS_ADC,	//!< ADC subsystem
-	//ALS_RTC,	//!< RTC subsystem
+	ALS_RTC,	//!< RTC subsystem
 	ALS_FLASH,	//!< Ext FLASH subsutem
 	ALS_MAX		//!< max size of alert array
 };
