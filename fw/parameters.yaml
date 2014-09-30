@@ -184,6 +184,11 @@ parameters:
     max: 100000
     var: gp_flow_low_ml
 
+  INIT_IGN_RTC: !ptbool
+    desc: Ignore RTC wait init time for transition to NORMAL led mode
+    var: gp_rtc_init_ignore_alert_led
+    default: true # temporary
+
   DEBUG_ADC_RAW: !ptbool
     desc: Enable sending Status.adc_raw data
     var: gp_debug_enable_adc_raw

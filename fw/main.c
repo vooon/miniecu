@@ -29,12 +29,17 @@
 #include "hw/ectl_pads.h"
 
 
+/* -*- main parameters -*- */
+bool gp_rtc_init_ignore_alert_led;
+
+
+/* -*- main -*- */
 static THD_WORKING_AREA(wa_adc, 512);
 static THD_WORKING_AREA(wa_rpm, 256);
 static THD_WORKING_AREA(wa_flash_log, 1024);
 
 #define COMM_PRIO	(NORMALPRIO - 5)
-#define PBSTX_WASZ	1024
+#define PBSTX_WASZ	2048
 
 /**
  * @brief safety hook
@@ -72,9 +77,19 @@ int main(void) {
 	flash_init();
 	param_init();
 
+	flash_connect();
+
 	//chThdCreateStatic(wa_flash_log, sizeof(wa_flash_log), NORMALPRIO - 2, th_flash_log, NULL);
 	//chThdCreateStatic(wa_adc, sizeof(wa_adc), NORMALPRIO + 1, th_adc, NULL);
 	//chThdCreateStatic(wa_rpm, sizeof(wa_rpm), NORMALPRIO - 1, th_rpm, NULL);
+
+	// XXX temp init, while modules disabled
+	alert_component(ALS_ADC, AL_NORMAL);
+	//alert_component(ALS_RPM, AL_NORMAL);
+
+	// force change RTC mode to normal if ignore required
+	if (gp_rtc_init_ignore_alert_led)
+		alert_component(ALS_RTC, AL_NORMAL);
 
 	// TODO: check serial1 protocol selector
 	pbstxCreate(&SERIAL1_SD, PBSTX_WASZ, COMM_PRIO);
@@ -84,19 +99,19 @@ int main(void) {
 
 	thread_t *usb_comm = NULL;
 	while (true) {
+		// release terminated thread
+		if (usb_comm != NULL && chThdTerminatedX(usb_comm)) {
+			chThdRelease(usb_comm);
+			usb_comm = NULL;
+		}
+
 		// start/stop PBStxComm on USB serial device
 		if (vcom_is_connected()) {
-			if (usb_comm == NULL) {
+			if (usb_comm == NULL)
 				usb_comm = pbstxCreate(&SDU1, PBSTX_WASZ, COMM_PRIO);
-			}
 		}
 		else if (usb_comm != NULL) {
-			if (chThdTerminatedX(usb_comm)) {
-				chThdRelease(usb_comm);
-				usb_comm = NULL;
-			}
-			else
-				chThdTerminate(usb_comm);
+			chThdTerminate(usb_comm);
 		}
 
 		chThdSleepMilliseconds(500);

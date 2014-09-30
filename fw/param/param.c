@@ -236,7 +236,10 @@ void param_init(void)
 	}
 
 	// load from flash
-	if (flash_connect() == MSG_OK)
-		return; //param_load();
+	// XXX: buggy when param_load() called from main() thread.
+	//      don't understand why, but it completely freeze cpu.
+	//      But it is not halt (no led indication).
+	//if (flash_connect() == MSG_OK)
+	//	param_load();
 }
 

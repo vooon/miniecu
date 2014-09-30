@@ -88,9 +88,9 @@ msg_t flash_connect(void)
 			return MSG_RESET;
 		}
 
-		alert_component(ALS_FLASH, AL_NORMAL);
 		sst25InitPartitionTable(&FLASHD1, init_parts);
 	}
 
+	alert_component(ALS_FLASH, AL_NORMAL);
 	return MSG_OK;
 }

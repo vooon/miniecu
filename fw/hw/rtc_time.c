@@ -80,7 +80,7 @@ static uint64_t rtc_get_unix_msec(void)
 void rtc_time_init(void)
 {
 	// if rtc time > 1000000000.000 sec: Sun Sep  9 05:46:40 MSD 2001
-	m_time_is_known = (rtc_get_unix_msec() > 1000000000000)? true : false;
+	m_time_is_known = rtc_get_unix_msec() > 1000000000000;
 	if (m_time_is_known)
 		alert_component(ALS_RTC, AL_NORMAL);
 }
@@ -97,13 +97,10 @@ bool time_is_known(void)
  */
 uint64_t time_get_timestamp(void)
 {
-
-	if (!m_time_is_known) {
+	if (!m_time_is_known)
 		return ST2MS(osalOsGetSystemTimeX());
-	}
-	else {
+	else
 		return rtc_get_unix_msec();
-	}
 }
 
 /**
