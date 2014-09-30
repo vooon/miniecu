@@ -60,14 +60,14 @@ uint32_t command_request(uint32_t cmdid)
 		if (flash_connect() != MSG_OK)
 			return miniecu_Command_Response_NAK;
 
-		param_save();
+		//param_save();
 		return miniecu_Command_Response_ACK;
 
 	case miniecu_Command_Operation_LOAD_CONFIG:
 		if (flash_connect() != MSG_OK)
 			return miniecu_Command_Response_NAK;
 
-		param_load();
+		//param_load();
 		return miniecu_Command_Response_ACK;
 
 	case miniecu_Command_Operation_DO_ERASE_CONFIG:

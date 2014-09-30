@@ -188,7 +188,3 @@ parameters:
     desc: Enable sending Status.adc_raw data
     var: gp_debug_enable_adc_raw
     dont_save: true
-  DEBUG_MEMDUMP: !ptbool
-    desc: Enable memdump subsystem (used for debugging)
-    var: gp_debug_enable_memdump
-    dont_save: true

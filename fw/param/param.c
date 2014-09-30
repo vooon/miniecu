@@ -236,7 +236,7 @@ void param_init(void)
 	}
 
 	// load from flash
-	if (flash_connect() == MSG_OK)
-		return; //param_load();
+	//if (flash_connect() == MSG_OK)
+	//	param_load();
 }
 
