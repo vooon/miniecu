@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import sys
 from pbstx import ReceiveError, msgs
+from sql_log import Logger, LoggingWrapper
 
 
 def wrap_msg(msg):
@@ -35,6 +36,20 @@ def make_ParamSet(engine_id, param_id, value):
         raise TypeError("Unsupported param type: %s" % repr(value))
 
     return wrap_msg(ps)
+
+
+def make_Command(engine_id, operation):
+    cmd = msgs.Command(engine_id=engine_id, operation=operation)
+    return wrap_msg(cmd)
+
+
+def wrap_logger(pbstx, log_db=None, log_name=None, source=None, date=None):
+    if log_db is not None:
+        logger = Logger(log_db)
+        logger.start(name=log_name, source=source, start_date=date)
+        pbstx = LoggingWrapper(pbstx, logger)
+
+    return pbstx
 
 
 def recv_print(pbstx):

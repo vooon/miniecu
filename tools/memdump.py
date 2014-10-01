@@ -8,8 +8,7 @@ import sys
 import argparse
 import random
 from miniecu import msgs, PBStx, ReceiveError
-from miniecu.utils import make_ParamSet, wrap_msg
-from miniecu.sql_log import Logger, LoggingWrapper
+from miniecu.utils import make_ParamSet, wrap_msg, wrap_logger
 
 
 def main():
@@ -30,11 +29,7 @@ def main():
     args = parser.parse_args()
 
     pbstx = PBStx(args.device, args.baudrate)
-
-    if args.log_db is not None:
-        logger = Logger(args.log_db)
-        logger.start(name=args.log_name, source="%s @ %s" % (args.device, args.baudrate))
-        pbstx = LoggingWrapper(pbstx, logger)
+    pbstx = wrap_logger(pbstx, args.log_db, args.log_name, "%s @ %s" % (args.device, args.baudrate))
 
     pbstx.send(make_ParamSet(args.id, 'STATUS_PERIOD', 5000))
     pbstx.send(make_ParamSet(args.id, 'DEBUG_MEMDUMP', True))
