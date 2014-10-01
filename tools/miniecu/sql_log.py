@@ -121,3 +121,18 @@ class Logger(object):
                     dev_time_ms=timestamp_ms, engine_id=engine_id,
                     pb_tag_id=pb_tag_id, pb_message=msg.SerializeToString()))
         self.session.commit()
+
+
+class LoggingWrapper(object):
+    def __init__(self, pbstx, logger):
+        self.pbstx = pbstx
+        self.logger = logger
+
+    def send(self, msg):
+        self.pbstx.send(msg)
+        self.logger.add_message(msg, DIR_SEND)
+
+    def receive(self):
+        msg = self.pbstx.receive()
+        self.logger.add_message(msg, DIR_RECV)
+        return msg
