@@ -113,8 +113,8 @@ class Logger(object):
         if len(fields) > 0:
             desc, data = fields[0]
             pb_tag_id = desc.number
-            if data.HasField('engine_id'):      engine_id = data.engine_id
-            if data.HasField('timestamp_ms'):   timestamp_ms = data.timestamp_ms
+            if hasattr(data, 'engine_id'):      engine_id = data.engine_id
+            if hasattr(data, 'timestamp_ms'):   timestamp_ms = data.timestamp_ms
 
         self.session.add(
             LogData(log=self.log, sys_date=sys_date, direction=direction_,

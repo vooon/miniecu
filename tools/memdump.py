@@ -9,6 +9,7 @@ import argparse
 import random
 from miniecu import msgs, PBStx, ReceiveError
 from miniecu.utils import make_ParamSet, wrap_msg
+from miniecu.sql_log import Logger, LoggingWrapper
 
 
 def main():
@@ -23,12 +24,19 @@ def main():
     parser.add_argument("-a", "--address", help="address", type=autoint, default=0)
     parser.add_argument("-s", "--size", help="size", type=autoint, default=0)
     parser.add_argument("-v", "--verbose", help="verbose io print", action='store_true')
+    parser.add_argument("-l", "--log-db", help="logging to sql db")
+    parser.add_argument("-n", "--log-name", help="log name")
 
     args = parser.parse_args()
 
     pbstx = PBStx(args.device, args.baudrate)
 
-    pbstx.send(make_ParamSet(args.id, 'STATUS_PERIOD', 30000))
+    if args.log_db is not None:
+        logger = Logger(args.log_db)
+        logger.start(name=args.log_name, source="%s @ %s" % (args.device, args.baudrate))
+        pbstx = LoggingWrapper(pbstx, logger)
+
+    pbstx.send(make_ParamSet(args.id, 'STATUS_PERIOD', 5000))
     pbstx.send(make_ParamSet(args.id, 'DEBUG_MEMDUMP', True))
 
     stream_id = random.randint(0, 0xffffffff)
