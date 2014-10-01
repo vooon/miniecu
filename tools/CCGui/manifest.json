@@ -1,0 +1,15 @@
+{
+    "name": "com.ubuntu.developer.username.ccgui",
+    "description": "description of CCGui",
+    "framework": "ubuntu-sdk-14.04-qml-dev1",
+    "architecture": "all",
+    "title": "CCGui",
+    "hooks": {
+        "CCGui": {
+            "apparmor": "CCGui.json",
+            "desktop": "CCGui.desktop"
+        }
+    },
+    "version": "0.1",
+    "maintainer": ""
+}
