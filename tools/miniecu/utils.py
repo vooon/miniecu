@@ -2,45 +2,55 @@
 
 from __future__ import print_function
 
-import sys
 from pbstx import ReceiveError, msgs
 from sql_log import Logger, LoggingWrapper
 
 
+MESSAGE_FIELD_TYPE = (
+    ('command', msgs.Command),
+    ('param_request', msgs.ParamRequest),
+    ('param_set', msgs.ParamSet),
+    ('time_reference', msgs.TimeReference),
+    ('memory_dump_request', msgs.MemoryDumpRequest)
+)
+
+PARAM_TYPE_FIELD_TYPE = (
+    ('u_bool', bool),
+    ('u_int32', int),
+    ('u_float', float),
+    ('u_string', basestring)
+)
+
+
 def wrap_msg(msg):
-    if isinstance(msg, msgs.Command):
-        return msgs.Message(command=msg)
-    elif isinstance(msg, msgs.ParamRequest):
-        return msgs.Message(param_request=msg)
-    elif isinstance(msg, msgs.ParamSet):
-        return msgs.Message(param_set=msg)
-    elif isinstance(msg, msgs.TimeReference):
-        return msgs.Message(time_reference=msg)
-    elif isinstance(msg, msgs.MemoryDumpRequest):
-        return msgs.Message(memory_dump_request=msg)
-    else:
-        raise TypeError("Unknown message type: %s" % repr(msg))
+    for k, t in MESSAGE_FIELD_TYPE:
+        if isinstance(msg, t):
+            return msgs.Message(**{k: msg})
+
+    raise TypeError("Unknown message type: %s" % repr(msg))
 
 
 def make_ParamSet(engine_id, param_id, value):
     ps = msgs.ParamSet(engine_id=engine_id, param_id=param_id)
-    if isinstance(value, bool):
-        ps.value.u_bool = value
-    elif isinstance(value, int):
-        ps.value.u_int32 = value
-    elif isinstance(value, float):
-        ps.value.u_float = value
-    elif isinstance(value, basestring):
-        ps.value.u_string = value
-    else:
-        raise TypeError("Unsupported param type: %s" % repr(value))
+    for k, t in PARAM_TYPE_FIELD_TYPE:
+        if isinstance(value, t):
+            setattr(ps.value, k, value)
+            return wrap_msg(ps)
 
-    return wrap_msg(ps)
+    raise TypeError("Unsupported param type: %s" % repr(value))
 
 
 def make_Command(engine_id, operation):
     cmd = msgs.Command(engine_id=engine_id, operation=operation)
     return wrap_msg(cmd)
+
+
+def value_ParamType(pt):
+    for k, t in PARAM_TYPE_FIELD_TYPE:
+        if pt.HasField(k):
+            return getattr(pt, k)
+
+    raise ValueError('Incorrect ParamType')
 
 
 def wrap_logger(pbstx, log_db=None, log_name=None, source=None, date=None):

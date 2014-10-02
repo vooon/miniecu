@@ -1,7 +1,0 @@
-[Desktop Entry]
-Name=CCGui
-Exec=/usr/bin/qmlscene $@ /usr/share/CCGui/CCGui.qml
-Icon=qmlscene
-Terminal=false
-Type=Application
-X-Ubuntu-Touch=true
