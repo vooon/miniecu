@@ -1,10 +1,16 @@
 # -*- python -*-
 
+import logging
 import threading
 from miniecu import PBStx, ReceiveError, msgs
 from miniecu.utils import wrap_logger, wrap_msg, make_ParamSet, make_Command, \
     value_ParamType
 from models.param import ParamManager
+from models.status import StatusManager
+from models.status_text import StatusTextManager
+
+
+log = logging.getLogger('comm')
 
 
 class CommThread(threading.Thread):
@@ -37,19 +43,17 @@ class CommThread(threading.Thread):
                 m = self.pbstx.receive()
                 self.dispatch_message(m)
             except ReceiveError as ex:
-                # XXX log crc error
-                print(repr(ex))
+                log.error(repr(ex))
 
     def dispatch_message(self, msg):
         for k, h in self.HANDLERS:
             if msg.HasField(k):
                 return h(getattr(msg, k))
 
-        # XXX: log unsupported message
-        print("Unsupported message: %s" % msg)
+        log.warn("Unsupported message: %s", msg)
 
     def handle_status(self, status):
-        pass
+        StatusManager().update_status(status)
 
     def handle_command(self, command):
         pass
@@ -61,11 +65,10 @@ class CommThread(threading.Thread):
                                         param_value.param_count,
                                         value_ParamType(param_value.value))
         except ValueError as ex:
-            print(repr(ex))
+            log.error(repr(ex))
 
     def handle_status_text(self, status_text):
-        # XXX: log status text
-        print("ECU: %s" % status_text)
+        StatusTextManager().add_message(status_text)
 
     def param_set(self, param_id, value):
         self.pbstx.send(make_ParamSet(self.engine_id, param_id, value))
@@ -79,9 +82,3 @@ class CommThread(threading.Thread):
 
     def command(self, operation):
         self.pbstx.send(make_Command(self.engine_id, operation))
-
-    def cmd_param_save(self):
-        self.command(msgs.Command.SAVE_CONFIG)
-
-    def cmd_param_load(self):
-        self.command(msgs.Command.LOAD_CONFIG)

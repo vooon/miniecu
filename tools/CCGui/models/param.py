@@ -1,8 +1,12 @@
 # -*- python -*-
 
 import weakref
+import logging
 import threading
 from utils import singleton
+
+
+param_log = logging.getLogger('param')
 
 
 class Parameter(object):
@@ -34,8 +38,8 @@ class Parameter(object):
         try:
             self._value = self._init_type(value)
             self._changed = True
-        except ValueError:
-            pass
+        except ValueError as ex:
+            param_log.error("Set: %s: %s", self.param_id, repr(ex))
 
     def validate(self, value):
         # TODO: more paranoic validate process
@@ -73,27 +77,35 @@ class ParamManager(object):
         if p:
             p._value = value
             p._changed = False
+            param_log.debug("Update: %s: %s", p.param_id, p.value)
         else:
             self.parameters[param_id] = Parameter(param_id, param_index, value)
+            param_log.debug("Add: %s: %s", p.param_id, p.value)
 
         self.missing_ids.discard(param_index)
         if len(self.missing_ids) == 0:
+            param_log.debug("Retrive done")
             self._event.set()
 
     def retrieve_all(self):
         self.missing_ids = set()
         self._event.clear()
 
+        # request all
         self.comm.param_request()
         self._event.wait(10.0)
 
         # not nesessary: try to request missing params
         if len(self.missing_ids) > 0:
+            param_log.warn("Missing %d parameters, trying to request.", len(self.missing_ids))
             self._event.clear()
             for idx in self.missing_ids:
                 self.comm.param_request(param_index=idx)
 
             self._event.wait(10.0)
+
+        if len(self.missing_ids):
+            param_log.error("Missing %d parameters", len(self.missing_ids))
 
         return len(self.missing_ids) == 0
 
@@ -105,6 +117,9 @@ class ParamManager(object):
             self.comm.param_set(p.param_id, p.value)
 
         self._event.wait(10.0)
+        if len(self.missing_ids):
+            param_log.error("Not synced %d parameters", len(self.missing_ids))
+
         return len(self.missing_ids) == 0
 
 
