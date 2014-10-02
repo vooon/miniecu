@@ -6,11 +6,14 @@
 # C files
 *.bin
 *.elf
-*.swp
 *.o
 *.d
 
 build/*
+
+# editor
+*.swp
+*~
 
 # Python files
 *.pyc
