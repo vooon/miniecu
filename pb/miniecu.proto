@@ -162,6 +162,7 @@ message ParamType {
 message ParamRequest {
 	required uint32 engine_id = 1;
 	optional string param_id = 2;
+	optional uint32 param_index = 3;
 }
 
 message ParamSet {

@@ -419,7 +419,7 @@ static void recv_param_request(PBStxComm *self, pb_istream_t *instream)
 		return;
 
 	if (param_req.has_param_id) {
-		/* request one param */
+		/* request one by param_id */
 		if (param_get(param_req.param_id, &param_value.value, &idx) != PARAM_OK)
 			return;
 
@@ -427,6 +427,17 @@ static void recv_param_request(PBStxComm *self, pb_istream_t *instream)
 		param_value.param_index = idx;
 		param_value.param_count = count;
 		strncpy(param_value.param_id, param_req.param_id, PT_ID_SIZE);
+
+		send_param_value(&self->msg, &param_value);
+	}
+	else if (param_req.has_param_index) {
+		/* request one by param_index */
+		if (param_get_by_idx(param_req.param_index, param_value.param_id, &param_value.value) != PARAM_OK)
+			return;
+
+		param_value.engine_id = gp_engine_id;
+		param_value.param_index = param_req.param_index;
+		param_value.param_count = count;
 
 		send_param_value(&self->msg, &param_value);
 	}
