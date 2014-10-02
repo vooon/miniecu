@@ -22,9 +22,13 @@ class CommThread(threading.Thread):
 
         self.engine_id = engine_id
         self.pbstx = wrap_logger(PBStx(port, baud), log_db, log_name, "%s:%s" % (log_db, log_name))
+        ParamManager().register_comm(self)
         self.start()
 
     def __del__(self):
+        self.stop()
+
+    def stop(self):
         self.terminate.set()
 
     def run(self):
@@ -52,7 +56,10 @@ class CommThread(threading.Thread):
 
     def handle_param_value(self, param_value):
         try:
-            ParamManager().update_param(param_value.param_id, value_ParamType(param_value.value))
+            ParamManager().update_param(param_value.param_id,
+                                        param_value.param_index,
+                                        param_value.param_count,
+                                        value_ParamType(param_value.value))
         except ValueError as ex:
             print(repr(ex))
 
@@ -63,10 +70,10 @@ class CommThread(threading.Thread):
     def param_set(self, param_id, value):
         self.pbstx.send(make_ParamSet(self.engine_id, param_id, value))
 
-    def param_request(self, param_id=None):
+    def param_request(self, param_id=None, param_index=None):
         pr = msgs.ParamRequest(engine_id=self.engine_id)
-        if param_id is not None:
-            pr.param_id = param_id
+        if param_id:    pr.param_id = param_id
+        if param_index: pr.param_index = param_index
 
         self.pbstx.send(wrap_msg(pr))
 
