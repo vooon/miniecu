@@ -1,9 +1,9 @@
 # -*- python -*-
 
-import weakref
 import logging
 import threading
 from utils import singleton
+from commmgr import CommManager
 
 
 param_log = logging.getLogger('param')
@@ -56,15 +56,12 @@ class ParamManager(object):
     def __init__(self):
         self.parameters = {}
         self.missing_ids = set()
-        self.comm = None
         self._event = threading.Event()
+        CommManager().register_model(self)
 
     @property
     def changed(self):
         return [p for p in self.parameters.values() if p.is_changed]
-
-    def register_comm(self, comm):
-        self.comm = weakref.proxy(comm)
 
     def clear(self):
         self.parameters.clear()
@@ -92,7 +89,7 @@ class ParamManager(object):
         self._event.clear()
 
         # request all
-        self.comm.param_request()
+        CommManager().param_request()
         self._event.wait(10.0)
 
         # not nesessary: try to request missing params
@@ -100,7 +97,7 @@ class ParamManager(object):
             param_log.warn("Missing %d parameters, trying to request.", len(self.missing_ids))
             self._event.clear()
             for idx in self.missing_ids:
-                self.comm.param_request(param_index=idx)
+                CommManager().param_request(param_index=idx)
 
             self._event.wait(10.0)
 
@@ -114,7 +111,7 @@ class ParamManager(object):
         self.missing_ids = set((p.param_index for p in to_sync))
         self._event.clear()
         for p in to_sync:
-            self.comm.param_set(p.param_id, p.value)
+            CommManager().param_set(p.param_id, p.value)
 
         self._event.wait(10.0)
         if len(self.missing_ids):

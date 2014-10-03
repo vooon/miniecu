@@ -43,19 +43,48 @@ class ConnDialog(object):
         baudrate_combo.add_attribute(text_renderer, 'text', 1)
         baudrate_combo.set_active_id(str(57600))
 
+        engine_id = builder.get_object('engine_id')
+        engine_id.set_value(1)
+        engine_id.set_increments(1, 10)
+        engine_id.set_range(1, 0xffff)
+
+        # save ref to widgets
+        self.port_combo = port_combo
+        self.baudrate_combo = baudrate_combo
+        self.engine_id = engine_id
+        self.log_file = builder.get_object('sqlite_file')
+        self.log_name = builder.get_object('log_name')
+
     def run(self, *args):
         self.dialog.show_all()
         return self.dialog.run(*args)
 
     def get_result_destroy(self):
-        # TODO
         port = ''
+        it = self.port_combo.get_active_iter()
+        if it is not None:
+            model = self.port_combo.get_model()
+            port = model[it][0]
+        else:
+            edit = self.port_combo.get_child()
+            port = edit.get_text()
+
         baudrate = 56700
+        it = self.baudrate_combo.get_active_iter()
+        if it is not None:
+            model = self.baudrate_combo.get_model()
+            baudrate = model[it][0]
+
+
+        # TODO
         log_file = None
-        log_name = ''
+
+        engine_id = self.engine_id.get_value_as_int()
+        log_name = self.log_name.get_text()
 
         self.dialog.destroy()
-        return (port, baudrate, log_file, log_name)
+        dlg_log.debug("DEV: %s:%d, ECU: %d, LOG: %s (%s)", port, baudrate, engine_id, log_file, log_name)
+        return (port, baudrate, engine_id, log_file, log_name)
 
     def on_conn_dialog_close(self, *args):
         dlg_log.debug("onCancel")

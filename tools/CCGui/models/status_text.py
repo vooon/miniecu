@@ -4,6 +4,7 @@ import logging
 from time import time
 from utils import singleton
 from miniecu import msgs
+from commmgr import CommManager
 
 
 ecu_log = logging.getLogger('ecu')
@@ -13,6 +14,7 @@ ecu_log = logging.getLogger('ecu')
 class StatusTextManager(object):
     def __init__(self):
         self.messages = []
+        CommManager().register_model(self)
 
     @property
     def last_message(self):

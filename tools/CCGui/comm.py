@@ -1,14 +1,15 @@
 # -*- python -*-
 
+__all__ = [
+    'CommThread',
+]
+
 import logging
 import threading
 from miniecu import PBStx, ReceiveError, msgs
 from miniecu.utils import wrap_logger, wrap_msg, make_ParamSet, make_Command, \
     value_ParamType
-from models.param import ParamManager
-from models.status import StatusManager
-from models.status_text import StatusTextManager
-
+from models import ParamManager, StatusManager, StatusTextManager
 
 log = logging.getLogger('comm')
 
@@ -28,7 +29,6 @@ class CommThread(threading.Thread):
 
         self.engine_id = engine_id
         self.pbstx = wrap_logger(PBStx(port, baud), log_db, log_name, "%s:%s" % (log_db, log_name))
-        ParamManager().register_comm(self)
         self.start()
 
     def __del__(self):

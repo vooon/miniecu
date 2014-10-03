@@ -125,20 +125,6 @@
               </packing>
             </child>
             <child>
-              <object class="GtkEntry" id="log_name">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="truncate_multiline">True</property>
-                <property name="placeholder_text" translatable="yes">short description</property>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="top_attach">3</property>
-                <property name="width">1</property>
-                <property name="height">1</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkLabel" id="label4">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
@@ -147,6 +133,32 @@
               </object>
               <packing>
                 <property name="left_attach">0</property>
+                <property name="top_attach">4</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="log_name">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="truncate_multiline">True</property>
+                <property name="placeholder_text" translatable="yes">short description</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">4</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFileChooserButton" id="sqlite_file">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
                 <property name="top_attach">3</property>
                 <property name="width">1</property>
                 <property name="height">1</property>
@@ -161,15 +173,35 @@
               </object>
               <packing>
                 <property name="left_attach">0</property>
+                <property name="top_attach">3</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label3">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">start</property>
+                <property name="label" translatable="yes">Engine ID:</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
                 <property name="top_attach">2</property>
                 <property name="width">1</property>
                 <property name="height">1</property>
               </packing>
             </child>
             <child>
-              <object class="GtkFileChooserButton" id="sqlite_file">
+              <object class="GtkSpinButton" id="engine_id">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can_focus">True</property>
+                <property name="truncate_multiline">True</property>
+                <property name="progress_pulse_step">1</property>
+                <property name="input_purpose">number</property>
+                <property name="snap_to_ticks">True</property>
+                <property name="numeric">True</property>
+                <property name="wrap">True</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
