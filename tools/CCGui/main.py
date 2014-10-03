@@ -12,16 +12,7 @@ if TOOLS_PATH not in sys.path:
 
 from comm import CommThread
 from gi.repository import Gtk
-
-
-class CCGuiApplication(object):
-    def __init__(self):
-        self.builder = Gtk.Builder()
-        self.builder.add_from_file(path.join(MODULE_PATH, 'ui/ccgui.glade'))
-
-        self.window = self.builder.get_object('ccgui_window')
-        self.window.connect("delete-event", Gtk.main_quit)
-        self.window.show_all()
+from ui.ccgui import CCGuiApplication
 
 
 def main():
