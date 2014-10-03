@@ -80,7 +80,7 @@ class ParamManager(object):
             param_log.debug("Update: %s: %s", p.param_id, p.value)
         else:
             self.parameters[param_id] = Parameter(param_id, param_index, value)
-            param_log.debug("Add: %s: %s", p.param_id, p.value)
+            param_log.debug("Add: %s: %s", param_id, value)
 
         self.missing_ids.discard(param_index)
         if len(self.missing_ids) == 0:

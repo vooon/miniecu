@@ -63,6 +63,7 @@
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_disconnect_activate" swapped="no"/>
                       </object>
                     </child>
                   </object>
