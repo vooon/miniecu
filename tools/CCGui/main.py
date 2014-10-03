@@ -10,14 +10,18 @@ if TOOLS_PATH not in sys.path:
     sys.path.append(TOOLS_PATH)
 
 
+import logging
 from comm import CommThread
 from gi.repository import Gtk
 from ui.ccgui import CCGuiApplication
 
 
 def main():
+    logging.basicConfig(level=logging.DEBUG)
+
     app = CCGuiApplication()
     Gtk.main()
+    logging.shutdown()
 
 
 if __name__ == '__main__':
