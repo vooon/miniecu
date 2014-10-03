@@ -142,6 +142,7 @@
                         <property name="label" translatable="yes">get</property>
                         <property name="use_underline">True</property>
                         <property name="stock_id">gtk-refresh</property>
+                        <signal name="clicked" handler="on_param_request_clicked" swapped="no"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -156,6 +157,7 @@
                         <property name="label" translatable="yes">set</property>
                         <property name="use_underline">True</property>
                         <property name="stock_id">gtk-apply</property>
+                        <signal name="clicked" handler="on_param_send_clicked" swapped="no"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -170,6 +172,7 @@
                         <property name="label" translatable="yes">load</property>
                         <property name="use_underline">True</property>
                         <property name="stock_id">gtk-revert-to-saved</property>
+                        <signal name="clicked" handler="on_param_load_clicked" swapped="no"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -184,6 +187,7 @@
                         <property name="label" translatable="yes">save</property>
                         <property name="use_underline">True</property>
                         <property name="stock_id">gtk-save</property>
+                        <signal name="clicked" handler="on_param_save_clicked" swapped="no"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>

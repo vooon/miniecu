@@ -41,4 +41,15 @@ class CCGuiApplication(object):
         except serial.SerialException as ex:
             logging.error("DEV: %s: %s", port, repr(ex))
 
+    def on_param_request_clicked(self, *args):
+        logging.debug("onParamRequest")
+
+    def on_param_send_clicked(self, *args):
+        logging.debug("onParamSend")
+
+    def on_param_load_clicked(self, *args):
+        logging.debug("onParamLoad")
+
+    def on_param_save_clicked(self, *args):
+        logging.debug("onParamSave")
 
