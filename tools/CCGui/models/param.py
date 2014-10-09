@@ -35,8 +35,9 @@ class Parameter(object):
     def value(self, value):
         # only set value it it pass validator (type constructor)
         try:
+            prev = self._value
             self._value = self._init_type(value)
-            self._changed = True
+            self._changed = self._value != prev
         except ValueError as ex:
             log.error("Set: %s: %s", self.param_id, repr(ex))
 

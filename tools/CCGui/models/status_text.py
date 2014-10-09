@@ -2,18 +2,18 @@
 
 import logging
 from time import time
-from utils import singleton
+from utils import singleton, Signal
 from miniecu import msgs
 from commmgr import CommManager
 
-
-ecu_log = logging.getLogger('ecu')
+ecu_log = logging.getLogger('ECU')
 
 
 @singleton
 class StatusTextManager(object):
     def __init__(self):
         self.messages = []
+        self.sig_changed = Signal()
         CommManager().register_model(self)
 
     @property
@@ -35,8 +35,11 @@ class StatusTextManager(object):
         else:
             ecu_log.debug("SEV(%s): %s", msg.severity, msg.text)
 
+        self.sig_changed.emit()
+
     def clear(self):
         self.messages = []
+        # self.sig_changed.emit()
 
 
 StatusTextManager()

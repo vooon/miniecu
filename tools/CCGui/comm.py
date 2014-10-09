@@ -9,7 +9,7 @@ import threading
 from miniecu import PBStx, ReceiveError, msgs
 from miniecu.utils import wrap_logger, wrap_msg, make_ParamSet, make_Command, \
     value_ParamType
-from models import ParamManager, StatusManager, StatusTextManager
+from models import ParamManager, StatusManager, StatusTextManager, CommandManger
 
 log = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ class CommThread(threading.Thread):
         StatusManager().update_status(status)
 
     def handle_command(self, command):
-        pass
+        CommandManger().handle_message(command)
 
     def handle_param_value(self, param_value):
         try:

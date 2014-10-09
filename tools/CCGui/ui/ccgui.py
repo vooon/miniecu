@@ -7,8 +7,9 @@ from ui.builder import get_builder
 from ui.conn_dlg import ConnDialog
 from ui.param_item import ParamBoxRow
 
-from models import CommManager, ParamManager, StatusManager
-from comm import CommThread
+from models import CommManager, ParamManager, StatusManager, StatusTextManager, \
+    CommandManger
+from comm import msgs, CommThread
 
 
 class CCGuiApplication(object):
@@ -22,12 +23,13 @@ class CCGuiApplication(object):
 
         # store ref to some widgets
         self.param_listbox = builder.get_object('param_listbox')
-        self.status_text = builder.get_object('tmp_status_text')
+        self.status_bar = builder.get_object('status_bar')
         self.param_rows = {}
 
         # connect model signals
         ParamManager().sig_changed.connect(self.update_params)
         StatusManager().sig_changed.connect(self.update_status)
+        StatusTextManager().sig_changed.connect(self.update_statustext)
 
     def on_ccgui_window_delete_event(self, *args):
         logging.info("onQuit")
@@ -66,12 +68,17 @@ class CCGuiApplication(object):
     def on_param_load_clicked(self, *args):
         logging.debug("onParamLoad")
 
+        if CommandManger().load_config():
+            ParamManager().retrieve_all()
+
     def on_param_save_clicked(self, *args):
         logging.debug("onParamSave")
 
+        CommandManger().save_config()
+
     def update_params(self, **kvargs):
         """Param update slot"""
-        for k, p in ParamManager().parameters.iteritems():
+        for k, p in sorted(ParamManager().parameters.iteritems()):
             row = self.param_rows.get(k)
             if row:
                 row.update()
@@ -90,3 +97,9 @@ class CCGuiApplication(object):
         s = str(StatusManager().last_message)
         logging.debug(s)
         # TODO: update TextView in application thread
+
+    def update_statustext(self, **kvargs):
+        ctx_id = self.status_bar.get_context_id("ECU")
+        t, msg = StatusTextManager().last_message
+        self.status_bar.push(ctx_id, "%s: %s: %s" % (
+            t, msgs.StatusText.Severity.Name(msg.severity), msg.text))
