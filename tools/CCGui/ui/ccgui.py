@@ -23,6 +23,7 @@ class CCGuiApplication(object):
         # store ref to some widgets
         self.param_listbox = builder.get_object('param_listbox')
         self.param_rows = {}
+        ParamManager().sig_changed.connect(self.update_params)
 
     def on_ccgui_window_delete_event(self, *args):
         logging.info("onQuit")
@@ -38,7 +39,6 @@ class CCGuiApplication(object):
     def on_disconnect_activate(self, *args):
         logging.debug("onDisConnect")
         CommManager().clear()
-        self.update_params()
         logging.info("DEV: closed")
 
     def create_comm(self, port, baudrate, engine_id, log_file, log_name):
@@ -53,13 +53,11 @@ class CCGuiApplication(object):
         logging.debug("onParamRequest")
 
         ParamManager().retrieve_all()
-        self.update_params()
 
     def on_param_send_clicked(self, *args):
         logging.debug("onParamSend")
 
         ParamManager().sync()
-        self.update_params()
 
     def on_param_load_clicked(self, *args):
         logging.debug("onParamLoad")
@@ -67,7 +65,8 @@ class CCGuiApplication(object):
     def on_param_save_clicked(self, *args):
         logging.debug("onParamSave")
 
-    def update_params(self):
+    def update_params(self, **kvargs):
+        """Param update slot"""
         for k, p in ParamManager().parameters.iteritems():
             row = self.param_rows.get(k)
             if row:

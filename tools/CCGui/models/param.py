@@ -2,7 +2,7 @@
 
 import logging
 import threading
-from utils import singleton
+from utils import singleton, Signal
 from commmgr import CommManager
 
 log = logging.getLogger(__name__)
@@ -56,6 +56,7 @@ class ParamManager(object):
         self.parameters = {}
         self.missing_ids = set()
         self._event = threading.Event()
+        self.sig_changed = Signal()
         CommManager().register_model(self)
 
     @property
@@ -64,6 +65,7 @@ class ParamManager(object):
 
     def clear(self):
         self.parameters.clear()
+        self.sig_changed.emit()
 
     def update_param(self, param_id, param_index, param_count, value):
         if len(self.missing_ids) == 0:
@@ -103,12 +105,14 @@ class ParamManager(object):
         if len(self.missing_ids):
             log.error("Missing %d parameters", len(self.missing_ids))
 
+        self.sig_changed.emit()
         return len(self.missing_ids) == 0
 
     def sync(self):
         to_sync = self.changed
         if len(to_sync) == 0:
             log.info("Nothing to sync")
+            self.sig_changed.emit()
             return True
 
         self.missing_ids = set((p.param_index for p in to_sync))
@@ -120,8 +124,8 @@ class ParamManager(object):
         if len(self.missing_ids):
             log.error("Not synced %d parameters", len(self.missing_ids))
 
+        self.sig_changed.emit()
         return len(self.missing_ids) == 0
-
 
 # initialize manager at module loading
 ParamManager()

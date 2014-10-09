@@ -1,5 +1,7 @@
 # -*- python -*-
 
+from signalslot import Signal
+
 # Singleton implementation from:
 # http://stackoverflow.com/questions/31875/is-there-a-simple-elegant-way-to-define-singletons-in-python
 # Thanks!
