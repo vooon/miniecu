@@ -7,7 +7,7 @@ from ui.builder import get_builder
 from ui.conn_dlg import ConnDialog
 from ui.param_item import ParamBoxRow
 
-from models import CommManager, ParamManager
+from models import CommManager, ParamManager, StatusManager
 from comm import CommThread
 
 
@@ -22,8 +22,12 @@ class CCGuiApplication(object):
 
         # store ref to some widgets
         self.param_listbox = builder.get_object('param_listbox')
+        self.status_text = builder.get_object('tmp_status_text')
         self.param_rows = {}
+
+        # connect model signals
         ParamManager().sig_changed.connect(self.update_params)
+        StatusManager().sig_changed.connect(self.update_status)
 
     def on_ccgui_window_delete_event(self, *args):
         logging.info("onQuit")
@@ -81,3 +85,8 @@ class CCGuiApplication(object):
             if not ParamManager().parameters.has_key(k):
                 self.param_listbox.remove(row)
                 del self.param_rows[k]
+
+    def update_status(self, **kvargs):
+        s = str(StatusManager().last_message)
+        logging.debug(s)
+        # TODO: update TextView in application thread
