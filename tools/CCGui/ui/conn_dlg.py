@@ -11,7 +11,7 @@ dlg_log = logging.getLogger('dlg')
 
 class ConnDialog(object):
     def __init__(self):
-        builder = get_builder('conn_dlg.glade')
+        builder = get_builder('conn_dlg.ui')
         self.dialog = builder.get_object('conn_dialog')
         builder.connect_signals(self)
 

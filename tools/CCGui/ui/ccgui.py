@@ -12,7 +12,7 @@ from comm import CommThread
 
 class CCGuiApplication(object):
     def __init__(self):
-        builder = get_builder('ccgui.glade')
+        builder = get_builder('ccgui.ui')
         self.window = builder.get_object('ccgui_window')
         builder.connect_signals(self)
 
