@@ -17,10 +17,12 @@ class CCGuiApplication(object):
         self.window = builder.get_object('ccgui_window')
         builder.connect_signals(self)
 
+        self.window.set_default_size(640, 480)
         self.window.show_all()
 
         # store ref to some widgets
         self.param_listbox = builder.get_object('param_listbox')
+        self.param_rows = {}
 
     def on_ccgui_window_delete_event(self, *args):
         logging.info("onQuit")
@@ -36,6 +38,8 @@ class CCGuiApplication(object):
     def on_disconnect_activate(self, *args):
         logging.debug("onDisConnect")
         CommManager().clear()
+        self.update_params()
+        logging.info("DEV: closed")
 
     def create_comm(self, port, baudrate, engine_id, log_file, log_name):
         try:
@@ -48,16 +52,14 @@ class CCGuiApplication(object):
     def on_param_request_clicked(self, *args):
         logging.debug("onParamRequest")
 
-        if not ParamManager().retrieve_all():
-            # TODO
-            return
-
-        for p in ParamManager().parameters.values():
-            row = ParamBoxRow(p)
-            self.param_listbox.add(row)
+        ParamManager().retrieve_all()
+        self.update_params()
 
     def on_param_send_clicked(self, *args):
         logging.debug("onParamSend")
+
+        ParamManager().sync()
+        self.update_params()
 
     def on_param_load_clicked(self, *args):
         logging.debug("onParamLoad")
@@ -65,3 +67,18 @@ class CCGuiApplication(object):
     def on_param_save_clicked(self, *args):
         logging.debug("onParamSave")
 
+    def update_params(self):
+        for k, p in ParamManager().parameters.iteritems():
+            row = self.param_rows.get(k)
+            if row:
+                row.update()
+            else:
+                row = ParamBoxRow(p)
+                self.param_rows[k] = row
+                self.param_listbox.add(row)
+
+        # remove old rows
+        for k, row in self.param_rows.items():
+            if not ParamManager().parameters.has_key(k):
+                self.param_listbox.remove(row)
+                del self.param_rows[k]

@@ -5,7 +5,7 @@ import threading
 from utils import singleton
 from commmgr import CommManager
 
-param_log = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class Parameter(object):
@@ -38,7 +38,7 @@ class Parameter(object):
             self._value = self._init_type(value)
             self._changed = True
         except ValueError as ex:
-            param_log.error("Set: %s: %s", self.param_id, repr(ex))
+            log.error("Set: %s: %s", self.param_id, repr(ex))
 
     def validate(self, value):
         # TODO: more paranoic validate process
@@ -73,14 +73,14 @@ class ParamManager(object):
         if p:
             p._value = value
             p._changed = False
-            param_log.debug("Update: %s: %s", p.param_id, p.value)
+            log.debug("Update: %s: %s", p.param_id, p.value)
         else:
             self.parameters[param_id] = Parameter(param_id, param_index, value)
-            param_log.debug("Add: %s: %s", param_id, value)
+            log.debug("Add: %s: %s", param_id, value)
 
         self.missing_ids.discard(param_index)
         if len(self.missing_ids) == 0:
-            param_log.debug("Retrive done")
+            log.debug("Retrive done")
             self._event.set()
 
     def retrieve_all(self):
@@ -93,7 +93,7 @@ class ParamManager(object):
 
         # not nesessary: try to request missing params
         if len(self.missing_ids) > 0:
-            param_log.warn("Missing %d parameters, trying to request.", len(self.missing_ids))
+            log.warn("Missing %d parameters, trying to request.", len(self.missing_ids))
             self._event.clear()
             for idx in self.missing_ids:
                 CommManager().param_request(param_index=idx)
@@ -101,12 +101,16 @@ class ParamManager(object):
             self._event.wait(10.0)
 
         if len(self.missing_ids):
-            param_log.error("Missing %d parameters", len(self.missing_ids))
+            log.error("Missing %d parameters", len(self.missing_ids))
 
         return len(self.missing_ids) == 0
 
     def sync(self):
         to_sync = self.changed
+        if len(to_sync) == 0:
+            log.info("Nothing to sync")
+            return True
+
         self.missing_ids = set((p.param_index for p in to_sync))
         self._event.clear()
         for p in to_sync:
@@ -114,7 +118,7 @@ class ParamManager(object):
 
         self._event.wait(10.0)
         if len(self.missing_ids):
-            param_log.error("Not synced %d parameters", len(self.missing_ids))
+            log.error("Not synced %d parameters", len(self.missing_ids))
 
         return len(self.missing_ids) == 0
 
