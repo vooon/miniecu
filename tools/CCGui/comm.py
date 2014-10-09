@@ -11,7 +11,7 @@ from miniecu.utils import wrap_logger, wrap_msg, make_ParamSet, make_Command, \
     value_ParamType
 from models import ParamManager, StatusManager, StatusTextManager
 
-log = logging.getLogger('comm')
+log = logging.getLogger(__name__)
 
 
 class CommThread(threading.Thread):

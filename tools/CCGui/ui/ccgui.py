@@ -5,8 +5,9 @@ import logging
 from gi.repository import Gtk
 from ui.builder import get_builder
 from ui.conn_dlg import ConnDialog
+from ui.param_item import ParamBoxRow
 
-from models import CommManager
+from models import CommManager, ParamManager
 from comm import CommThread
 
 
@@ -17,6 +18,9 @@ class CCGuiApplication(object):
         builder.connect_signals(self)
 
         self.window.show_all()
+
+        # store ref to some widgets
+        self.param_listbox = builder.get_object('param_listbox')
 
     def on_ccgui_window_delete_event(self, *args):
         logging.info("onQuit")
@@ -43,6 +47,14 @@ class CCGuiApplication(object):
 
     def on_param_request_clicked(self, *args):
         logging.debug("onParamRequest")
+
+        if not ParamManager().retrieve_all():
+            # TODO
+            return
+
+        for p in ParamManager().parameters.values():
+            row = ParamBoxRow(p)
+            self.param_listbox.add(row)
 
     def on_param_send_clicked(self, *args):
         logging.debug("onParamSend")

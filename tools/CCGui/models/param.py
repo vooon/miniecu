@@ -5,8 +5,7 @@ import threading
 from utils import singleton
 from commmgr import CommManager
 
-
-param_log = logging.getLogger('param')
+param_log = logging.getLogger(__name__)
 
 
 class Parameter(object):

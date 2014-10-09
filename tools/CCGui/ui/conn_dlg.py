@@ -6,7 +6,7 @@ import logging
 import serial
 import serial.tools.list_ports as list_ports
 
-dlg_log = logging.getLogger('dlg')
+log = logging.getLogger(__name__)
 
 
 class ConnDialog(object):
@@ -18,7 +18,7 @@ class ConnDialog(object):
         # fill port combobox
         device_store = Gtk.ListStore(str, str)
         for dev, name, info in sorted(list_ports.comports()):
-            dlg_log.debug("COM: %s %s", dev, info)
+            log.debug("COM: %s %s", dev, info)
             if info == 'n/a':
                 continue
 
@@ -83,14 +83,14 @@ class ConnDialog(object):
         log_name = self.log_name.get_text()
 
         self.dialog.destroy()
-        dlg_log.debug("DEV: %s:%d, ECU: %d, LOG: %s (%s)", port, baudrate, engine_id, log_file, log_name)
+        log.debug("DEV: %s:%d, ECU: %d, LOG: %s (%s)", port, baudrate, engine_id, log_file, log_name)
         return (port, baudrate, engine_id, log_file, log_name)
 
     def on_conn_dialog_close(self, *args):
-        dlg_log.debug("onCancel")
+        log.debug("onCancel")
         self.dialog.destroy()
 
     def on_ok_button_clicked(self, *args):
-        dlg_log.debug("onOk")
+        log.debug("onOk")
         self.dialog.response(Gtk.ResponseType.OK)
 
