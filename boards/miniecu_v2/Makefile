@@ -90,7 +90,7 @@ include $(MINIECU)/boards/miniecu_v2/board.mk
 include $(CHIBIOS)/os/hal/ports/STM32/STM32F37x/platform.mk
 include $(CHIBIOS)/os/hal/osal/rt/osal.mk
 include $(CHIBIOS)/os/rt/rt.mk
-include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_stm32f37x.mk
+include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_stm32f3xx.mk
 include $(MINIECU)/pb/nanopb.mk
 include $(FLASH25)/flash-mtd.mk
 include $(MINIECU)/fw/fw.mk
