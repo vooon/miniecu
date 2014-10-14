@@ -156,6 +156,7 @@ class GtkGauge(Gtk.DrawingArea):
 
         # clolor strips
         self._alpha = 0.0
+        self._alpha_inv = 1.0
 
         # helper functions for strip_order_XYZ()
         def draw_strip_arc():
@@ -164,6 +165,7 @@ class GtkGauge(Gtk.DrawingArea):
             cr.arc(x, y, radius - 0.06 * radius,
                    -5 * math.pi + i * ((5 * math.pi / 4) / step_count),
                    -5 * math.pi + (i + 1) * ((5 * math.pi / 4) / step_count))
+            cr.stroke()
 
         def draw_strip_additional_red_arc():
             step_count = (self.end_value - self.start_value) / self.sub_step
@@ -172,36 +174,68 @@ class GtkGauge(Gtk.DrawingArea):
             cr.arc(x, y, radius - 0.23 * radius,
                    -5 * math.pi + i * ((5 * math.pi / 4) / step_count),
                    -5 * math.pi + (i + 1) * ((5 * math.pi / 4) / step_count))
+            cr.stroke()
 
         # draw one sub_step
         def strip_order_YOR(i):
-            pass
+            alpha_step = abs(1 / ((self.yellow_strip_start - self.orange_strip_start) / self.sub_step))
+            step = i * self.sub_step
+
+            if self.orange_strip_start > step >= self.yellow_strip_start:
+                self._alpha += alpha_step
+                cr.set_source_rgba(1, 1, 0, self._alpha)
+            elif self.red_strip_start > step >= self.orange_strip_start:
+                cr.set_source_rgb(1, 0.65, 0)
+            elif step >= self.red_strip_start:
+                draw_strip_additional_red_arc()
+                cr.set_source_rgb(1, 0, 0)
+
+            draw_strip_arc()
 
         def strip_order_GYR(i):
             alpha_step = abs(1 / ((self.yellow_strip_start - self.green_strip_start) / self.sub_step))
             step = i * self.sub_step
 
             if self.yellow_strip_start > step >= self.green_strip_start:
-                # green
                 self._alpha += alpha_step
                 cr.set_source_rgba(0, 0.65, 0, self._alpha)
             elif self.red_strip_start > step >= self.yellow_strip_start:
-                # yellow
                 cr.set_source_rgb(1, 1, 0)
             elif step >= self.red_strip_start:
-                # red
                 draw_strip_additional_red_arc()
-                cr.stroke()
                 cr.set_source_rgb(1, 0, 0)
 
             draw_strip_arc()
-            cr.stroke()
 
         def strip_order_ROY(i):
-            pass
+            alpha_step = abs(1 / ((self.end_value - self.yellow_strip_start) / self.sub_step))
+            step = i * self.sub_step
+
+            if self.orange_strip_start > step >= self.red_strip_start:
+                draw_strip_additional_red_arc()
+                cr.set_source_rgb(1, 0, 0)
+            elif self.yellow_strip_start > step >= self.orange_strip_start:
+                cr.set_source_rgb(1, 0.65, 0)
+            elif step >= self.yellow_strip_start:
+                cr.set_source_rgba(1, 1, 0, self._alpha_inv)
+                self._alpha_inv -= alpha_step
+
+            draw_strip_arc()
 
         def strip_order_RYG(i):
-            pass
+            alpha_step = abs(1 / ((self.end_value - self.green_strip_start) / self.sub_step))
+            step = i * self.sub_step
+
+            if self.yellow_strip_start > step >= self.red_strip_start:
+                draw_strip_additional_red_arc()
+                cr.set_source_rgb(1, 0, 0)
+            elif self.green_strip_start > step >= self.yellow_strip_start:
+                cr.set_source_rgb(1, 1, 0)
+            elif step >= self.green_strip_start:
+                cr.set_source_rgba(0, 0.65, 0, self._alpha_inv)
+                self._alpha_inv -= alpha_step
+
+            draw_strip_arc()
 
         STRIP_ORDERS = {
             'YOR': strip_order_YOR,
@@ -227,17 +261,40 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
 
     win = Gtk.Window()
-    gauge = GtkGauge()
-    win.add(gauge)
+    vbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=1)
+    win.add(vbox)
 
     win.set_title('GtkGauge test')
-    win.resize(300, 300)
+    win.resize(300 * 4, 300)
     win.connect('delete-event', Gtk.main_quit)
 
-    gauge.strip_color_order = 'GYR'
-    gauge.green_strip_start = 0
-    gauge.yellow_strip_start = 50
-    gauge.red_strip_start = 75
+    gauge_yor = GtkGauge()
+    gauge_yor.strip_color_order = 'YOR'
+    gauge_yor.yellow_strip_start = 0
+    gauge_yor.orange_strip_start = 50
+    gauge_yor.red_strip_start = 75
+    vbox.pack_start(gauge_yor, True, True, 0)
+
+    gauge_gyr = GtkGauge()
+    gauge_gyr.strip_color_order = 'GYR'
+    gauge_gyr.green_strip_start = 0
+    gauge_gyr.yellow_strip_start = 50
+    gauge_gyr.red_strip_start = 75
+    vbox.pack_start(gauge_gyr, True, True, 0)
+
+    gauge_roy = GtkGauge()
+    gauge_roy.strip_color_order = 'ROY'
+    gauge_roy.red_strip_start = 0
+    gauge_roy.orange_strip_start = 25
+    gauge_roy.yellow_strip_start = 50
+    vbox.pack_start(gauge_roy, True, True, 0)
+
+    gauge_ryg = GtkGauge()
+    gauge_ryg.strip_color_order = 'RYG'
+    gauge_ryg.red_strip_start = 0
+    gauge_ryg.yellow_strip_start = 25
+    gauge_ryg.green_strip_start = 50
+    vbox.pack_start(gauge_ryg, True, True, 0)
 
     win.show_all()
     Gtk.main()
