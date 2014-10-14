@@ -82,6 +82,10 @@ class GtkGauge(Gtk.DrawingArea):
 
         self.draw_static_base(cr_static)
 
+    def make_reflection_pattern(self, x, y, radius):
+        return cairo.RadialGradient(x - 0.392 * radius, y - 0.967 * radius, 0.167 * radius,
+                                    x - 0.477 * radius, y - 0.967 * radius, 0.836 * radius)
+
     def draw_static_base(self, cr):
         log.debug("draw_static_base")
 
@@ -113,12 +117,8 @@ class GtkGauge(Gtk.DrawingArea):
 
         # fake light reflection (drawen when
         # radial_color=True and grayscale_color=False)
-        def make_reflection_pattern(x, y, radius):
-            return cairo.RadialGradient(x - 0.392 * radius, y - 0.967 * radius, 0.167 * radius,
-                                        x - 0.477 * radius, y - 0.967 * radius, 0.836 * radius)
-
         # reflection 1
-        pat = make_reflection_pattern(x, y, radius)
+        pat = self.make_reflection_pattern(x, y, radius)
         rgba0 = self.bg_radial_color_begin_bounderie + (1.0, )
         rgba1 = self.bg_color_bounderie + (1.0, )
         pat.add_color_stop_rgba(0, *rgba0)
@@ -144,7 +144,7 @@ class GtkGauge(Gtk.DrawingArea):
         cr.arc(x, y, radius, 0, 2 * math.pi)
 
         # reflection 2
-        pat = make_reflection_pattern(x, y, radius)
+        pat = self.make_reflection_pattern(x, y, radius)
         rgba0 = self.bg_radial_color_begin_gauge + (1.0, )
         rgba1 = self.bg_color_gauge + (1.0, )
         pat.add_color_stop_rgba(0, *rgba0)
@@ -335,8 +335,62 @@ class GtkGauge(Gtk.DrawingArea):
         #   width: 1.0 * radius
         #   height: 0.4 * radius
 
+    def draw_static_screws(self, cr):
+        x = self._x
+        y = self._y
+        radius = self._radius
+        radius += 0.12 * radius
+
+        def draw_screw(sx, sy):
+            # draw screw head
+            cr.arc(x + 0.82 * sx * radius, y + 0.82 * sy * radius,
+                   0.1 * radius, 0, 2 * math.pi)
+            pat = cairo.RadialGradient(x + 0.82 * sx * radius, y + 0.82 * sy * radius, 0.07 * radius,
+                                       x + 0.82 * sx * radius, y + 0.82 * sy * radius, 0.1 * radius)
+            pat.add_color_stop_rgba(0, 0, 0, 0, 0.7)
+            pat.add_color_stop_rgba(1, 0, 0, 0, 0.1)
+            cr.set_source(pat)
+            cr.fill_preserve()
+            cr.stroke()
+
+            cr.arc(x + 0.82 * sx * radius, y + 0.82 * sy * radius,
+                   0.07 * radius, 0, 2 * math.pi)
+            pat = self.make_reflection_pattern(x, y, radius)
+            rgba0 = self.bg_color_bounderie + (1.0, )
+            rgba1 = (0.15, ) * 3 + (1.0, )
+            pat.add_color_stop_rgba(0, *rgba0)
+            pat.add_color_stop_rgba(1, *rgba1)
+            cr.set_source(pat)
+            cr.fill_preserve()
+            cr.stroke()
+
+            def draw_x():
+                # draw -
+                cr.move_to(x + 0.88 * sx * radius, y + 0.82 * sy * radius)
+                cr.line_to(x + 0.76 * sx * radius, y + 0.82 * sy * radius)
+                cr.fill_preserve()
+                cr.stroke()
+                # draw |
+                cr.move_to(x + 0.82 * sx * radius, y + 0.88 * sy * radius)
+                cr.line_to(x + 0.82 * sx * radius, y + 0.76 * sy * radius)
+                cr.fill_preserve()
+                cr.stroke()
+
+            cr.set_line_width(0.02 * radius)
+            cr.set_source_rgb(0, 0, 0)
+            draw_x()
+            cr.set_line_width(0.01 * radius)
+            cr.set_source_rgb(0.1, 0.1, 0.1)
+            draw_x()
+
+        draw_screw(-1, -1)  # top left
+        draw_screw(1, -1)   # top right
+        draw_screw(-1, 1)   # bollom left
+        draw_screw(1, 1)    # bottom right
+
     def on_draw(self, widget, cr):
         self.draw_static_base(cr)
+        self.draw_static_screws(cr)
 
     def set_value(self, value):
         log.debug("set_value: %s", value)
