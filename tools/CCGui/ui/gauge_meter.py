@@ -111,11 +111,14 @@ class GtkGauge(Gtk.DrawingArea):
                rec_radius, math.radians(180), math.radians(270))
         cr.close_path()
 
-        # fake reflection (drawen when
+        # fake light reflection (drawen when
         # radial_color=True and grayscale_color=False)
-        pat = cairo.RadialGradient(x - 0.392 * radius, y - 0.967 * radius, 0.167 * radius,
-                                   x - 0.477 * radius, y - 0.967 * radius, 0.836 * radius)
+        def make_reflection_pattern(x, y, radius):
+            return cairo.RadialGradient(x - 0.392 * radius, y - 0.967 * radius, 0.167 * radius,
+                                        x - 0.477 * radius, y - 0.967 * radius, 0.836 * radius)
 
+        # reflection 1
+        pat = make_reflection_pattern(x, y, radius)
         rgba0 = self.bg_radial_color_begin_bounderie + (1.0, )
         rgba1 = self.bg_color_bounderie + (1.0, )
         pat.add_color_stop_rgba(0, *rgba0)
@@ -125,7 +128,84 @@ class GtkGauge(Gtk.DrawingArea):
         cr.fill_preserve()
         cr.stroke()
 
+        # meter circle
+        cr.arc(x, y, radius, 0, 2 * math.pi)
+        cr.set_source_rgb(0., 0., 0.)
+        cr.fill_preserve()
+        cr.stroke()
 
+        cr.arc(x, y, radius - 0.04 * radius, 0, 2 * math.pi)
+        cr.set_source_rgb(0.6, 0.5, 0.5)
+        cr.stroke()
+
+        # inner ring
+        cr.set_line_width(0.01 * radius)
+        radius -= 0.1 * radius
+        cr.arc(x, y, radius, 0, 2 * math.pi)
+
+        # reflection 2
+        pat = make_reflection_pattern(x, y, radius)
+        rgba0 = self.bg_radial_color_begin_gauge + (1.0, )
+        rgba1 = self.bg_color_gauge + (1.0, )
+        pat.add_color_stop_rgba(0, *rgba0)
+        pat.add_color_stop_rgba(1, *rgba1)
+
+        cr.set_source(pat)
+        cr.fill_preserve()
+        cr.stroke()
+
+        # clolor strips
+        self._alpha = 0.0
+
+        def strip_order_YOR(i):
+            pass
+
+        def strip_order_GYR(i):
+            alpha_step = abs(1 / ((self.yellow_strip_start - self.green_strip_start) / self.sub_step))
+            step = i * self.sub_step
+            step_count = (self.end_value - self.start_value) / self.sub_step
+
+            if self.yellow_strip_start > step >= self.green_strip_start:
+                # green
+                self._alpha += alpha_step
+                cr.set_source_rgba(0, 0.65, 0, self._alpha)
+            elif self.red_strip_start > step >= self.yellow_strip_start:
+                # yellow
+                cr.set_source_rgb(1, 1, 0)
+            elif step >= self.red_strip_start:
+                # red
+                cr.set_line_width(0.1 * radius)
+                cr.set_source_rgba(1, 0, 0, 0.2)
+                cr.arc(x, y, radius - 0.23 * radius,
+                       -5 * math.pi + i * ((5 * math.pi / 4) / step_count),
+                       -5 * math.pi + (i + 1) * ((5 * math.pi / 4) / step_count))
+                cr.stroke()
+                cr.set_source_rgb(1, 0, 0)
+
+            cr.set_line_width(0.12 * radius)
+            cr.arc(x, y, radius - 0.06 * radius,
+                   -5 * math.pi + i * ((5 * math.pi / 4) / step_count),
+                   -5 * math.pi + (i + 1) * ((5 * math.pi / 4) / step_count))
+            cr.stroke()
+
+        def strip_order_ROY(i):
+            pass
+
+        def strip_order_RYG(i):
+            pass
+
+        STRIP_ORDERS = {
+            'YOR': strip_order_YOR,
+            'GYR': strip_order_GYR,
+            'ROY': strip_order_ROY,
+            'RYG': strip_order_RYG,
+        }
+
+        draw_strip = STRIP_ORDERS.get(self.strip_color_order, strip_order_YOR)
+        for i in range(0, int((self.end_value - self.start_value) / self.sub_step)):
+            cr.save()
+            draw_strip(i)
+            cr.restore()
 
     def on_draw(self, widget, cr):
         self.draw_static_base(cr)
@@ -144,6 +224,11 @@ if __name__ == '__main__':
     win.set_title('GtkGauge test')
     win.resize(300, 300)
     win.connect('delete-event', Gtk.main_quit)
+
+    gauge.strip_color_order = 'GYR'
+    gauge.green_strip_start = 0
+    gauge.yellow_strip_start = 50
+    gauge.red_strip_start = 75
 
     win.show_all()
     Gtk.main()
