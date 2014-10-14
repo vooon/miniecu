@@ -163,8 +163,8 @@ class GtkGauge(Gtk.DrawingArea):
             step_count = (self.end_value - self.start_value) / self.sub_step
             cr.set_line_width(0.12 * radius)
             cr.arc(x, y, radius - 0.06 * radius,
-                   -5 * math.pi + i * ((5 * math.pi / 4) / step_count),
-                   -5 * math.pi + (i + 1) * ((5 * math.pi / 4) / step_count))
+                   -5 * math.pi / 4 + i * ((5 * math.pi / 4) / step_count),
+                   -5 * math.pi / 4 + (i + 1) * ((5 * math.pi / 4) / step_count))
             cr.stroke()
 
         def draw_strip_additional_red_arc():
@@ -172,8 +172,8 @@ class GtkGauge(Gtk.DrawingArea):
             cr.set_line_width(0.1 * radius)
             cr.set_source_rgba(1, 0, 0, 0.2)
             cr.arc(x, y, radius - 0.23 * radius,
-                   -5 * math.pi + i * ((5 * math.pi / 4) / step_count),
-                   -5 * math.pi + (i + 1) * ((5 * math.pi / 4) / step_count))
+                   -5 * math.pi / 4 + i * ((5 * math.pi / 4) / step_count),
+                   -5 * math.pi / 4 + (i + 1) * ((5 * math.pi / 4) / step_count))
             cr.stroke()
 
         # draw one sub_step
@@ -244,7 +244,8 @@ class GtkGauge(Gtk.DrawingArea):
             'RYG': strip_order_RYG,
         }
 
-        draw_strip = STRIP_ORDERS.get(self.strip_color_order, strip_order_YOR)
+        # color strips can be disabled
+        draw_strip = STRIP_ORDERS.get(self.strip_color_order, lambda i: None)
         for i in range(0, int((self.end_value - self.start_value) / self.sub_step)):
             cr.save()
             draw_strip(i)
