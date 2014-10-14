@@ -245,11 +245,52 @@ class GtkGauge(Gtk.DrawingArea):
         }
 
         # color strips can be disabled
+        step_count = (self.end_value - self.start_value) / self.sub_step
         draw_strip = STRIP_ORDERS.get(self.strip_color_order, lambda i: None)
-        for i in range(0, int((self.end_value - self.start_value) / self.sub_step)):
+        for i in range(0, int(step_count)):
             cr.save()
             draw_strip(i)
             cr.restore()
+
+        # draw marks
+        # in original code these values x10 before marks
+        self.end_value *= 10
+        self.start_value *= 10
+        self.sub_step *= 10
+        self.initial_step *= 10
+
+        step_count = (self.end_value - self.start_value) / self.sub_step
+        for i in range(0, int(step_count) + 1):
+            cr.save()
+            if (i * int(self.sub_step)) % self.initial_step == 0:
+                cr.set_source_rgb(1, 1, 1)
+                cr.set_line_width(0.015 * radius)
+                inset = 0.18 * radius
+            else:
+                cr.set_source_rgba(1, 1, 1, 0.5)
+                cr.set_line_width(0.01 * radius)
+                inset = 0.12 * radius
+
+            angle = -5 * math.pi / 4 + i * ((5 * math.pi / 4) / step_count)
+            cr.move_to(x + (radius - inset) * math.cos(angle),
+                       y + (radius - inset) * math.sin(angle))
+            cr.line_to(x + radius * math.cos(angle),
+                       y + radius * math.sin(angle))
+            cr.stroke()
+            cr.restore()
+
+        cr.set_source_rgb(1, 1, 1)
+        cr.move_to(x + (radius - 0.18 * radius) * math.cos(0),
+                   y + (radius - 0.18 * radius) * math.sin(0))
+        cr.line_to(x + radius * math.cos(0),
+                   y + radius * math.sin(0))
+
+        # restore settings
+        self.end_value /= 10
+        self.start_value /= 10
+        self.sub_step /= 10
+        self.initial_step /= 10
+
 
     def on_draw(self, widget, cr):
         self.draw_static_base(cr)
