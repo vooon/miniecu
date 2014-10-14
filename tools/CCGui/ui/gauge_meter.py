@@ -157,13 +157,29 @@ class GtkGauge(Gtk.DrawingArea):
         # clolor strips
         self._alpha = 0.0
 
+        # helper functions for strip_order_XYZ()
+        def draw_strip_arc():
+            step_count = (self.end_value - self.start_value) / self.sub_step
+            cr.set_line_width(0.12 * radius)
+            cr.arc(x, y, radius - 0.06 * radius,
+                   -5 * math.pi + i * ((5 * math.pi / 4) / step_count),
+                   -5 * math.pi + (i + 1) * ((5 * math.pi / 4) / step_count))
+
+        def draw_strip_additional_red_arc():
+            step_count = (self.end_value - self.start_value) / self.sub_step
+            cr.set_line_width(0.1 * radius)
+            cr.set_source_rgba(1, 0, 0, 0.2)
+            cr.arc(x, y, radius - 0.23 * radius,
+                   -5 * math.pi + i * ((5 * math.pi / 4) / step_count),
+                   -5 * math.pi + (i + 1) * ((5 * math.pi / 4) / step_count))
+
+        # draw one sub_step
         def strip_order_YOR(i):
             pass
 
         def strip_order_GYR(i):
             alpha_step = abs(1 / ((self.yellow_strip_start - self.green_strip_start) / self.sub_step))
             step = i * self.sub_step
-            step_count = (self.end_value - self.start_value) / self.sub_step
 
             if self.yellow_strip_start > step >= self.green_strip_start:
                 # green
@@ -174,18 +190,11 @@ class GtkGauge(Gtk.DrawingArea):
                 cr.set_source_rgb(1, 1, 0)
             elif step >= self.red_strip_start:
                 # red
-                cr.set_line_width(0.1 * radius)
-                cr.set_source_rgba(1, 0, 0, 0.2)
-                cr.arc(x, y, radius - 0.23 * radius,
-                       -5 * math.pi + i * ((5 * math.pi / 4) / step_count),
-                       -5 * math.pi + (i + 1) * ((5 * math.pi / 4) / step_count))
+                draw_strip_additional_red_arc()
                 cr.stroke()
                 cr.set_source_rgb(1, 0, 0)
 
-            cr.set_line_width(0.12 * radius)
-            cr.arc(x, y, radius - 0.06 * radius,
-                   -5 * math.pi + i * ((5 * math.pi / 4) / step_count),
-                   -5 * math.pi + (i + 1) * ((5 * math.pi / 4) / step_count))
+            draw_strip_arc()
             cr.stroke()
 
         def strip_order_ROY(i):
