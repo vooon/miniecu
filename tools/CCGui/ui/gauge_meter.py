@@ -7,7 +7,7 @@
 # Licensed under GPLv3.
 
 import logging
-from gi.repository import GObject, Gtk
+from gi.repository import GObject, Gtk, Gdk, Pango, PangoCairo
 import cairo
 import math
 
@@ -81,6 +81,7 @@ class GtkGauge(Gtk.DrawingArea):
         cr_static.clip()
 
         self.draw_static_base(cr_static)
+        self.draw_static_screws(cr_static)
 
     def make_reflection_pattern(self, x, y, radius):
         return cairo.RadialGradient(x - 0.392 * radius, y - 0.967 * radius, 0.167 * radius,
@@ -328,14 +329,16 @@ class GtkGauge(Gtk.DrawingArea):
         self._y = y
         self._radius = radius
 
-        # TODO: draw name
-        # at:
-        #   x: x - 0.2 * radius
-        #   y: y + 0.35 * radius
-        #   width: 1.0 * radius
-        #   height: 0.4 * radius
+        rect = Gdk.Rectangle()
+        rect.x = x - 0.2 * radius
+        rect.y = y + 0.35 * radius
+        rect.width = 1.0 * radius
+        rect.height = 0.4 * radius
+        self.draw_static_name(cr, rect)
 
     def draw_static_screws(self, cr):
+        log.debug("draw_static_screws")
+
         x = self._x
         y = self._y
         radius = self._radius
@@ -384,9 +387,42 @@ class GtkGauge(Gtk.DrawingArea):
             draw_x()
 
         draw_screw(-1, -1)  # top left
-        draw_screw(1, -1)   # top right
-        draw_screw(-1, 1)   # bollom left
-        draw_screw(1, 1)    # bottom right
+        draw_screw(+1, -1)   # top right
+        draw_screw(-1, +1)   # bottom left
+        draw_screw(+1, +1)    # bottom right
+
+    def draw_static_name(self, cr, rect):
+        log.debug("draw_static_name")
+        layout = PangoCairo.create_layout(cr)
+        layout.set_markup(self.name)
+        layout.set_alignment(Pango.Alignment.CENTER)
+
+        # TODO: save last good known size
+        desc = Pango.FontDescription()
+        font_size = 30
+
+        desc.set_size(font_size * Pango.SCALE)
+        layout.set_font_description(desc)
+
+        width, height = layout.get_pixel_size()
+        while width > rect.width or height > rect.height:
+            font_size -= 1
+            if font_size <= 1:
+                log.error("name area too small")
+                return
+
+            desc.set_size(font_size * Pango.SCALE)
+            layout.set_font_description(desc)
+            width, height = layout.get_pixel_size()
+
+        log.debug("name font size: %s", font_size)
+        x_pos = rect.x + (rect.width - width) / 2
+        y_pos = rect.y + (rect.height - height) / 2
+
+        cr.set_source_rgb(1, 1, 1)
+        cr.move_to(x_pos, y_pos)
+        PangoCairo.show_layout(cr, layout)
+        cr.stroke()
 
     def on_draw(self, widget, cr):
         self.draw_static_base(cr)
