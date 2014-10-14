@@ -1,6 +1,6 @@
 # -*- python -*-
 
-# Port to python of gtkgauge widget from Asctec Ground Statio (ROS GCS).
+# Port to python of gtkgauge widget from Asctec Ground Station (ROS GCS).
 #
 # Original author: Gautier Dumonteil <gautier.dumonteil@gmail.com>
 # Copyright (C) 2010, CCNY Robotics Lab
@@ -291,6 +291,49 @@ class GtkGauge(Gtk.DrawingArea):
         self.sub_step /= 10
         self.initial_step /= 10
 
+        # draw numbers
+        def draw_number(i, val, ixk, iyk, xk, yk, fk):
+            cr.set_source_rgb(1, 1, 1)
+            cr.select_font_face('Sans', cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_NORMAL)
+            cr.set_font_size(fk * radius)
+
+            step_count = float(self.end_value - self.start_value) / self.drawing_step
+            angle = -5 * math.pi / 4 + i * ((5 * math.pi / 4) / step_count)
+
+            inset_x = ixk * radius
+            inset_y = iyk * radius if iyk is not None else inset_x
+
+            cr.move_to(x - xk * radius + (radius - inset_x) * math.cos(angle),
+                       y + yk * radius + (radius - inset_y) * math.sin(angle))
+            cr.show_text(str(val))
+            cr.stroke()
+
+        for i in range(0, ((self.end_value - self.start_value) / self.drawing_step) + 1):
+            cr.save()
+            val = i * self.drawing_step + self.start_value
+            if 10 > val:
+                draw_number(i, val, 0.3, None, 0.05, 0.045, 0.15)
+            elif 100 > val >= 10:
+                draw_number(i, val, 0.33, None, 0.08, 0.04, 0.15)
+            elif 1000 > val >= 100:
+                draw_number(i, val, 0.36, 0.34, 0.14, 0.03, 0.14)
+            elif 10000 > val >= 1000:
+                draw_number(i, val, 0.4, 0.32, 0.18, 0.04, 0.14)
+            else:
+                log.error("draw number: value too big")
+
+            cr.restore()
+
+        self._x = x
+        self._y = y
+        self._radius = radius
+
+        # TODO: draw name
+        # at:
+        #   x: x - 0.2 * radius
+        #   y: y + 0.35 * radius
+        #   width: 1.0 * radius
+        #   height: 0.4 * radius
 
     def on_draw(self, widget, cr):
         self.draw_static_base(cr)
