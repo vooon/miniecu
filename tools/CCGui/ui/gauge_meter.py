@@ -424,9 +424,48 @@ class GtkGauge(Gtk.DrawingArea):
         PangoCairo.show_layout(cr, layout)
         cr.stroke()
 
+    def darw_dynamic_hand(self, cr):
+        x = self._x
+        y = self._y
+        radius = self._radius
+        value = int(self._value * 1000)
+
+        # central circle
+        cr.save()
+        cr.set_source_rgb(0, 0, 0)
+        cr.arc(x, y, radius - 0.9 * radius, 0, 2 * math.pi)
+        cr.fill_preserve()
+        cr.stroke()
+        cr.set_source_rgb(0.2, 0.2, 0.2)
+        cr.arc(x, y, radius - 0.9 * radius, 0, 2 * math.pi)
+        cr.stroke()
+        cr.restore()
+
+        # gauge hand
+        cr.save()
+        cr.set_source_rgb(1, 1, 1)
+        cr.set_line_width(0.02 * radius)
+        cr.move_to(x, y)
+
+        if value * (5 * math.pi / 4) / ((self.end_value - self.start_value) * 1000) \
+                <= 5 * math.pi / 4:
+            angle = (-5 * math.pi / 4) + value * (5 * math.pi / 4) / \
+                ((self.end_value - self.start_value) * 1000)
+            cr.line_to(x + (radius - 0.2 * radius) * math.cos(angle),
+                       y + (radius - 0.2 * radius) * math.sin(angle))
+            cr.move_to(x, y)
+            cr.line_to(x - (radius - 0.9 * radius) * math.cos(angle),
+                       y - (radius - 0.9 * radius) * math.sin(angle))
+        else:
+            log.warn("Value out of range")
+
+        cr.stroke()
+        cr.restore()
+
     def on_draw(self, widget, cr):
         self.draw_static_base(cr)
         self.draw_static_screws(cr)
+        self.darw_dynamic_hand(cr)
 
     def set_value(self, value):
         log.debug("set_value: %s", value)
