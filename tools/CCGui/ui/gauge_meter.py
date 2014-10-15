@@ -57,27 +57,22 @@ class GtkGauge(Gtk.DrawingArea):
         self._y = 0
         self._radius = 0
         self._value = 0
+        self._static_surface = None
 
-        self.static_surface = None
-        self.dynamic_surface = None
-
-        self.connect('draw', self.on_draw)
-        log.debug("GtkGauge constructed")
+        log.debug("%s: constructed", self)
 
     def draw_static_once(self):
-        if self.static_surface is not None:
+        if self._static_surface is not None:
             return
 
-        x = 0
-        y = 0
-        w = 100
-        h = 100
+        rect = self.get_allocation()
 
-        log.debug("draw_static_once: x: %s, y: %s, w: %s, h: %s", x, y, w, h)
+        log.debug("%s: draw_static_once: x: %s, y: %s, w: %s, h: %s",
+                  self, rect.x, rect.y, rect.width, rect.height)
 
-        self.static_surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
-        cr_static = cairo.Context(self.static_surface)
-        cr_static.rectangle(x, y, w, h)
+        self._static_surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, rect.width, rect.height)
+        cr_static = cairo.Context(self._static_surface)
+        cr_static.rectangle(0, 0, rect.width, rect.height)
         cr_static.clip()
 
         self.draw_static_base(cr_static)
@@ -88,13 +83,13 @@ class GtkGauge(Gtk.DrawingArea):
                                     x - 0.477 * radius, y - 0.967 * radius, 0.836 * radius)
 
     def draw_static_base(self, cr):
-        log.debug("draw_static_base")
+        log.debug("%s: draw_static_base", self)
 
         # calculations from gtk_gauge_draw_base
         al = self.get_allocation()
         x = al.width / 2
         y = al.height / 2
-        radius = min(x, y) - 5
+        radius = min(x, y) #- 5
 
         rec_x0 = x - radius
         rec_y0 = y - radius
@@ -321,7 +316,7 @@ class GtkGauge(Gtk.DrawingArea):
             elif 10000 > val >= 1000:
                 draw_number(i, val, 0.4, 0.32, 0.18, 0.04, 0.14)
             else:
-                log.error("draw number: value too big")
+                log.error("%s: draw number: value too big", self)
 
             cr.restore()
 
@@ -337,7 +332,7 @@ class GtkGauge(Gtk.DrawingArea):
         self.draw_static_name(cr, rect)
 
     def draw_static_screws(self, cr):
-        log.debug("draw_static_screws")
+        log.debug("%s: draw_static_screws", self)
 
         x = self._x
         y = self._y
@@ -392,7 +387,7 @@ class GtkGauge(Gtk.DrawingArea):
         draw_screw(+1, +1)    # bottom right
 
     def draw_static_name(self, cr, rect):
-        log.debug("draw_static_name")
+        log.debug("%s: draw_static_name", self)
         layout = PangoCairo.create_layout(cr)
         layout.set_markup(self.name)
         layout.set_alignment(Pango.Alignment.CENTER)
@@ -408,14 +403,14 @@ class GtkGauge(Gtk.DrawingArea):
         while width > rect.width or height > rect.height:
             font_size -= 1
             if font_size <= 1:
-                log.error("name area too small")
+                log.error("%s: name area too small", self)
                 return
 
             desc.set_size(font_size * Pango.SCALE)
             layout.set_font_description(desc)
             width, height = layout.get_pixel_size()
 
-        log.debug("name font size: %s", font_size)
+        log.debug("%s: name font size: %s", self, font_size)
         x_pos = rect.x + (rect.width - width) / 2
         y_pos = rect.y + (rect.height - height) / 2
 
@@ -425,6 +420,7 @@ class GtkGauge(Gtk.DrawingArea):
         cr.stroke()
 
     def darw_dynamic_hand(self, cr):
+        log.debug("%s: draw_dynamic_hand", self)
         x = self._x
         y = self._y
         radius = self._radius
@@ -457,18 +453,38 @@ class GtkGauge(Gtk.DrawingArea):
             cr.line_to(x - (radius - 0.9 * radius) * math.cos(angle),
                        y - (radius - 0.9 * radius) * math.sin(angle))
         else:
-            log.warn("Value out of range")
+            log.warn("%s: Value out of range", self)
 
         cr.stroke()
         cr.restore()
 
-    def on_draw(self, widget, cr):
-        self.draw_static_base(cr)
-        self.draw_static_screws(cr)
-        self.darw_dynamic_hand(cr)
+    def do_draw(self, cr):
+        self.draw_static_once()
+
+        w, h = self._static_surface.get_width(), self._static_surface.get_height()
+
+        self._dynamic_surface = cairo.Surface.create_similar(self._static_surface, cairo.CONTENT_COLOR_ALPHA, w, h)
+        cr_dyn = cairo.Context(self._dynamic_surface)
+        cr_dyn.rectangle(0, 0, w, h)
+        cr_dyn.clip()
+
+        self.darw_dynamic_hand(cr_dyn)
+
+        cr.set_source_surface(self._static_surface, 0, 0)
+        cr.paint()
+        cr.set_source_surface(self._dynamic_surface, 0, 0)
+        cr.paint()
+        return False
+
+    def do_configure_event(self, event):
+        log.debug("%s: do_configure_event", self)
+        # invalidate old static surface
+        self._static_surface = None
 
     def set_value(self, value):
-        log.debug("set_value: %s", value)
+        log.debug("%s: set_value: %s", self, value)
+        self._value = value
+        self.queue_draw()
 
 
 if __name__ == '__main__':
@@ -483,6 +499,7 @@ if __name__ == '__main__':
     win.connect('delete-event', Gtk.main_quit)
 
     gauge_yor = GtkGauge()
+    gauge_yor.name = 'YOR type'
     gauge_yor.strip_color_order = 'YOR'
     gauge_yor.yellow_strip_start = 0
     gauge_yor.orange_strip_start = 50
@@ -490,6 +507,7 @@ if __name__ == '__main__':
     vbox.pack_start(gauge_yor, True, True, 0)
 
     gauge_gyr = GtkGauge()
+    gauge_gyr.name = 'GYR type'
     gauge_gyr.strip_color_order = 'GYR'
     gauge_gyr.green_strip_start = 0
     gauge_gyr.yellow_strip_start = 50
@@ -497,6 +515,7 @@ if __name__ == '__main__':
     vbox.pack_start(gauge_gyr, True, True, 0)
 
     gauge_roy = GtkGauge()
+    gauge_roy.name = 'ROY type'
     gauge_roy.strip_color_order = 'ROY'
     gauge_roy.red_strip_start = 0
     gauge_roy.orange_strip_start = 25
@@ -504,11 +523,25 @@ if __name__ == '__main__':
     vbox.pack_start(gauge_roy, True, True, 0)
 
     gauge_ryg = GtkGauge()
+    gauge_ryg.name = 'RYG type'
     gauge_ryg.strip_color_order = 'RYG'
     gauge_ryg.red_strip_start = 0
     gauge_ryg.yellow_strip_start = 25
     gauge_ryg.green_strip_start = 50
     vbox.pack_start(gauge_ryg, True, True, 0)
+
+    def update():
+        import random
+
+        r1 = random.random() * 100
+
+        gauge_yor.set_value(r1)
+        gauge_gyr.set_value(r1)
+        gauge_roy.set_value(r1)
+        gauge_ryg.set_value(r1)
+        return True
+
+    GObject.timeout_add(1000, update)
 
     win.show_all()
     Gtk.main()
