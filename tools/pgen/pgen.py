@@ -41,6 +41,11 @@ class ParameterTable(object):
                      if v._accept_enum and v.enum is not None))
 
     @property
+    def parameters_with_values(self):
+        return dict(((k, v) for k, v in self.parameters.iteritems()
+                     if v._accept_values and v.values is not None))
+
+    @property
     def parameters_with_onchange(self):
         return dict(((k, v) for k, v in self.parameters.iteritems()
                      if v.onchange is not None))

@@ -69,7 +69,7 @@ static void adc_handle_temperature(void)
 {
 	float ntc_r;
 
-	if (gp_temp_r == TEMP_R_R1)
+	if (gp_temp_r == TEMP_R__R1)
 		ntc_r = ntc_get_R1(m_temp_volt, TEMP_AVCC, TEMP_NTC_R);
 	else
 		ntc_r = ntc_get_R2(m_temp_volt, TEMP_AVCC, TEMP_NTC_R);

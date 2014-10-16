@@ -48,7 +48,7 @@ static void oilp_handle_ntc10k(void)
 {
 	float ntc_r;
 
-	if (gp_oilp_r == OILP_R_R1)
+	if (gp_oilp_r == OILP_R__R1)
 		ntc_r = ntc_get_R1(m_oilp_volt, OILP_AVCC, OILP_NTC_R);
 	else
 		ntc_r = ntc_get_R2(m_oilp_volt, OILP_AVCC, OILP_NTC_R);

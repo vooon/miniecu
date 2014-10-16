@@ -18,9 +18,23 @@
 <%def name="enum_definition(param_id, var_def)">\
 enum ${param_id.lower()} {
 % for k, v in sorted(var_def.enum.iteritems()):
-	${param_id.upper()}_${k} = ${v}${comma(loop)}
+	${param_id.upper()}__${k} = ${v}${comma(loop)}
 % endfor
 }\
+</%def>
+
+<%def name="value_decorate(v)">\
+% if isinstance(v, basestring):
+"${v}"\
+% else:
+${v}\
+% endif
+</%def>
+
+<%def name="values_definition(param_id, var_def)">\
+% for v in sorted(var_def.values):
+#define ${param_id.upper()}__${str(v).replace(' ', '_')}		${value_decorate(v)}
+% endfor
 </%def>
 
 /** Enums
@@ -29,6 +43,18 @@ enum ${param_id.lower()} {
 % for k, v in sorted(param_table.parameters_with_enum.iteritems()):
 //! Enum for param: ${k}
 ${enum_definition(k, v)};
+%     if not loop.last:
+
+%     endif
+% endfor
+/** @} */
+
+/** Values
+ * @{
+ */
+% for k, v in sorted(param_table.parameters_with_values.iteritems()):
+//! Values for param: ${k}
+${values_definition(k, v)}\
 %     if not loop.last:
 
 %     endif
