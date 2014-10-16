@@ -36,67 +36,22 @@ int32_t gp_rpm_min_idle;
 
 /* -*- private data -*- */
 
+#define UPDATE_TO	MS2ST(2000)
 #define PERIODS_MAX	10
 static uint32_t m_periods[PERIODS_MAX];
 static size_t m_period_idx;
 static size_t m_period_cnt;
-static bool m_is_overflow;
 static float m_curr_rpm;
+static systime_t m_last_update;
+static THD_WORKING_AREA(wa_rpm, RPM_WASZ);
 
-static thread_t *thdp_rpm = NULL;
-#define EVT_TIMEOUT	MS2ST(1000)
-#define RPM_EVMASK	EVENT_MASK(1)
-#define RPM_TO_EVMASK	EVENT_MASK(2)
-
-
-static void rpm_period_cb(ICUDriver *icup)
-{
-	if (m_period_idx >= PERIODS_MAX)
-		m_period_idx = 0;
-
-	if (m_period_cnt < PERIODS_MAX)
-		m_period_cnt++;
-
-	m_is_overflow = false;
-	m_periods[m_period_idx++] = icuGetPeriodX(icup);
-
-	if (thdp_rpm != NULL) {
-		chSysLockFromISR();
-		chEvtSignalI(thdp_rpm, RPM_EVMASK);
-		chSysUnlockFromISR();
-	}
-}
-
-static void rpm_overflow_cb(ICUDriver *icup ATTR_UNUSED)
-{
-	/* if overflow: clear filter */
-	m_is_overflow = true;
-	m_period_idx = 0;
-	m_period_cnt = 0;
-
-	if (thdp_rpm != NULL) {
-		chSysLockFromISR();
-		chEvtSignalI(thdp_rpm, RPM_TO_EVMASK);
-		chSysUnlockFromISR();
-	}
-}
-
-static uint32_t rpm_get_average(void)
-{
-	uint64_t accu = 0;
-
-	for (size_t i = 0; i < m_period_cnt; i++)
-		accu += m_periods[i];
-
-	return accu / m_period_cnt;
-}
 
 static const ICUConfig tim2_cfg = {
 	.mode = ICU_INPUT_ACTIVE_LOW,
 	.frequency = 1000000,		// 1 MHz
 	.width_cb = NULL,
-	.period_cb = rpm_period_cb,
-	.overflow_cb = rpm_overflow_cb,
+	.period_cb = NULL,
+	.overflow_cb = NULL,
 	.channel = ICU_CHANNEL_1,
 	.dier = 0
 };
@@ -113,20 +68,39 @@ bool rpm_check_limit(void)
 	return m_curr_rpm > gp_rpm_limit;
 }
 
-bool rpm_check_engine_running(void)
+bool rpm_is_engine_running(void)
 {
-	return m_curr_rpm > gp_rpm_min_idle;
+	return chVTTimeElapsedSinceX(m_last_update) < UPDATE_TO
+		&& m_curr_rpm > gp_rpm_min_idle;
 }
 
-THD_FUNCTION(th_rpm, arg ATTR_UNUSED)
-{
-	/* set listening thread */
-	thdp_rpm = chThdGetSelfX();
+/* -*- local -*- */
 
+static uint32_t rpm_update_average(uint32_t period)
+{
+	uint64_t accu = 0;
+
+	// 1. put new period to window
+	if (m_period_idx >= PERIODS_MAX)
+		m_period_idx = 0;
+
+	if (m_period_cnt < PERIODS_MAX)
+		m_period_cnt++;
+
+	m_periods[m_period_idx] = period;
+
+	// 2. calculate average
+	for (size_t i = 0; i < m_period_cnt; i++)
+		accu += m_periods[i];
+
+	return accu / m_period_cnt;
+}
+
+static THD_FUNCTION(th_rpm, arg ATTR_UNUSED)
+{
 	/* clear filter data */
 	m_period_idx = 0;
 	m_period_cnt = 0;
-	memset(m_periods, 0, sizeof(m_periods));
 
 	/* Start input capture
 	 *
@@ -134,21 +108,27 @@ THD_FUNCTION(th_rpm, arg ATTR_UNUSED)
 	 * by setting ARR to 0xffff.
 	 */
 	icuStart(&ICUD2, &tim2_cfg);
-	//ICUD2.tim->ARR = 0xffffffff;
-	ICUD2.tim->ARR = 2000000; // 2 sec overflow
-	icuEnableNotifications(&ICUD2); // XXX: try new polled API
+	ICUD2.tim->ARR = 2000000;	// 2 sec overflow
+	icuStartCapture(&ICUD2);
 
+	alert_component(ALS_RPM, AL_NORMAL);
 	while (true) {
-		eventmask_t mask = chEvtWaitAnyTimeout(ALL_EVENTS, EVT_TIMEOUT);
+		/* I don't find what it does if timer overflows
+		 * but i think it's not a problem for now.
+		 */
+		icuWaitCapture(&ICUD2);
 
-		if (mask & (RPM_EVMASK | RPM_TO_EVMASK)) {
-			uint32_t period = rpm_get_average();
+		m_last_update = osalOsGetSystemTimeX();
+		uint32_t period = rpm_update_average(icuGetPeriodX(&ICUD2));
 
-			if (period > 100) /* 100 usec RPM over 90000 */
-				m_curr_rpm = 1e6 / period * 60.0f * gp_pulses_per_revolution;
-			else
-				m_curr_rpm = 0.0f;
-		}
+		if (period > 100)	/* 100 usec => RPM over 90000, unrealistic */
+			m_curr_rpm = 1e6 / period * 60.0f * gp_pulses_per_revolution;
+		else
+			m_curr_rpm = 0.0f;
 	}
 }
 
+void rpm_init(void)
+{
+	chThdCreateStatic(wa_rpm, sizeof(wa_rpm), RPM_PRIO, th_rpm, NULL);
+}

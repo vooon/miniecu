@@ -293,7 +293,7 @@ static void send_status(PBStxComm *self)
 	if (time_is_known())		flags |= miniecu_Status_Flags_TIME_KNOWN;
 	if (ctl_ignition_state())	flags |= miniecu_Status_Flags_IGNITION_ENABLED;
 	if (ctl_starter_state())	flags |= miniecu_Status_Flags_STARTER_ENABLED;
-	if (rpm_check_engine_running())	flags |= miniecu_Status_Flags_ENGINE_RUNNING;
+	if (rpm_is_engine_running())	flags |= miniecu_Status_Flags_ENGINE_RUNNING;
 
 	if (alert_check_error())	flags |= miniecu_Status_Flags_ERROR;
 	if (batt_check_voltage())	flags |= miniecu_Status_Flags_UNDERVOLTAGE;

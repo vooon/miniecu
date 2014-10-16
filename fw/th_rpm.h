@@ -25,12 +25,9 @@
 
 #include "fw_common.h"
 
-THD_FUNCTION(th_rpm, arg ATTR_UNUSED);
-
-/* subsystem functions */
-
+void rpm_init(void);
 uint32_t rpm_get_filtered(void);
 bool rpm_check_limit(void);
-bool rpm_check_engine_running(void);
+bool rpm_is_engine_running(void);
 
 #endif /* TH_ADC_H */

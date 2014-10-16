@@ -70,19 +70,19 @@ int main(void) {
 	flash_init();
 	param_init();
 
-	// XXX temp init, while modules disabled
-	alert_component(ALS_ADC, AL_NORMAL);
-	//alert_component(ALS_RPM, AL_NORMAL);
-
-	// force change RTC mode to normal if ignore required
-	if (gp_rtc_init_ignore_alert_led)
-		alert_component(ALS_RTC, AL_NORMAL);
-
 	// TODO: check serial1 protocol selector
 	pbstxCreate(&SERIAL1_SD, PBSTX_WASZ, PBSTX_PRIO);
 
 	// start logging after pbstx, so we can hear errors
 	log_init();
+	rpm_init();
+
+	// XXX temp init, while modules disabled
+	alert_component(ALS_ADC, AL_NORMAL);
+
+	// force change RTC mode to normal if ignore required
+	if (gp_rtc_init_ignore_alert_led)
+		alert_component(ALS_RTC, AL_NORMAL);
 
 	vcom_connect();
 	chThdSetPriority(LOWPRIO);
