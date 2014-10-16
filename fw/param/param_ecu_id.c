@@ -21,6 +21,7 @@
  */
 
 #include "param.h"
+#include <string.h>
 
 /* special variables for host system (for identifying ECU) */
 char gp_engine_name[PT_STRING_SIZE];
