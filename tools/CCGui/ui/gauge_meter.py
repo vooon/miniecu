@@ -33,6 +33,7 @@ class GtkGauge(Gtk.DrawingArea):
     initial_step = GObject.property(type=int, default=10)
     sub_step = GObject.property(type=float, default=2.0)
     drawing_step = GObject.property(type=int, default=10)
+    smooth_interval = GObject.property(type=int, default=0)
 
     # drawing props
     # grayscale_color = GObject.property(type=bool, default=False)
@@ -56,8 +57,17 @@ class GtkGauge(Gtk.DrawingArea):
         self._x = 0
         self._y = 0
         self._radius = 0
-        self._value = 0
+        self._value = 0.0
         self._static_surface = None
+        # smooth change hand position
+        self._target_value = 0.0
+        self._smooth_evid = None
+
+        for p in ('name', 'start-value', 'end-value', 'initial-step', 'sub-step',
+                  'drawing-step', 'smooth-interval', 'strip-color-order',
+                  'green-strip-start', 'yellow-strip-start', 'orange-strip-start',
+                  'red-strip-start'):
+            self.connect("notify::" + p, self.on_notify_props)
 
     def make_reflection_pattern(self, x, y, radius):
         return cairo.RadialGradient(x - 0.392 * radius, y - 0.967 * radius, 0.167 * radius,
@@ -68,7 +78,7 @@ class GtkGauge(Gtk.DrawingArea):
         al = self.get_allocation()
         x = al.width / 2
         y = al.height / 2
-        radius = min(x, y) #- 5
+        radius = min(x, y)  # - 5
 
         rec_x0 = x - radius
         rec_y0 = y - radius
@@ -476,13 +486,52 @@ class GtkGauge(Gtk.DrawingArea):
         cr.paint()
         return False
 
-    def do_configure_event(self, event):
+    def do_configure_event(self, event=None):
         # invalidate old static surface
         self._static_surface = None
 
-    def set_value(self, value):
+    def on_notify_props(self, obj=None, gparamstring=None):
+        log.debug("%s: property change: %s", self, gparamstring)
+        self.do_configure_event()
+        self._stop_smooth()
+        if self.smooth_interval > 0:
+            self._start_smooth()
+        self.queue_draw()
+
+    def smooth_update(self):
+        if self._value == self._target_value:
+            return True
+
+        # TODO: need to find out how to calculate this constant
+        if abs(self._value - self._target_value) > 0.1:
+            value = (self._value * 3 + self._target_value) / 4
+        else:
+            value = self._target_value
+
+        self._set_value(value)
+        return True
+
+    def _start_smooth(self):
+        if self._smooth_evid is None:
+            self._smooth_evid = GObject.timeout_add(self.smooth_interval, self.smooth_update)
+
+    def _stop_smooth(self):
+        if self._smooth_evid is not None:
+            GObject.source_remove(self._smooth_evid)
+            self._smooth_evid = None
+
+    def _set_value(self, value):
         self._value = value
         self.queue_draw()
+
+    def set_value(self, value):
+        if self.smooth_interval > 0:
+            self._start_smooth()
+            self._target_value = value
+        else:
+            self._stop_smooth()
+            self._target_value = value
+            self._set_value(value)
 
 
 if __name__ == '__main__':
@@ -510,6 +559,7 @@ if __name__ == '__main__':
     gauge_gyr.green_strip_start = 0
     gauge_gyr.yellow_strip_start = 50
     gauge_gyr.red_strip_start = 75
+    gauge_gyr.smooth_interval = 50
     vbox.pack_start(gauge_gyr, True, True, 0)
 
     gauge_roy = GtkGauge()
@@ -518,6 +568,7 @@ if __name__ == '__main__':
     gauge_roy.red_strip_start = 0
     gauge_roy.orange_strip_start = 25
     gauge_roy.yellow_strip_start = 50
+    gauge_roy.smooth_interval = 100
     vbox.pack_start(gauge_roy, True, True, 0)
 
     gauge_ryg = GtkGauge()
@@ -526,12 +577,14 @@ if __name__ == '__main__':
     gauge_ryg.red_strip_start = 0
     gauge_ryg.yellow_strip_start = 25
     gauge_ryg.green_strip_start = 50
+    gauge_ryg.smooth_interval = 250
     vbox.pack_start(gauge_ryg, True, True, 0)
 
     def update():
         import random
 
         r1 = random.random() * 100
+        log.debug("set_value: %s", r1)
 
         gauge_yor.set_value(r1)
         gauge_gyr.set_value(r1)
