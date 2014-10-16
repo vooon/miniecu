@@ -77,6 +77,10 @@ class GtkGauge(Gtk.DrawingArea):
 
         self.draw_static_base(cr_static)
         self.draw_static_screws(cr_static)
+        self.draw_static_color_strip(cr_static)
+        self.draw_static_marks(cr_static)
+        self.draw_static_numbers(cr_static)
+        self.draw_static_name(cr_static)
 
     def make_reflection_pattern(self, x, y, radius):
         return cairo.RadialGradient(x - 0.392 * radius, y - 0.967 * radius, 0.167 * radius,
@@ -149,6 +153,15 @@ class GtkGauge(Gtk.DrawingArea):
         cr.set_source(pat)
         cr.fill_preserve()
         cr.stroke()
+
+        self._x = x
+        self._y = y
+        self._radius = radius
+
+    def draw_static_color_strip(self, cr):
+        x = self._x
+        y = self._y
+        radius = self._radius
 
         # clolor strips
         self._alpha = 0.0
@@ -248,17 +261,19 @@ class GtkGauge(Gtk.DrawingArea):
             draw_strip(i)
             cr.restore()
 
-        # draw marks
-        # in original code these values x10 before marks
-        self.end_value *= 10
-        self.start_value *= 10
-        self.sub_step *= 10
-        self.initial_step *= 10
+    def draw_static_marks(self, cr):
+        end_value = self.end_value * 10
+        start_value = self.start_value * 10
+        sub_step = self.sub_step * 10
+        initial_step = self.initial_step * 10
+        x = self._x
+        y = self._y
+        radius = self._radius
 
-        step_count = (self.end_value - self.start_value) / self.sub_step
+        step_count = (end_value - start_value) / sub_step
         for i in range(0, int(step_count) + 1):
             cr.save()
-            if (i * int(self.sub_step)) % self.initial_step == 0:
+            if (i * int(sub_step)) % initial_step == 0:
                 cr.set_source_rgb(1, 1, 1)
                 cr.set_line_width(0.015 * radius)
                 inset = 0.18 * radius
@@ -281,13 +296,11 @@ class GtkGauge(Gtk.DrawingArea):
         cr.line_to(x + radius * math.cos(0),
                    y + radius * math.sin(0))
 
-        # restore settings
-        self.end_value /= 10
-        self.start_value /= 10
-        self.sub_step /= 10
-        self.initial_step /= 10
+    def draw_static_numbers(self, cr):
+        x = self._x
+        y = self._y
+        radius = self._radius
 
-        # draw numbers
         def draw_number(i, val, ixk, iyk, xk, yk, fk):
             cr.set_source_rgb(1, 1, 1)
             cr.select_font_face('Sans', cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_NORMAL)
@@ -319,17 +332,6 @@ class GtkGauge(Gtk.DrawingArea):
                 log.error("%s: draw number: value too big", self)
 
             cr.restore()
-
-        self._x = x
-        self._y = y
-        self._radius = radius
-
-        rect = Gdk.Rectangle()
-        rect.x = x - 0.2 * radius
-        rect.y = y + 0.35 * radius
-        rect.width = 1.0 * radius
-        rect.height = 0.4 * radius
-        self.draw_static_name(cr, rect)
 
     def draw_static_screws(self, cr):
         log.debug("%s: draw_static_screws", self)
@@ -386,8 +388,15 @@ class GtkGauge(Gtk.DrawingArea):
         draw_screw(-1, +1)   # bottom left
         draw_screw(+1, +1)    # bottom right
 
-    def draw_static_name(self, cr, rect):
+    def draw_static_name(self, cr):
         log.debug("%s: draw_static_name", self)
+
+        rect = Gdk.Rectangle()
+        rect.x = self._x - 0.2 * self._radius
+        rect.y = self._y + 0.35 * self._radius
+        rect.width = 1.0 * self._radius
+        rect.height = 0.4 * self._radius
+
         layout = PangoCairo.create_layout(cr)
         layout.set_markup(self.name)
         layout.set_alignment(Pango.Alignment.CENTER)
@@ -463,8 +472,8 @@ class GtkGauge(Gtk.DrawingArea):
 
         w, h = self._static_surface.get_width(), self._static_surface.get_height()
 
-        self._dynamic_surface = cairo.Surface.create_similar(self._static_surface, cairo.CONTENT_COLOR_ALPHA, w, h)
-        cr_dyn = cairo.Context(self._dynamic_surface)
+        dynamic_surface = cairo.Surface.create_similar(self._static_surface, cairo.CONTENT_COLOR_ALPHA, w, h)
+        cr_dyn = cairo.Context(dynamic_surface)
         cr_dyn.rectangle(0, 0, w, h)
         cr_dyn.clip()
 
@@ -472,7 +481,7 @@ class GtkGauge(Gtk.DrawingArea):
 
         cr.set_source_surface(self._static_surface, 0, 0)
         cr.paint()
-        cr.set_source_surface(self._dynamic_surface, 0, 0)
+        cr.set_source_surface(dynamic_surface, 0, 0)
         cr.paint()
         return False
 
