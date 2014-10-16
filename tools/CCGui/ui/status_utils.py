@@ -1,5 +1,7 @@
 # -*- python -*-
 
+from comm import msgs
+
 
 def pb_to_kv_pairs(pb, prefix=()):
     for desc, val in pb.ListFields():
@@ -11,7 +13,25 @@ def pb_to_kv_pairs(pb, prefix=()):
 
 
 def _status(val):
-    return 'TODO %s' % val
+    flags = []
+
+    for flag, name in (
+        (msgs.Status.ARMED, 'ARMED'),
+        (msgs.Status.TIME_KNOWN, 'TIME'),
+        (msgs.Status.IGNITION_ENABLED, 'IGNITION'),
+        (msgs.Status.STARTER_ENABLED, 'STARTER'),
+        (msgs.Status.ENGINE_RUNNING, 'RUNNING'),
+
+        (msgs.Status.ERROR, 'ERROR'),
+        (msgs.Status.UNDERVOLTAGE, 'UNDERVOLTAGE'),
+        (msgs.Status.OVERHEAT, 'OVERHEAT'),
+        (msgs.Status.LOW_FUEL, 'LOW-FUEL'),
+        (msgs.Status.HIGH_RPM, 'HIGH-RPM'),
+    ):
+        if val & flag:
+            flags.append(name)
+
+    return '{}: {}'.format(val, '|'.join(flags))
 
 
 STATUS_STRINGIFYER = {

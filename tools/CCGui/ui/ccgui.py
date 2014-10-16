@@ -34,18 +34,18 @@ class CCGuiApplication(object):
         self.rpm_gauge.red_strip_start = 8
         self.rpm_gauge.smooth_interval = 50
 
-        self.term_gauge = GtkGauge()
-        self.term_gauge.name = 'Temp\n<span foreground="orange"><i>°C</i></span>'
-        self.term_gauge.start_value = 0
-        self.term_gauge.end_value = 130
-        self.term_gauge.initial_step = 10
-        self.term_gauge.sub_step = 2.0
-        self.term_gauge.drawing_step = 20
-        self.term_gauge.strip_color_order = 'GYR'
-        self.term_gauge.green_strip_start = 0
-        self.term_gauge.yellow_strip_start = 100
-        self.term_gauge.red_strip_start = 110
-        self.term_gauge.smooth_interval = 50
+        self.temp_gauge = GtkGauge()
+        self.temp_gauge.name = 'Temp\n<span foreground="orange"><i>°C</i></span>'
+        self.temp_gauge.start_value = 0
+        self.temp_gauge.end_value = 130
+        self.temp_gauge.initial_step = 10
+        self.temp_gauge.sub_step = 2.0
+        self.temp_gauge.drawing_step = 20
+        self.temp_gauge.strip_color_order = 'GYR'
+        self.temp_gauge.green_strip_start = 0
+        self.temp_gauge.yellow_strip_start = 100
+        self.temp_gauge.red_strip_start = 110
+        self.temp_gauge.smooth_interval = 50
 
         self.batt_gauge = GtkGauge()
         self.batt_gauge.name = 'Battery\n<span foreground="orange"><i>V</i></span>'
@@ -62,7 +62,7 @@ class CCGuiApplication(object):
 
         gbox = builder.get_object('gauge_box')
         gbox.pack_start(self.rpm_gauge, True, True, 0)
-        gbox.pack_start(self.term_gauge, True, True, 0)
+        gbox.pack_start(self.temp_gauge, True, True, 0)
         gbox.pack_start(self.batt_gauge, True, True, 0)
 
         # Status message tree view
@@ -158,6 +158,10 @@ class CCGuiApplication(object):
         # logging.debug(str(status))
         logging.debug("status timestamp_ms: %s", status.timestamp_ms)
 
+        self.update_rpm_value(status.rpm)
+        self.update_temp_value(status.temperature.engine)
+        self.update_batt_value(status.battery.voltage)
+
         def update_field(filed, val):
             s_val = status_str(filed, val)
             for it in self.status_store:
@@ -171,6 +175,21 @@ class CCGuiApplication(object):
             logging.debug("f: %s = %s: %s", filed, str(val), status_str(filed, val))
             update_field(filed, val)
             # TODO: remove old fileds (but simple .clear() does SIGFAULT)
+
+    def update_rpm_value(self, val):
+        # RPM gauge is 1/1000 of val
+        val /= 1000.0
+        self.rpm_gauge.set_value(val)
+
+    def update_temp_value(self, val):
+        # TEMP gauge in C, val in mC
+        val = val / 1000.0
+        self.temp_gauge.set_value(val)
+
+    def update_batt_value(self, val):
+        # BATT gauge in V, val in mV
+        val = val / 1000.0
+        self.batt_gauge.set_value(val)
 
     def update_statustext(self, **kvargs):
         ctx_id = self.status_bar.get_context_id("ECU")
