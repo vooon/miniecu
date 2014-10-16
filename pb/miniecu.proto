@@ -20,9 +20,9 @@ message BatteryStatus {
 
 message TemperatureStatus {
 	// Engine temperature [mC°]
-	required int32 engine = 1;
+	required int32 engine1 = 1;
 	// Second temperature sensor (OILP mode: NTC10k)
-	optional int32 oilp = 2;
+	optional int32 engine2 = 2;
 }
 
 message FuelFlowStatus {

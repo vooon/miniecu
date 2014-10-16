@@ -311,8 +311,8 @@ static void send_status(PBStxComm *self)
 	status.battery.has_remaining = batt_get_remaining(&status.battery.remaining);
 
 	/* temperature */
-	status.temperature.engine = temp_get_temperature();
-	status.temperature.has_oilp = oilp_get_temperature(&status.temperature.oilp);
+	status.temperature.engine1 = temp_get_temperature();
+	status.temperature.has_engine2 = oilp_get_temperature(&status.temperature.engine2);
 
 	/* CPU status */
 	//status.cpu.load = 0; /* TODO */
