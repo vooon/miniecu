@@ -9,7 +9,8 @@ import threading
 from miniecu import PBStx, ReceiveError, msgs
 from miniecu.utils import wrap_logger, wrap_msg, make_ParamSet, make_Command, \
     value_ParamType
-from models import ParamManager, StatusManager, StatusTextManager, CommandManger
+from models import ParamManager, StatusManager, StatusTextManager, CommandManger, \
+    TimeRefManager
 
 log = logging.getLogger(__name__)
 
@@ -25,6 +26,7 @@ class CommThread(threading.Thread):
             ('param_value', self.handle_param_value),
             ('command', self.handle_command),
             ('status_text', self.handle_status_text),
+            ('time_reference', self.hangle_time_reference),
         )
 
         self.engine_id = engine_id
@@ -70,6 +72,9 @@ class CommThread(threading.Thread):
     def handle_status_text(self, status_text):
         StatusTextManager().add_message(status_text)
 
+    def hangle_time_reference(self, time_ref):
+        TimeRefManager().handle_message(time_ref)
+
     def param_set(self, param_id, value):
         self.pbstx.send(make_ParamSet(self.engine_id, param_id, value))
 
@@ -82,3 +87,7 @@ class CommThread(threading.Thread):
 
     def command(self, operation):
         self.pbstx.send(make_Command(self.engine_id, operation))
+
+    def time_reference(self, timestamp_ms):
+        self.pbstx.send(wrap_msg(msgs.TimeReference(engine_id=self.engine_id,
+                                                    timestamp_ms=timestamp_ms)))

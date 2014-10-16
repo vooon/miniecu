@@ -11,7 +11,7 @@ from ui.gauge_meter import GtkGauge
 from ui.status_utils import pb_to_kv_pairs, status_str
 
 from models import CommManager, ParamManager, StatusManager, StatusTextManager, \
-    CommandManger
+    CommandManger, TimeRefManager
 from comm import msgs, CommThread
 
 
@@ -112,6 +112,8 @@ class CCGuiApplication(object):
             CommManager().clear()
             CommManager().register(CommThread(port, baudrate, engine_id, None, log_name))
             logging.info("DEV: %s: opened", port)
+            TimeRefManager().start()
+            ParamManager().retrieve_all()
         except serial.SerialException as ex:
             logging.error("DEV: %s: %s", port, repr(ex))
 
@@ -147,6 +149,9 @@ class CCGuiApplication(object):
                 self.param_rows[k] = row
                 self.param_listbox.add(row)
 
+        # TODO: recalculate gauge min/max and strip position by
+        # RPM_LIMIT, BATT_TYPE, BATT_CELLS, TEMP_OVERHEAT
+
         # remove old rows
         for k, row in self.param_rows.items():
             if not ParamManager().parameters.has_key(k):
@@ -172,7 +177,7 @@ class CCGuiApplication(object):
             self.status_store.append([filed, s_val])
 
         for filed, val in pb_to_kv_pairs(status):
-            logging.debug("f: %s = %s: %s", filed, str(val), status_str(filed, val))
+            # logging.debug("f: %s = %s: %s", filed, str(val), status_str(filed, val))
             update_field(filed, val)
             # TODO: remove old fileds (but simple .clear() does SIGFAULT)
 

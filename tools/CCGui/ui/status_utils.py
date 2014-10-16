@@ -1,5 +1,6 @@
 # -*- python -*-
 
+import time
 from comm import msgs
 
 
@@ -33,9 +34,17 @@ def _status(val):
 
     return '{}: {}'.format(val, '|'.join(flags))
 
+def _timestamp_ms(val):
+    val /= 1000.0
+    if val > 1234567890:
+        return '{}: {}'.format(val, time.ctime(val))
+    else:
+        return str(val)
+
 
 STATUS_STRINGIFYER = {
     'status': _status,
+    'timestamp_ms': _timestamp_ms,
 }
 
 
