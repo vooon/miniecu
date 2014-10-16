@@ -59,36 +59,11 @@ class GtkGauge(Gtk.DrawingArea):
         self._value = 0
         self._static_surface = None
 
-        log.debug("%s: constructed", self)
-
-    def draw_static_once(self):
-        if self._static_surface is not None:
-            return
-
-        rect = self.get_allocation()
-
-        log.debug("%s: draw_static_once: x: %s, y: %s, w: %s, h: %s",
-                  self, rect.x, rect.y, rect.width, rect.height)
-
-        self._static_surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, rect.width, rect.height)
-        cr_static = cairo.Context(self._static_surface)
-        cr_static.rectangle(0, 0, rect.width, rect.height)
-        cr_static.clip()
-
-        self.draw_static_base(cr_static)
-        self.draw_static_screws(cr_static)
-        self.draw_static_color_strip(cr_static)
-        self.draw_static_marks(cr_static)
-        self.draw_static_numbers(cr_static)
-        self.draw_static_name(cr_static)
-
     def make_reflection_pattern(self, x, y, radius):
         return cairo.RadialGradient(x - 0.392 * radius, y - 0.967 * radius, 0.167 * radius,
                                     x - 0.477 * radius, y - 0.967 * radius, 0.836 * radius)
 
     def draw_static_base(self, cr):
-        log.debug("%s: draw_static_base", self)
-
         # calculations from gtk_gauge_draw_base
         al = self.get_allocation()
         x = al.width / 2
@@ -334,8 +309,6 @@ class GtkGauge(Gtk.DrawingArea):
             cr.restore()
 
     def draw_static_screws(self, cr):
-        log.debug("%s: draw_static_screws", self)
-
         x = self._x
         y = self._y
         radius = self._radius
@@ -389,8 +362,6 @@ class GtkGauge(Gtk.DrawingArea):
         draw_screw(+1, +1)    # bottom right
 
     def draw_static_name(self, cr):
-        log.debug("%s: draw_static_name", self)
-
         rect = Gdk.Rectangle()
         rect.x = self._x - 0.2 * self._radius
         rect.y = self._y + 0.35 * self._radius
@@ -429,7 +400,6 @@ class GtkGauge(Gtk.DrawingArea):
         cr.stroke()
 
     def darw_dynamic_hand(self, cr):
-        log.debug("%s: draw_dynamic_hand", self)
         x = self._x
         y = self._y
         radius = self._radius
@@ -467,6 +437,27 @@ class GtkGauge(Gtk.DrawingArea):
         cr.stroke()
         cr.restore()
 
+    def draw_static_once(self):
+        if self._static_surface is not None:
+            return
+
+        rect = self.get_allocation()
+
+        log.debug("%s: draw_static_once: x: %s, y: %s, w: %s, h: %s",
+                  self, rect.x, rect.y, rect.width, rect.height)
+
+        self._static_surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, rect.width, rect.height)
+        cr_static = cairo.Context(self._static_surface)
+        cr_static.rectangle(0, 0, rect.width, rect.height)
+        cr_static.clip()
+
+        self.draw_static_base(cr_static)
+        self.draw_static_screws(cr_static)
+        self.draw_static_color_strip(cr_static)
+        self.draw_static_marks(cr_static)
+        self.draw_static_numbers(cr_static)
+        self.draw_static_name(cr_static)
+
     def do_draw(self, cr):
         self.draw_static_once()
 
@@ -486,12 +477,10 @@ class GtkGauge(Gtk.DrawingArea):
         return False
 
     def do_configure_event(self, event):
-        log.debug("%s: do_configure_event", self)
         # invalidate old static surface
         self._static_surface = None
 
     def set_value(self, value):
-        log.debug("%s: set_value: %s", self, value)
         self._value = value
         self.queue_draw()
 
