@@ -1,4 +1,5 @@
 # -*- python -*-
+# -*- coding: utf-8 -*-
 
 import serial
 import logging
@@ -6,6 +7,8 @@ from gi.repository import Gtk
 from ui.builder import get_builder
 from ui.conn_dlg import ConnDialog
 from ui.param_item import ParamBoxRow
+from ui.gauge_meter import GtkGauge
+from ui.status_utils import pb_to_kv_pairs, status_str
 
 from models import CommManager, ParamManager, StatusManager, StatusTextManager, \
     CommandManger
@@ -18,12 +21,69 @@ class CCGuiApplication(object):
         self.window = builder.get_object('ccgui_window')
         builder.connect_signals(self)
 
+        self.rpm_gauge = GtkGauge()
+        self.rpm_gauge.name = 'RPM\n<span foreground="orange"><i><small>x1000</small></i></span>'
+        self.rpm_gauge.start_value = 0
+        self.rpm_gauge.end_value = 10
+        self.rpm_gauge.initial_step = 1
+        self.rpm_gauge.sub_step = 0.2
+        self.rpm_gauge.drawing_step = 1
+        self.rpm_gauge.strip_color_order = 'GYR'
+        self.rpm_gauge.green_strip_start = 0
+        self.rpm_gauge.yellow_strip_start = 7
+        self.rpm_gauge.red_strip_start = 8
+        self.rpm_gauge.smooth_interval = 50
+
+        self.term_gauge = GtkGauge()
+        self.term_gauge.name = 'Temp\n<span foreground="orange"><i>°C</i></span>'
+        self.term_gauge.start_value = 0
+        self.term_gauge.end_value = 130
+        self.term_gauge.initial_step = 10
+        self.term_gauge.sub_step = 2.0
+        self.term_gauge.drawing_step = 20
+        self.term_gauge.strip_color_order = 'GYR'
+        self.term_gauge.green_strip_start = 0
+        self.term_gauge.yellow_strip_start = 100
+        self.term_gauge.red_strip_start = 110
+        self.term_gauge.smooth_interval = 50
+
+        self.batt_gauge = GtkGauge()
+        self.batt_gauge.name = 'Battery\n<span foreground="orange"><i>V</i></span>'
+        self.batt_gauge.start_value = 0
+        self.batt_gauge.end_value = 12
+        self.batt_gauge.initial_step = 1
+        self.batt_gauge.sub_step = 0.2
+        self.batt_gauge.drawing_step = 2
+        self.batt_gauge.strip_color_order = 'RYG'
+        self.batt_gauge.green_strip_start = 5
+        self.batt_gauge.yellow_strip_start = 4
+        self.batt_gauge.red_strip_start = 0
+        self.batt_gauge.smooth_interval = 50
+
+        gbox = builder.get_object('gauge_box')
+        gbox.pack_start(self.rpm_gauge, True, True, 0)
+        gbox.pack_start(self.term_gauge, True, True, 0)
+        gbox.pack_start(self.batt_gauge, True, True, 0)
+
+        # Status message tree view
+        self.status_treeview = builder.get_object('status_treeview')
+        self.status_store = Gtk.ListStore(str, str)
+        self.status_treeview.set_model(self.status_store)
+        renderer1 = Gtk.CellRendererText()
+        renderer2 = Gtk.CellRendererText()
+        column1 = Gtk.TreeViewColumn("Field", renderer1, text=0)
+        column2 = Gtk.TreeViewColumn("Value", renderer2, text=1)
+        self.status_treeview.append_column(column1)
+        self.status_treeview.append_column(column2)
+
         self.window.set_default_size(640, 480)
         self.window.show_all()
 
         # store ref to some widgets
         self.param_listbox = builder.get_object('param_listbox')
         self.status_bar = builder.get_object('status_bar')
+
+        # param widgets
         self.param_rows = {}
 
         # connect model signals
@@ -94,9 +154,23 @@ class CCGuiApplication(object):
                 del self.param_rows[k]
 
     def update_status(self, **kvargs):
-        s = str(StatusManager().last_message)
-        logging.debug(s)
-        # TODO: update TextView in application thread
+        status = StatusManager().last_message
+        # logging.debug(str(status))
+        logging.debug("status timestamp_ms: %s", status.timestamp_ms)
+
+        def update_field(filed, val):
+            s_val = status_str(filed, val)
+            for it in self.status_store:
+                if it[0] == filed:
+                    it[1] = s_val
+                    return
+
+            self.status_store.append([filed, s_val])
+
+        for filed, val in pb_to_kv_pairs(status):
+            logging.debug("f: %s = %s: %s", filed, str(val), status_str(filed, val))
+            update_field(filed, val)
+            # TODO: remove old fileds (but simple .clear() does SIGFAULT)
 
     def update_statustext(self, **kvargs):
         ctx_id = self.status_bar.get_context_id("ECU")
