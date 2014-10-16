@@ -5,6 +5,7 @@ from builder import get_builder
 import logging
 import serial
 import serial.tools.list_ports as list_ports
+from os import path
 
 log = logging.getLogger(__name__)
 
@@ -75,9 +76,9 @@ class ConnDialog(object):
             model = self.baudrate_combo.get_model()
             baudrate = model[it][0]
 
-
-        # TODO
-        log_file = None
+        log_file = self.log_file.get_filename()
+        if log_file:
+            log_file = 'sqlite:///' + path.abspath(log_file)
 
         engine_id = self.engine_id.get_value_as_int()
         log_name = self.log_name.get_text()
@@ -93,4 +94,3 @@ class ConnDialog(object):
     def on_ok_button_clicked(self, *args):
         log.debug("onOk")
         self.dialog.response(Gtk.ResponseType.OK)
-
