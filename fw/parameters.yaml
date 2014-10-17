@@ -141,6 +141,11 @@ parameters:
     min: 0
     max: 3000
     default: 800
+  RPM_SMOOTHING: !ptint32
+    desc: RPM Low-Pass filter smoothing coefficent
+    min: 0
+    max: 10000
+    default: 20
 
   FLOW_ENABLE: !ptbool
     desc: Enable FLOW sensor

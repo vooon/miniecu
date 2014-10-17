@@ -33,25 +33,26 @@
 int32_t gp_pulses_per_revolution;
 int32_t gp_rpm_limit;
 int32_t gp_rpm_min_idle;
+int32_t gp_rpm_smoothing;	// TODO: find best value and hardcode it.
 
 /* -*- private data -*- */
 
-#define UPDATE_TO	MS2ST(2000)
-#define PERIODS_MAX	10
-static uint32_t m_periods[PERIODS_MAX];
-static size_t m_period_idx;
-static size_t m_period_cnt;
+#define UPDATE_TIMEOUT	US2ST(2000000)
+
 static float m_curr_rpm;
+static uint32_t m_filtered_period_us;
 static systime_t m_last_update;
 static THD_WORKING_AREA(wa_rpm, RPM_WASZ);
 
+static void period_handler(ICUDriver *icup);
+static void empty_handler(ICUDriver *icup ATTR_UNUSED);
 
 static const ICUConfig tim2_cfg = {
 	.mode = ICU_INPUT_ACTIVE_LOW,
 	.frequency = 1000000,		// 1 MHz
 	.width_cb = NULL,
-	.period_cb = NULL,
-	.overflow_cb = NULL,
+	.period_cb = period_handler,
+	.overflow_cb = empty_handler,
 	.channel = ICU_CHANNEL_1,
 	.dier = 0
 };
@@ -70,38 +71,35 @@ bool rpm_check_limit(void)
 
 bool rpm_is_engine_running(void)
 {
-	return chVTTimeElapsedSinceX(m_last_update) < UPDATE_TO
+	return chVTTimeElapsedSinceX(m_last_update) < UPDATE_TIMEOUT
 		&& m_curr_rpm > gp_rpm_min_idle;
 }
 
 /* -*- local -*- */
 
-static uint32_t rpm_update_average(uint32_t period)
+static void period_handler(ICUDriver *icup)
 {
-	uint64_t accu = 0;
+	uint32_t new_period_us = icuGetPeriodX(&ICUD2);
 
-	// 1. put new period to window
-	if (m_period_idx >= PERIODS_MAX)
-		m_period_idx = 0;
+	/* Frame-Rate Independed Low-Pass Filter described here:
+	 * http://phrogz.net/js/framerate-independent-low-pass-filter.html
+	 */
 
-	if (m_period_cnt < PERIODS_MAX)
-		m_period_cnt++;
+	//uint32_t elapsed_time_us = ST2US(chVTTimeElapsedSinceX(m_last_update));
+	//if (gp_rpm_smoothing > 0)
+	//	m_filtered_period_us = elapsed_time_us * (new_period_us - m_filtered_period_us) / gp_rpm_smoothing;
+	//else
+		m_filtered_period_us = new_period_us;
 
-	m_periods[m_period_idx] = period;
+	m_last_update = osalOsGetSystemTimeX();
+}
 
-	// 2. calculate average
-	for (size_t i = 0; i < m_period_cnt; i++)
-		accu += m_periods[i];
-
-	return accu / m_period_cnt;
+static void empty_handler(ICUDriver *icup ATTR_UNUSED)
+{
 }
 
 static THD_FUNCTION(th_rpm, arg ATTR_UNUSED)
 {
-	/* clear filter data */
-	m_period_idx = 0;
-	m_period_cnt = 0;
-
 	/* Start input capture
 	 *
 	 * HACK: TIM2 32-bit timer, but driver uses it as 16-bit
@@ -109,22 +107,30 @@ static THD_FUNCTION(th_rpm, arg ATTR_UNUSED)
 	 */
 	icuStart(&ICUD2, &tim2_cfg);
 	ICUD2.tim->ARR = 2000000;	// 2 sec overflow
-	icuStartCapture(&ICUD2);
+	icuEnableNotifications(&ICUD2);
 
 	alert_component(ALS_RPM, AL_NORMAL);
 	while (true) {
-		/* I don't find what it does if timer overflows
-		 * but i think it's not a problem for now.
+		// Update rate: 10 Hz
+		chThdSleepMilliseconds(100);
+
+		//uint32_t period = m_filtered_period_us;
+		systime_t elapsed_time = chVTTimeElapsedSinceX(m_last_update);
+
+		/* Filter out unrealistic period (100 usec ==> RPM 9375.0 with 64 pulses)
+		 * Or if timed out.
 		 */
-		icuWaitCapture(&ICUD2);
+		//if (period > 100 && elapsed_time < UPDATE_TIMEOUT)
+		//	m_curr_rpm = 60.0f * 1e6 / (period * gp_pulses_per_revolution);
+		//else
+		//	m_curr_rpm = 0.0f;
 
-		m_last_update = osalOsGetSystemTimeX();
-		uint32_t period = rpm_update_average(icuGetPeriodX(&ICUD2));
-
-		if (period > 100)	/* 100 usec => RPM over 90000, unrealistic */
-			m_curr_rpm = 1e6 / period * 60.0f * gp_pulses_per_revolution;
+		if (elapsed_time < UPDATE_TIMEOUT)
+			m_curr_rpm = m_filtered_period_us;
 		else
-			m_curr_rpm = 0.0f;
+			m_curr_rpm = 1234.5;
+
+		debug_printf(DP_DEBUG, "icu: %d", m_filtered_period_us);
 	}
 }
 

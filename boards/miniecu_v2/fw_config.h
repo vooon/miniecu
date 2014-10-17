@@ -18,7 +18,7 @@
 #define LOG_WASZ	1024
 #define LED_WASZ	128
 #define ADC_WASZ	512
-#define RPM_WASZ	256
+#define RPM_WASZ	256*10
 #define PARAMLD_WASZ	2048
 
 #endif /* _FW_CONFIG_H_ */
