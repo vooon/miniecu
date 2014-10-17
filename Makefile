@@ -11,6 +11,9 @@ miniecu_v2:
 miniecu_v2_flash: miniecu_v2
 	dfu-util -v --alt=0 -s 0x08000000 -D ./build/miniecu_v2/miniecu_v2.bin
 
+miniecu_v2_oocd: miniecu_v2
+	openocd -f ./boards/miniecu_v2/openocd.cfg
+
 %: ./boards/%
 	make -C ./pb all python_msgs
 	make -C ./fw/param
