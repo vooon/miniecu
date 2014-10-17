@@ -164,7 +164,7 @@ class CCGuiApplication(object):
         logging.debug("status timestamp_ms: %s", status.timestamp_ms)
 
         self.update_rpm_value(status.rpm)
-        self.update_temp_value(status.temperature.engine)
+        self.update_temp_value(status.temperature.engine1)
         self.update_batt_value(status.battery.voltage)
 
         def update_field(filed, val):
