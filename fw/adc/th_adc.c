@@ -29,6 +29,13 @@
 # error "unsupported board"
 #endif
 
+/* Enables toggling pads in adc handlers:
+ * ADC1: PC13
+ * SDADC1: PA1
+ * SDADC3: PA2
+ */
+#define DEBUG_ADC_FREQ	TRUE
+
 /* -*- parameters -*- */
 // None
 
@@ -58,8 +65,6 @@ static LowPassFilter2p mf_flow_volt;
 // thread
 static THD_WORKING_AREA(wa_adc, ADC_WASZ);
 
-static systime_t period = 0;
-static systime_t last_evt = 0;
 
 /* -*- conversion functions -*- */
 
@@ -99,8 +104,9 @@ static void adc_int_temp_vrtc_cb(ADCDriver *adcp ATTR_UNUSED,
 	m_int_temp = lpf2pApply(&mf_int_temp, adc_to_int_temp(buffer[0]));
 	m_vrtc = lpf2pApply(&mf_vrtc, 2 * adc_to_voltage(buffer[1]));
 
-	//period = chVTTimeElapsedSinceX(last_evt);
-	//last_evt = osalOsGetSystemTimeX();
+#if DEBUG_ADC_FREQ
+	palTogglePad(GPIOC, GPIOC_XP2_PC13);
+#endif
 }
 
 static void adc_temp_oilp_vbat_cb(ADCDriver *adcp ATTR_UNUSED,
@@ -109,12 +115,20 @@ static void adc_temp_oilp_vbat_cb(ADCDriver *adcp ATTR_UNUSED,
 	m_vbat = lpf2pApply(&mf_vbat, 3 * sdadc_sez_to_voltage(buffer[0]));		// AIN4P
 	m_oilp_volt = lpf2pApply(&mf_oilp_volt, sdadc_sez_to_voltage(buffer[1]));	// AIN5P
 	m_temp_volt = lpf2pApply(&mf_temp_volt, sdadc_sez_to_voltage(buffer[2]));	// AIN6P
+
+#if DEBUG_ADC_FREQ
+	palTogglePad(GPIOA, GPIOA_XP2_PA1);
+#endif
 }
 
 static void adc_flow_cb(ADCDriver *adcp ATTR_UNUSED,
 		adcsample_t *buffer, size_t n ATTR_UNUSED)
 {
 	m_flow_volt = lpf2pApply(&mf_flow_volt, sdadc_sez_to_voltage(buffer[0]));	// AIN6P
+
+#if DEBUG_ADC_FREQ
+	palTogglePad(GPIOA, GPIOA_XP2_PA2);
+#endif
 }
 
 static void adc_error_cb(ADCDriver *adcd ATTR_UNUSED, adcerror_t err ATTR_UNUSED)
@@ -239,9 +253,22 @@ float adc_getll_int_temp(void)
 
 /* -*- module thread -*- */
 
+void adc_handle_battery(void);
+void adc_handle_temperature(void);
+void adc_handle_oilp(void);
+void adc_handle_flow(void);
+
+
 static THD_FUNCTION(th_adc, arg ATTR_UNUSED)
 {
 	chRegSetThreadName("adc");
+
+#if DEBUG_ADC_FREQ
+	debug_printf(DP_INFO, "ADC freq outputs enabled");
+	palSetPadMode(GPIOA, GPIOA_XP2_PA1, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOA, GPIOA_XP2_PA2, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOC, GPIOC_XP2_PC13, PAL_MODE_OUTPUT_PUSHPULL);
+#endif
 
 	/* Init low pass filters */
 	lpf2pObjectInit(&mf_int_temp);
@@ -275,8 +302,8 @@ static THD_FUNCTION(th_adc, arg ATTR_UNUSED)
 	adcSTM32EnableVBATE();		/* enable Vrtc bat, TODO: enable once in 10-sec */
 
 	/* SDADC1 */
-	//adcStart(&SDADCD1, &sdadc1cfg);
-	//adcSTM32Calibrate(&SDADCD1);
+	adcStart(&SDADCD1, &sdadc1cfg);
+	adcSTM32Calibrate(&SDADCD1);
 
 	/* SDADC3 */
 	//adcStart(&SDADCD3, &sdadc3cfg);
@@ -284,39 +311,17 @@ static THD_FUNCTION(th_adc, arg ATTR_UNUSED)
 
 	/* Start continous conversions */
 	adcStartConversion(&ADCD1, &adc1group, p_int_temp_vrtc_samples, 1);
-	//adcStartConversion(&SDADCD1, &sdadc1group, p_temp_oilp_vbat_samples, 1);
+	adcStartConversion(&SDADCD1, &sdadc1group, p_temp_oilp_vbat_samples, 1);
 	//adcStartConversion(&SDADCD3, &sdadc3group, p_flow_samples, 1);
 
 	alert_component(ALS_ADC, AL_NORMAL);
 	while (true) {
-		chThdSleepMilliseconds(1000);
+		chThdSleepMilliseconds(20);
 
-		//debug_printf(DP_DEBUG, "ADC1 period: %d us", ST2US(period));
-#if 0
-		eventmask_t mask = chEvtWaitAnyTimeout(ALL_EVENTS, EVT_TIMEOUT);
-
-		if (!(mask & (ADC1_EVMASK | SDADC1_EVMASK | SDADC3_EVMASK))) {
-			/* notify ADC timed out */
-			alert_component(ALS_ADC, AL_FAIL);
-		}
-		else {
-			/* notify ADC running */
-			alert_component(ALS_ADC, AL_NORMAL);
-		}
-
-		if (mask & ADC1_EVMASK) {
-			/* CPU temp don't emit events */
-			/* Vrtc currently not used */
-		}
-		if (mask & SDADC1_EVMASK) {
-			adc_handle_battery();
-			adc_handle_temperature();
-			adc_handle_oilp();
-		}
-		if (mask & SDADC3_EVMASK) {
-			adc_handle_flow();
-		}
-#endif
+		adc_handle_battery();
+		adc_handle_temperature();
+		adc_handle_oilp();
+		adc_handle_flow();
 	}
 }
 

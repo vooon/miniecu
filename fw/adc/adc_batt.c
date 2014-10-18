@@ -31,6 +31,15 @@ char gp_batt_type[PT_STRING_SIZE];
 float gp_batt_vd1_voltage_drop;
 
 
+/**
+ * Get corrected battery voltage.
+ * (VD1 voltage drop)
+ */
+static float get_vbat(void)
+{
+	return gp_batt_vd1_voltage_drop + adc_getll_vbat();
+}
+
 /* -*- battery types -*- */
 
 #define BATT_CELL_NiMH		1.0
@@ -45,7 +54,7 @@ float gp_batt_vd1_voltage_drop;
 
 static uint32_t batt_get_remaining_nimh(void)
 {
-	float cell_volt = adc_getll_vbat() / gp_batt_cells;
+	float cell_volt = get_vbat() / gp_batt_cells;
 
 	if (cell_volt > BATT_NiMH_MAXV)
 		return 100;
@@ -102,7 +111,7 @@ void on_change_batt_type(struct param_entry *p)
  */
 uint32_t batt_get_voltage(void)
 {
-	return adc_getll_vbat() * 1000;
+	return get_vbat() * 1000;
 }
 
 /**
@@ -111,7 +120,7 @@ uint32_t batt_get_voltage(void)
  */
 bool batt_check_voltage(void)
 {
-	return (m_batt_min_cell_volt * gp_batt_cells) > adc_getll_vbat();
+	return (m_batt_min_cell_volt * gp_batt_cells) > get_vbat();
 }
 
 /**
