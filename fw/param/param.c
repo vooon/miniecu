@@ -246,6 +246,5 @@ void param_init(void)
 	// Workaround: start temporary dynamic thread with large stack.
 	thread_t *paramld = chThdCreateFromHeap(NULL, PARAMLD_WASZ, PARAMLD_PRIO, th_param_load, NULL);
 	chThdWait(paramld);
-	chThdRelease(paramld);
 }
 
