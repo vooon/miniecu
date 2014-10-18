@@ -50,7 +50,7 @@ static void empty_handler(ICUDriver *icup ATTR_UNUSED);
 static const ICUConfig tim2_cfg = {
 	.mode = ICU_INPUT_ACTIVE_LOW,
 	.frequency = 1000000,		// 1 MHz
-	.width_cb = NULL,
+	.width_cb = empty_handler,
 	.period_cb = period_handler,
 	.overflow_cb = empty_handler,
 	.channel = ICU_CHANNEL_1,
@@ -79,16 +79,16 @@ bool rpm_is_engine_running(void)
 
 static void period_handler(ICUDriver *icup)
 {
-	uint32_t new_period_us = icuGetPeriodX(&ICUD2);
+	uint32_t new_period_us = icuGetPeriodX(icup);
 
 	/* Frame-Rate Independed Low-Pass Filter described here:
 	 * http://phrogz.net/js/framerate-independent-low-pass-filter.html
 	 */
 
-	//uint32_t elapsed_time_us = ST2US(chVTTimeElapsedSinceX(m_last_update));
-	//if (gp_rpm_smoothing > 0)
-	//	m_filtered_period_us = elapsed_time_us * (new_period_us - m_filtered_period_us) / gp_rpm_smoothing;
-	//else
+	uint32_t elapsed_time_us = ST2US(chVTTimeElapsedSinceX(m_last_update));
+	if (gp_rpm_smoothing > 0)
+		m_filtered_period_us = elapsed_time_us * (new_period_us - m_filtered_period_us) / gp_rpm_smoothing;
+	else
 		m_filtered_period_us = new_period_us;
 
 	m_last_update = osalOsGetSystemTimeX();
@@ -107,6 +107,7 @@ static THD_FUNCTION(th_rpm, arg ATTR_UNUSED)
 	 */
 	icuStart(&ICUD2, &tim2_cfg);
 	ICUD2.tim->ARR = 2000000;	// 2 sec overflow
+	icuStartCapture(&ICUD2);
 	icuEnableNotifications(&ICUD2);
 
 	alert_component(ALS_RPM, AL_NORMAL);
@@ -114,23 +115,16 @@ static THD_FUNCTION(th_rpm, arg ATTR_UNUSED)
 		// Update rate: 10 Hz
 		chThdSleepMilliseconds(100);
 
-		//uint32_t period = m_filtered_period_us;
+		uint32_t period = m_filtered_period_us;
 		systime_t elapsed_time = chVTTimeElapsedSinceX(m_last_update);
 
 		/* Filter out unrealistic period (100 usec ==> RPM 9375.0 with 64 pulses)
 		 * Or if timed out.
 		 */
-		//if (period > 100 && elapsed_time < UPDATE_TIMEOUT)
-		//	m_curr_rpm = 60.0f * 1e6 / (period * gp_pulses_per_revolution);
-		//else
-		//	m_curr_rpm = 0.0f;
-
-		if (elapsed_time < UPDATE_TIMEOUT)
-			m_curr_rpm = m_filtered_period_us;
+		if (period > 100 && elapsed_time < UPDATE_TIMEOUT)
+			m_curr_rpm = 60.0f * 1e6 / (period * gp_pulses_per_revolution);
 		else
-			m_curr_rpm = 1234.5;
-
-		debug_printf(DP_DEBUG, "icu: %d", m_filtered_period_us);
+			m_curr_rpm = 0.0f;
 	}
 }
 

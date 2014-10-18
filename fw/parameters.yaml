@@ -144,7 +144,7 @@ parameters:
   RPM_SMOOTHING: !ptint32
     desc: RPM Low-Pass filter smoothing coefficent
     min: 0
-    max: 10000
+    max: 10000000
     default: 20
 
   FLOW_ENABLE: !ptbool
