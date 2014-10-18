@@ -58,6 +58,9 @@ static LowPassFilter2p mf_flow_volt;
 // thread
 static THD_WORKING_AREA(wa_adc, ADC_WASZ);
 
+static systime_t period = 0;
+static systime_t last_evt = 0;
+
 /* -*- conversion functions -*- */
 
 #define ADC_VREF	3.3
@@ -95,6 +98,9 @@ static void adc_int_temp_vrtc_cb(ADCDriver *adcp ATTR_UNUSED,
 {
 	m_int_temp = lpf2pApply(&mf_int_temp, adc_to_int_temp(buffer[0]));
 	m_vrtc = lpf2pApply(&mf_vrtc, 2 * adc_to_voltage(buffer[1]));
+
+	//period = chVTTimeElapsedSinceX(last_evt);
+	//last_evt = osalOsGetSystemTimeX();
 }
 
 static void adc_temp_oilp_vbat_cb(ADCDriver *adcp ATTR_UNUSED,
@@ -237,7 +243,6 @@ static THD_FUNCTION(th_adc, arg ATTR_UNUSED)
 {
 	chRegSetThreadName("adc");
 
-#if 0
 	/* Init low pass filters */
 	lpf2pObjectInit(&mf_int_temp);
 	lpf2pObjectInit(&mf_vrtc);
@@ -246,16 +251,22 @@ static THD_FUNCTION(th_adc, arg ATTR_UNUSED)
 	lpf2pObjectInit(&mf_vbat);
 	lpf2pObjectInit(&mf_flow_volt);
 
+	/* XXX TODO: need to  check actual sample freq.
+	 * e.g. by calculation ADC1 should get ~30 kHz but measured by VT is only 2.4 Hz
+	 * (period = 429397 us)
+	 *
+	 * So for now i disable filter by setting cutoff_freq = 0
+	 */
+
 	/* SAR ADC1: 2 * 17.1 us (239P5) == 29239.766 Hz */
-	lpf2pSetCutoffFrequency(&mf_int_temp, 29240.0, 1.0);
-	lpf2pSetCutoffFrequency(&mf_vrtc, 0, 1.0);
+	lpf2pSetCutoffFrequency(&mf_int_temp, 29240.0, 0.0);
+	lpf2pSetCutoffFrequency(&mf_vrtc, 29240.0, 0.0);
 	/* SD ADC1: 3 * (1 / 16600) == 5533.(3) Hz */
-	lpf2pSetCutoffFrequency(&mf_temp_volt, 5533.4, 1.0);
-	lpf2pSetCutoffFrequency(&mf_oilp_volt, 5533.4, 1.0);
-	lpf2pSetCutoffFrequency(&mf_vbat, 5533.4, 1.0);
+	lpf2pSetCutoffFrequency(&mf_temp_volt, 5533.4, 0.0);
+	lpf2pSetCutoffFrequency(&mf_oilp_volt, 5533.4, 0.0);
+	lpf2pSetCutoffFrequency(&mf_vbat, 5533.4, 0.0);
 	/* SD ADC3: 16.6 ksample == 16600 Hz */
-	lpf2pSetCutoffFrequency(&mf_flow_volt, 16600.0, 100.0);
-#endif
+	lpf2pSetCutoffFrequency(&mf_flow_volt, 16600.0, 0.0);
 
 	/* ADC1 */
 	adcStart(&ADCD1, NULL);
@@ -278,7 +289,9 @@ static THD_FUNCTION(th_adc, arg ATTR_UNUSED)
 
 	alert_component(ALS_ADC, AL_NORMAL);
 	while (true) {
-		chThdSleepMilliseconds(200);
+		chThdSleepMilliseconds(1000);
+
+		//debug_printf(DP_DEBUG, "ADC1 period: %d us", ST2US(period));
 #if 0
 		eventmask_t mask = chEvtWaitAnyTimeout(ALL_EVENTS, EVT_TIMEOUT);
 
