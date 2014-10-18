@@ -306,13 +306,13 @@ static THD_FUNCTION(th_adc, arg ATTR_UNUSED)
 	adcSTM32Calibrate(&SDADCD1);
 
 	/* SDADC3 */
-	//adcStart(&SDADCD3, &sdadc3cfg);
-	//adcSTM32Calibrate(&SDADCD3);
+	adcStart(&SDADCD3, &sdadc3cfg);
+	adcSTM32Calibrate(&SDADCD3);
 
 	/* Start continous conversions */
 	adcStartConversion(&ADCD1, &adc1group, p_int_temp_vrtc_samples, 1);
 	adcStartConversion(&SDADCD1, &sdadc1group, p_temp_oilp_vbat_samples, 1);
-	//adcStartConversion(&SDADCD3, &sdadc3group, p_flow_samples, 1);
+	adcStartConversion(&SDADCD3, &sdadc3group, p_flow_samples, 1);
 
 	alert_component(ALS_ADC, AL_NORMAL);
 	while (true) {
