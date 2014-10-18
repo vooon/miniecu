@@ -33,7 +33,6 @@
 int32_t gp_pulses_per_revolution;
 int32_t gp_rpm_limit;
 int32_t gp_rpm_min_idle;
-int32_t gp_rpm_smoothing;	// TODO: find best value and hardcode it.
 
 /* -*- private data -*- */
 
@@ -81,15 +80,9 @@ static void period_handler(ICUDriver *icup)
 {
 	uint32_t new_period_us = icuGetPeriodX(icup);
 
-	/* Frame-Rate Independed Low-Pass Filter described here:
-	 * http://phrogz.net/js/framerate-independent-low-pass-filter.html
-	 */
+	m_filtered_period_us = new_period_us;
 
-	uint32_t elapsed_time_us = ST2US(chVTTimeElapsedSinceX(m_last_update));
-	if (gp_rpm_smoothing > 0)
-		m_filtered_period_us = elapsed_time_us * (new_period_us - m_filtered_period_us) / gp_rpm_smoothing;
-	else
-		m_filtered_period_us = new_period_us;
+	// XXX TODO: make filtering
 
 	m_last_update = osalOsGetSystemTimeX();
 }
