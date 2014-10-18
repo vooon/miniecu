@@ -20,12 +20,16 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/* NOTE: this file includes in th_adc.c ! */
+#include "th_adc.h"
+#include "param_table.h"
+#include <string.h>
+
 
 /* -*- parameters -*-  */
-
 int32_t gp_batt_cells;
 char gp_batt_type[PT_STRING_SIZE];
+float gp_batt_vd1_voltage_drop;
+
 
 /* -*- battery types -*- */
 
@@ -41,7 +45,7 @@ char gp_batt_type[PT_STRING_SIZE];
 
 static uint32_t batt_get_remaining_nimh(void)
 {
-	float cell_volt = m_vbat / gp_batt_cells;
+	float cell_volt = adc_getll_vbat() / gp_batt_cells;
 
 	if (cell_volt > BATT_NiMH_MAXV)
 		return 100;
@@ -58,38 +62,39 @@ static uint32_t (*m_batt_remaining_func)(void) = batt_get_remaining_nimh;
 
 /* -*- global -*- */
 
-void on_change_batt_type(struct param_entry *p ATTR_UNUSED)
+void on_change_batt_type(struct param_entry *p)
 {
-	if (strcasecmp(gp_batt_type, "NiMH") == 0) {
+#define BATT_TYPE_IS(type)	\
+	(strcasecmp(gp_batt_type, BATT_TYPE__ ## type) == 0)
+
+	m_batt_remaining_func = NULL;
+	if (BATT_TYPE_IS(NiMH)) {
 		m_batt_min_cell_volt = BATT_CELL_NiMH;
 		m_batt_remaining_func = batt_get_remaining_nimh;
 	}
-	else if (strcasecmp(gp_batt_type, "NiCd") == 0) {
+	else if (BATT_TYPE_IS(NiCd)) {
 		m_batt_min_cell_volt = BATT_CELL_NiCd;
 		m_batt_remaining_func = batt_get_remaining_nimh;
 	}
-	else if (strcasecmp(gp_batt_type, "LiIon") == 0) {
+	else if (BATT_TYPE_IS(LiIon)) {
 		m_batt_min_cell_volt = BATT_CELL_LiIon;
-		m_batt_remaining_func = NULL;
 	}
-	else if (strcasecmp(gp_batt_type, "LiPo") == 0) {
+	else if (BATT_TYPE_IS(LiPo)) {
 		m_batt_min_cell_volt = BATT_CELL_LiPo;
-		m_batt_remaining_func = NULL;
 	}
-	else if (strcasecmp(gp_batt_type, "LiFePo") == 0) {
+	else if (BATT_TYPE_IS(LiFePo)) {
 		m_batt_min_cell_volt = BATT_CELL_LiFePo;
-		m_batt_remaining_func = NULL;
 	}
-	else if (strcasecmp(gp_batt_type, "Pb") == 0) {
+	else if (BATT_TYPE_IS(Pb)) {
 		m_batt_min_cell_volt = BATT_CELL_Pb;
-		m_batt_remaining_func = NULL;
 	}
 	else {
 		m_batt_min_cell_volt = 0.0;
-		m_batt_remaining_func = NULL;
-		strcpy(gp_batt_type, "UNK");
-		debug_printf(DP_ERROR, "unknown battery type");
+		strcpy(gp_batt_type, p->default_value.s);
+		debug_printf(DP_ERROR, "BATT: unknown battery type");
 	}
+
+#undef BATT_TYPE_IS
 }
 
 /**
@@ -97,7 +102,7 @@ void on_change_batt_type(struct param_entry *p ATTR_UNUSED)
  */
 uint32_t batt_get_voltage(void)
 {
-	return m_vbat * 1000;
+	return adc_getll_vbat() * 1000;
 }
 
 /**
@@ -106,7 +111,7 @@ uint32_t batt_get_voltage(void)
  */
 bool batt_check_voltage(void)
 {
-	return (m_batt_min_cell_volt * gp_batt_cells) > m_vbat;
+	return (m_batt_min_cell_volt * gp_batt_cells) > adc_getll_vbat();
 }
 
 /**
@@ -124,7 +129,7 @@ bool batt_get_remaining(uint32_t *out)
 	return true;
 }
 
-static void adc_handle_battery(void)
+void adc_handle_battery(void)
 {
 	/* TODO: send event to Log */
 }

@@ -317,7 +317,8 @@ static void send_status(PBStxComm *self)
 	/* CPU status */
 	//status.cpu.load = 0; /* TODO */
 	status.cpu.has_temperature = true;
-	status.cpu.temperature = temp_get_int_temperature();
+	status.cpu.temperature = cpu_get_temperature();
+	status.cpu.has_rtc_vbat = cpu_get_rtc_voltage(&status.cpu.rtc_vbat);
 
 	/* Oil pressure */
 	//status.has_oil_pressure = oilp_get_pressure(&status.oil_pressure);

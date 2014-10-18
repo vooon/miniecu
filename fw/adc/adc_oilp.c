@@ -20,22 +20,21 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/* NOTE: this file includes in th_adc.c ! */
-
+#include "th_adc.h"
 #include "ntc.h"
-#include <math.h>
 #include "param_table.h"
+#include <math.h>
+#include <string.h>
 
 /* -*- parameters -*-  */
-
 char gp_oilp_mode[PT_STRING_SIZE];
 int32_t gp_oilp_r;
 float gp_oilp_sh_a;
 float gp_oilp_sh_b;
 float gp_oilp_sh_c;
 
-/* -*- module variables -*- */
 
+/* -*- module variables -*- */
 #define OILP_NTC_R	10e3
 #define OILP_AVCC	3.3
 
@@ -49,9 +48,9 @@ static void oilp_handle_ntc10k(void)
 	float ntc_r;
 
 	if (gp_oilp_r == OILP_R__R1)
-		ntc_r = ntc_get_R1(m_oilp_volt, OILP_AVCC, OILP_NTC_R);
+		ntc_r = ntc_get_R1(adc_getll_oilp(), OILP_AVCC, OILP_NTC_R);
 	else
-		ntc_r = ntc_get_R2(m_oilp_volt, OILP_AVCC, OILP_NTC_R);
+		ntc_r = ntc_get_R2(adc_getll_oilp(), OILP_AVCC, OILP_NTC_R);
 
 	m_oilp_temp = ntc_K_to_C(ntc_get_K(ntc_r, gp_oilp_sh_a, gp_oilp_sh_b, gp_oilp_sh_c));
 }
@@ -60,18 +59,23 @@ static void oilp_handle_ntc10k(void)
 
 void on_change_oilp_mode(struct param_entry *p)
 {
+#define OILP_MODE_IS(mode)	\
+	(strcasecmp(gp_oilp_mode, OILP_MODE__ ## mode) == 0)
+
 	m_oilp_temp = NAN;
-	if (strcasecmp(gp_oilp_mode, "Disabled") == 0) {
+	if (OILP_MODE_IS(Disabled)) {
 		m_oilp_handle_func = NULL;
 	}
-	else if (strcasecmp(gp_oilp_mode, "NTC10k") == 0) {
+	else if (OILP_MODE_IS(NTC10k)) {
 		m_oilp_handle_func = oilp_handle_ntc10k;
 	}
 	else {
 		m_oilp_handle_func = NULL;
 		strcpy(gp_oilp_mode, p->default_value.s);
-		debug_printf(DP_ERROR, "unknown oilp mode");
+		debug_printf(DP_ERROR, "OILP: unknown mode");
 	}
+
+#undef OILP_MODE_IS
 }
 
 /**
@@ -96,7 +100,7 @@ bool oilp_get_pressure(int32_t *out ATTR_UNUSED)
 	return false;
 }
 
-static void adc_handle_oilp(void)
+void adc_handle_oilp(void)
 {
 	if (m_oilp_handle_func != NULL)
 		m_oilp_handle_func();

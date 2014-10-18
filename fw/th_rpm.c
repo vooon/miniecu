@@ -113,6 +113,8 @@ static uint32_t get_period_average(void)
 
 static THD_FUNCTION(th_rpm, arg ATTR_UNUSED)
 {
+	chRegSetThreadName("rpm");
+
 	// setup initial values
 	m_periods_idx = 0;
 	m_periods_cnt = 0;

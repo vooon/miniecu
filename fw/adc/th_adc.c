@@ -23,33 +23,40 @@
 #include "alert_led.h"
 #include "th_adc.h"
 #include "param.h"
-#include <string.h>
+#include "lib/lowpassfilter2p.h"
 
 #ifndef BOARD_MINIECU_V2
 # error "unsupported board"
 #endif
 
 /* -*- parameters -*- */
-float gp_batt_vd1_voltage_drop;	// [V]
+// None
 
-/* -*- private vars -*- */
 
+/* -*- private data -*- */
+// ADC sample buffers
 static adcsample_t p_int_temp_vrtc_samples[2];
 static adcsample_t p_temp_oilp_vbat_samples[3];
 static adcsample_t p_flow_samples[1];
 
+// filtered values
 static float m_int_temp;	// [C°]
 static float m_vrtc;		// [V]
 static float m_temp_volt;	// [V] before conversion to temp
 static float m_oilp_volt;	// [V] raw voltage on OIL_P
-static float m_vbat;		// [V]
+static float m_vbat;		// [V] on ADC input (VD1 drop added later)
 static float m_flow_volt;	// [V] before conversion to FLOW
 
-static thread_t *thdp_adc = NULL;
-#define EVT_TIMEOUT	MS2ST(1000)
-#define ADC1_EVMASK	EVENT_MASK(1)
-#define SDADC1_EVMASK	EVENT_MASK(2)
-#define SDADC3_EVMASK	EVENT_MASK(3)
+// filters
+static LowPassFilter2p mf_int_temp;
+static LowPassFilter2p mf_vrtc;
+static LowPassFilter2p mf_temp_volt;
+static LowPassFilter2p mf_oilp_volt;
+static LowPassFilter2p mf_vbat;
+static LowPassFilter2p mf_flow_volt;
+
+// thread
+static THD_WORKING_AREA(wa_adc, ADC_WASZ);
 
 /* -*- conversion functions -*- */
 
@@ -81,53 +88,34 @@ static float sdadc_sez_to_voltage(adcsample_t adc)
 	return (((int16_t) adc) + 32767) * SDADC_VREF / (SDADC_GAIN * 65535);
 }
 
-/* -*- private functions -*- */
+/* -*- callback functions -*- */
 
 static void adc_int_temp_vrtc_cb(ADCDriver *adcp ATTR_UNUSED,
 		adcsample_t *buffer, size_t n ATTR_UNUSED)
 {
-	m_int_temp = adc_to_int_temp(buffer[0]);
-	m_vrtc = 2 * adc_to_voltage(buffer[1]);
-
-	/*if (thdp_adc != NULL) {
-		chSysLockFromIsr();
-		chEvtSignalI(thdp_adc, ADC1_EVMASK);
-		chSysUnlockFromIsr();
-	} not used */
+	m_int_temp = lpf2pApply(&mf_int_temp, adc_to_int_temp(buffer[0]));
+	m_vrtc = lpf2pApply(&mf_vrtc, 2 * adc_to_voltage(buffer[1]));
 }
 
 static void adc_temp_oilp_vbat_cb(ADCDriver *adcp ATTR_UNUSED,
 		adcsample_t *buffer, size_t n ATTR_UNUSED)
 {
-	// note: Vbat source after VD1, we add voltage drop
-	m_vbat = gp_batt_vd1_voltage_drop +
-		3 * sdadc_sez_to_voltage(buffer[0]);	// AIN4P
-	m_oilp_volt = sdadc_sez_to_voltage(buffer[1]);	// AIN5P
-	m_temp_volt = sdadc_sez_to_voltage(buffer[2]);	// AIN6P
-
-	if (thdp_adc != NULL) {
-		chSysLockFromISR();
-		chEvtSignalI(thdp_adc, SDADC1_EVMASK);
-		chSysUnlockFromISR();
-	}
+	m_vbat = lpf2pApply(&mf_vbat, 3 * sdadc_sez_to_voltage(buffer[0]));		// AIN4P
+	m_oilp_volt = lpf2pApply(&mf_oilp_volt, sdadc_sez_to_voltage(buffer[1]));	// AIN5P
+	m_temp_volt = lpf2pApply(&mf_temp_volt, sdadc_sez_to_voltage(buffer[2]));	// AIN6P
 }
 
 static void adc_flow_cb(ADCDriver *adcp ATTR_UNUSED,
 		adcsample_t *buffer, size_t n ATTR_UNUSED)
 {
-	m_flow_volt = sdadc_sez_to_voltage(buffer[0]);	// AIN6P
-
-	if (thdp_adc != NULL) {
-		chSysLockFromISR();
-		chEvtSignalI(thdp_adc, SDADC3_EVMASK);
-		chSysUnlockFromISR();
-	}
+	m_flow_volt = lpf2pApply(&mf_flow_volt, sdadc_sez_to_voltage(buffer[0]));	// AIN6P
 }
 
 static void adc_error_cb(ADCDriver *adcd ATTR_UNUSED, adcerror_t err ATTR_UNUSED)
 {
 	alert_component(ALS_ADC, AL_FAIL);
 }
+
 
 /* -*- configuration -*- */
 
@@ -163,7 +151,8 @@ static const ADCConfig sdadc1cfg = {
 	.confxr = {
 		SDADC_CONFR_GAIN_1X | SDADC_CONFR_SE_ZERO_VOLT | SDADC_CONFR_COMMON_VSSSD,
 		0,
-		0}
+		0
+	}
 };
 
 static const ADCConversionGroup sdadc1group = {
@@ -209,12 +198,7 @@ static const ADCConversionGroup sdadc3group = {
 	}
 };
 
-/* -*- module thread -*- */
-
-#include "adc_batt.c"
-#include "adc_therm.c"
-#include "adc_oilp.c"
-#include "adc_flow.c"
+/* -*- low-level getters -*- */
 
 float adc_getll_temp(void)
 {
@@ -241,31 +225,61 @@ float adc_getll_vrtc(void)
 	return m_vrtc;
 }
 
-THD_FUNCTION(th_adc, arg ATTR_UNUSED)
+float adc_getll_int_temp(void)
 {
-	/* set listening thread */
-	thdp_adc = chThdGetSelfX();
+	return m_int_temp;
+}
+
+
+/* -*- module thread -*- */
+
+static THD_FUNCTION(th_adc, arg ATTR_UNUSED)
+{
+	chRegSetThreadName("adc");
+
+#if 0
+	/* Init low pass filters */
+	lpf2pObjectInit(&mf_int_temp);
+	lpf2pObjectInit(&mf_vrtc);
+	lpf2pObjectInit(&mf_temp_volt);
+	lpf2pObjectInit(&mf_oilp_volt);
+	lpf2pObjectInit(&mf_vbat);
+	lpf2pObjectInit(&mf_flow_volt);
+
+	/* SAR ADC1: 2 * 17.1 us (239P5) == 29239.766 Hz */
+	lpf2pSetCutoffFrequency(&mf_int_temp, 29240.0, 1.0);
+	lpf2pSetCutoffFrequency(&mf_vrtc, 0, 1.0);
+	/* SD ADC1: 3 * (1 / 16600) == 5533.(3) Hz */
+	lpf2pSetCutoffFrequency(&mf_temp_volt, 5533.4, 1.0);
+	lpf2pSetCutoffFrequency(&mf_oilp_volt, 5533.4, 1.0);
+	lpf2pSetCutoffFrequency(&mf_vbat, 5533.4, 1.0);
+	/* SD ADC3: 16.6 ksample == 16600 Hz */
+	lpf2pSetCutoffFrequency(&mf_flow_volt, 16600.0, 100.0);
+#endif
 
 	/* ADC1 */
 	adcStart(&ADCD1, NULL);
 	adcSTM32Calibrate(&ADCD1);
-	adcSTM32EnableTSVREFE(); /* enable thermometer */
-	adcSTM32EnableVBATE(); /* enable Vrtc bat, TODO: enable once in 10-sec */
+	adcSTM32EnableTSVREFE();	/* enable thermometer */
+	adcSTM32EnableVBATE();		/* enable Vrtc bat, TODO: enable once in 10-sec */
 
 	/* SDADC1 */
-	adcStart(&SDADCD1, &sdadc1cfg);
-	adcSTM32Calibrate(&SDADCD1);
+	//adcStart(&SDADCD1, &sdadc1cfg);
+	//adcSTM32Calibrate(&SDADCD1);
 
 	/* SDADC3 */
-	adcStart(&SDADCD3, &sdadc3cfg);
-	adcSTM32Calibrate(&SDADCD3);
+	//adcStart(&SDADCD3, &sdadc3cfg);
+	//adcSTM32Calibrate(&SDADCD3);
 
 	/* Start continous conversions */
 	adcStartConversion(&ADCD1, &adc1group, p_int_temp_vrtc_samples, 1);
-	adcStartConversion(&SDADCD1, &sdadc1group, p_temp_oilp_vbat_samples, 1);
-	adcStartConversion(&SDADCD3, &sdadc3group, p_flow_samples, 1);
+	//adcStartConversion(&SDADCD1, &sdadc1group, p_temp_oilp_vbat_samples, 1);
+	//adcStartConversion(&SDADCD3, &sdadc3group, p_flow_samples, 1);
 
+	alert_component(ALS_ADC, AL_NORMAL);
 	while (true) {
+		chThdSleepMilliseconds(200);
+#if 0
 		eventmask_t mask = chEvtWaitAnyTimeout(ALL_EVENTS, EVT_TIMEOUT);
 
 		if (!(mask & (ADC1_EVMASK | SDADC1_EVMASK | SDADC3_EVMASK))) {
@@ -289,6 +303,11 @@ THD_FUNCTION(th_adc, arg ATTR_UNUSED)
 		if (mask & SDADC3_EVMASK) {
 			adc_handle_flow();
 		}
+#endif
 	}
 }
 
+void adc_init(void)
+{
+	chThdCreateStatic(wa_adc, sizeof(wa_adc), ADC_PRIO, th_adc, NULL);
+}

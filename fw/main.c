@@ -90,6 +90,7 @@ int main(void) {
 	// start logging after pbstx, so we can hear errors
 	log_init();
 	rpm_init();
+	adc_init();
 
 	// force change RTC mode to normal if ignore required
 	if (gp_rtc_init_ignore_alert_led)

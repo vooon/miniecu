@@ -20,23 +20,22 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/* NOTE: this file includes in th_adc.c ! */
-
+#include "th_adc.h"
+#include "param_table.h"
 #include <math.h>
 
 /* -*- parameters -*-  */
-
 bool gp_flow_enable;
-float gp_flow_v0;	// V
-float gp_flow_dia1;	// mm
-float gp_flow_dia2;	// mm
+float gp_flow_v0;		// V
+float gp_flow_dia1;		// mm
+float gp_flow_dia2;		// mm
 float gp_flow_cd;
-float gp_flow_ro;	// kg/m3
+float gp_flow_ro;		// kg/m3
 int32_t gp_flow_tank_ml;	// mL
 int32_t gp_flow_low_ml;		// mL
 
-/* -*- private variabled -*- */
 
+/* -*- private variabled -*- */
 static float m_C;
 static float m_A2;		// m2
 static double m_total_used_ml;
@@ -45,6 +44,7 @@ static float m_flow_mlsec;	// mL3/sec
 #define FLOW_MAXV	3.3	// V
 #define MP3V5004DP_MINP	0.0	// Pa
 #define MP3V5004DP_MAXP	3920.0	// Pa
+
 
 /* -*- global -*- */
 
@@ -103,7 +103,7 @@ bool flow_get_remaining(uint32_t *out)
 	return true;
 }
 
-static void adc_handle_flow(void)
+void adc_handle_flow(void)
 {
 	static bool is_inited = false;
 	if (!is_inited) {
@@ -114,13 +114,11 @@ static void adc_handle_flow(void)
 	if (!gp_flow_enable)
 		return;
 
-	/* TODO average filter */
-
 	/* Notes: equation for orifice plate from
 	 * http://en.wikipedia.org/wiki/Orifice_plate
 	 */
 
-	float dP = arduino_map(m_flow_volt, gp_flow_v0, FLOW_MAXV, MP3V5004DP_MINP, MP3V5004DP_MAXP);
+	float dP = arduino_map(adc_getll_flow(), gp_flow_v0, FLOW_MAXV, MP3V5004DP_MINP, MP3V5004DP_MAXP);
 	float Q = m_C * m_A2 * sqrtf(2.0 * dP / gp_flow_ro);
 
 	m_flow_mlsec = Q * 1e6;

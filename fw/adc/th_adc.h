@@ -25,7 +25,7 @@
 
 #include "fw_common.h"
 
-THD_FUNCTION(th_adc, arg ATTR_UNUSED);
+void adc_init(void);
 
 /* subsystem functions */
 
@@ -33,7 +33,9 @@ uint32_t batt_get_voltage(void);
 bool batt_check_voltage(void);
 bool batt_get_remaining(uint32_t *out);
 
-int32_t temp_get_int_temperature(void);
+int32_t cpu_get_temperature(void);
+bool cpu_get_rtc_voltage(uint32_t *out);
+
 int32_t temp_get_temperature(void);
 bool temp_check_temperature(void);
 
@@ -45,10 +47,12 @@ uint32_t flow_get_used_ml(void);
 bool flow_check_fuel(void);
 bool flow_get_remaining(uint32_t *out);
 
+// get filtered adc values
 float adc_getll_temp(void);
 float adc_getll_oilp(void);
 float adc_getll_flow(void);
 float adc_getll_vbat(void);
 float adc_getll_vrtc(void);
+float adc_getll_int_temp(void);
 
 #endif /* TH_ADC_H */

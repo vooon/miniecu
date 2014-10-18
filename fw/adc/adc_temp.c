@@ -20,33 +20,24 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/* NOTE: this file includes in th_adc.c ! */
-
+#include "th_adc.h"
 #include "ntc.h"
 #include "param_table.h"
 
 /* -*- parameters -*-  */
-
 int32_t gp_temp_r;
 float gp_temp_overheat;
 float gp_temp_sh_a;
 float gp_temp_sh_b;
 float gp_temp_sh_c;
 
-/* -*- module variables -*- */
 
+/* -*- module variables -*- */
 #define TEMP_NTC_R	10e3
 #define TEMP_AVCC	3.3
 
 static float m_temp;	// [C°]
 
-/**
- * Return CPU temp in [mC°]
- */
-int32_t temp_get_int_temperature(void)
-{
-	return m_int_temp * 1000;
-}
 
 /**
  * Return engine temp in [mC°]
@@ -62,17 +53,17 @@ int32_t temp_get_temperature(void)
  */
 bool temp_check_temperature(void)
 {
-	return m_temp > gp_temp_overheat || m_int_temp > 90.0;
+	return m_temp > gp_temp_overheat || adc_getll_int_temp() > 90.0;
 }
 
-static void adc_handle_temperature(void)
+void adc_handle_temperature(void)
 {
 	float ntc_r;
 
 	if (gp_temp_r == TEMP_R__R1)
-		ntc_r = ntc_get_R1(m_temp_volt, TEMP_AVCC, TEMP_NTC_R);
+		ntc_r = ntc_get_R1(adc_getll_temp(), TEMP_AVCC, TEMP_NTC_R);
 	else
-		ntc_r = ntc_get_R2(m_temp_volt, TEMP_AVCC, TEMP_NTC_R);
+		ntc_r = ntc_get_R2(adc_getll_temp(), TEMP_AVCC, TEMP_NTC_R);
 
 	m_temp = ntc_K_to_C(ntc_get_K(ntc_r, gp_temp_sh_a, gp_temp_sh_b, gp_temp_sh_c));
 
