@@ -107,10 +107,10 @@ class CCGuiApplication(object):
         CommManager().clear()
         logging.info("DEV: closed")
 
-    def create_comm(self, port, baudrate, engine_id, log_file, log_name):
+    def create_comm(self, port, baudrate, engine_id, log_db, log_name):
         try:
             CommManager().clear()
-            CommManager().register(CommThread(port, baudrate, engine_id, None, log_name))
+            CommManager().register(CommThread(port, baudrate, engine_id, log_db, log_name))
             logging.info("DEV: %s: opened", port)
             TimeRefManager().start()
             ParamManager().retrieve_all()
