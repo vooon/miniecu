@@ -151,6 +151,8 @@ static THD_FUNCTION(th_param_load, arg ATTR_UNUSED)
 {
 	if (flash_connect() == MSG_OK)
 		param_load();
+
+	return MSG_OK;
 }
 
 /* -*- global -*- */

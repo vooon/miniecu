@@ -26,10 +26,13 @@
 #include "hw/rtc_time.h"
 #include "hw/ext_flash.h"
 #include "hw/ectl_pads.h"
+#include "param_table.h"
+#include <string.h>
 
 
 /* -*- main parameters -*- */
 bool gp_rtc_init_ignore_alert_led;
+char gp_serial1_proto[PT_STRING_SIZE];
 
 
 /* -*- main module -*- */
@@ -46,6 +49,20 @@ void system_halt_hook(void)
 
 	/* indication */
 	led_halt_state();
+}
+
+/**
+ * @brief start serial1 communication thread
+ */
+static void serial1_comm_create(void)
+{
+#define SERIAL1_PROTO_IS(proto) \
+	(strcasecmp(gp_serial1_proto, SERIAL1_PROTO__ ## proto) == 0)
+
+	if (SERIAL1_PROTO_IS(PBStx))
+		pbstxCreate(&SERIAL1_SD, PBSTX_WASZ, PBSTX_PRIO);
+
+#undef SERIAL1_PROTO_IS
 }
 
 /*
@@ -69,16 +86,10 @@ int main(void) {
 	rtc_time_init();
 	flash_init();
 	param_init();
-
-	// TODO: check serial1 protocol selector
-	pbstxCreate(&SERIAL1_SD, PBSTX_WASZ, PBSTX_PRIO);
-
+	serial1_comm_create();
 	// start logging after pbstx, so we can hear errors
 	log_init();
 	rpm_init();
-
-	// XXX temp init, while modules disabled
-	alert_component(ALS_ADC, AL_NORMAL);
 
 	// force change RTC mode to normal if ignore required
 	if (gp_rtc_init_ignore_alert_led)

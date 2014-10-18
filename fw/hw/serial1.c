@@ -25,7 +25,6 @@
 
 /* global parameters */
 int32_t gp_serial1_baud;
-char gp_serial1_proto[PT_STRING_SIZE];
 
 
 static SerialConfig serial1_cfg = {
