@@ -3,6 +3,7 @@
 
 TARGETS = miniecu_v2
 SERIAL = /dev/ttyUSB0
+CHIBIOS_REV = 7418
 
 all: $(TARGETS)
 
@@ -14,10 +15,14 @@ miniecu_v2_flash: miniecu_v2
 miniecu_v2_oocd: miniecu_v2
 	openocd -f ./boards/miniecu_v2/openocd.cfg
 
-%: ./boards/%
+%: ./boards/% ext/chibios
+	( cd ./ext/chibios && svn up -r $(CHIBIOS_REV) )
 	make -C ./pb all python_msgs
 	make -C ./fw/param
 	make -C ./boards/$@
+
+ext/chibios:
+	svn co http://svn.code.sf.net/p/chibios/svn/trunk $@ -r $(CHIBIOS_REV)
 
 clean:
 	for target in $(TARGETS); do \
