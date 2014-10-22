@@ -16,10 +16,13 @@ miniecu_v2_oocd: miniecu_v2
 	openocd -f ./boards/miniecu_v2/openocd.cfg
 
 %: ./boards/% ext/chibios
-	( cd ./ext/chibios && svn up -r $(CHIBIOS_REV) )
 	make -C ./pb all python_msgs
 	make -C ./fw/param
 	make -C ./boards/$@
+
+sync:
+	( cd ./ext/chibios && svn up -r $(CHIBIOS_REV) )
+	git submodule update
 
 ext/chibios:
 	svn co http://svn.code.sf.net/p/chibios/svn/trunk $@ -r $(CHIBIOS_REV)
