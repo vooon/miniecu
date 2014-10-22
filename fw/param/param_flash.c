@@ -223,7 +223,7 @@ void param_load(void)
 		return;
 	}
 
-	debug_printf(DP_INFO, "parameters loaded #%i", gp_param_save_cnt);
+	debug_printf(DP_INFO, "parameters loaded #%" PRIi32, gp_param_save_cnt);
 }
 
 /** Save parameters to FLASHD1_config partition
@@ -261,6 +261,6 @@ void param_save(void)
 	if (!pb_ostream_finalize(&ostream))
 		return;
 
-	debug_printf(DP_INFO, "parameters saved #%i, %u bytes", gp_param_save_cnt, ostream.bytes_written);
+	debug_printf(DP_INFO, "parameters saved #%" PRIi32 ", %u bytes", gp_param_save_cnt, ostream.bytes_written);
 }
 

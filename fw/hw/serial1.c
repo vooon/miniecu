@@ -46,7 +46,7 @@ void on_change_serial1_baud(const struct param_entry *p ATTR_UNUSED)
 	case 230400:
 	case 460800:
 	case 921600:
-		debug_printf(DP_WARN, "serial1 baud change: %i", gp_serial1_baud);
+		debug_printf(DP_WARN, "serial1 baud change: %" PRIi32, gp_serial1_baud);
 		serial1_cfg.speed = gp_serial1_baud;
 		sdStart(&SERIAL1_SD, &serial1_cfg);
 		break;

@@ -42,6 +42,8 @@ static THD_FUNCTION(th_log, arg ATTR_UNUSED)
 		/* TODO */
 		chThdSleepMilliseconds(1000);
 	}
+
+	return MSG_OK;
 }
 
 

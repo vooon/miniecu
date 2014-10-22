@@ -323,6 +323,8 @@ static THD_FUNCTION(th_adc, arg ATTR_UNUSED)
 		adc_handle_oilp();
 		adc_handle_flow();
 	}
+
+	return MSG_OK;
 }
 
 void adc_init(void)

@@ -44,7 +44,7 @@ int32_t memdump_ext_flash(uint32_t address, void *buffer, size_t size)
 		uint32_t off = address % sizeof(rd_buff);
 		int32_t sz = sizeof(rd_buff) - off;
 
-		if (sz > size - size_ret)
+		if (sz > (signed)size - size_ret)
 			sz = size - size_ret;
 		if (blkRead(&FLASHD1, page, rd_buff, 1) != HAL_SUCCESS)
 			return -1;
