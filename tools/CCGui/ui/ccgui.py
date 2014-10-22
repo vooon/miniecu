@@ -136,6 +136,7 @@ class CCGuiApplication(object):
     def on_param_save_clicked(self, *args):
         logging.debug("onParamSave")
 
+        ParamManager().sync()
         CommandManger().save_config()
 
     def update_params(self, **kvargs):
