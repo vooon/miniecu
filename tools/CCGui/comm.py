@@ -30,7 +30,7 @@ class CommThread(threading.Thread):
         )
 
         self.engine_id = engine_id
-        self.pbstx = wrap_logger(PBStx(port, baud), log_db, log_name, "%s:%s" % (log_db, log_name))
+        self.pbstx = wrap_logger(PBStx(port, baud), log_db, log_name, "%s:%s" % (port, baud))
         self.start()
 
     def __del__(self):

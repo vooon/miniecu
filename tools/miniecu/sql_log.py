@@ -60,7 +60,7 @@ class LogData(Base):
 
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 import miniecu_pb2 as msgs
 
 
@@ -73,13 +73,14 @@ class Logger(object):
     This class creates log and then append data to it.
     """
     def __init__(self, conn_url):
-        self.engine = create_engine(conn_url)
-        self.Session = sessionmaker()
-        self.Session.configure(bind=self.engine)
+        self.engine = create_engine(conn_url, connect_args={'check_same_thread': False})
+        Session = sessionmaker()
+        Session.configure(bind=self.engine)
+        self.ScopedSession = scoped_session(Session)
         Base.metadata.create_all(self.engine)
 
     def update_pb_tags(self):
-        s = self.Session()
+        s = self.ScopedSession()
         s.query(PBTag).delete()
         for tag_id, message_type, field in \
                 ((k, v.message_type.full_name, v.full_name) for k, v in
@@ -91,9 +92,9 @@ class Logger(object):
     def start(self, name=None, source=None, start_date=None):
         self.update_pb_tags()   # XXX: possible loss of data in prev logs
         self.log = Log(name=name, source=source, start_date=start_date)
-        self.session = self.Session()
-        self.session.add(self.log)
-        self.session.commit()
+        s = self.ScopedSession()
+        s.add(self.log)
+        s.commit()
 
     def add_message(self, msg, direction, sys_date=None):
         if not isinstance(msg, msgs.Message):
@@ -116,17 +117,21 @@ class Logger(object):
             if hasattr(data, 'engine_id'):      engine_id = data.engine_id
             if hasattr(data, 'timestamp_ms'):   timestamp_ms = data.timestamp_ms
 
-        self.session.add(
-            LogData(log=self.log, sys_date=sys_date, direction=direction_,
+        s = self.ScopedSession()
+        s.add(
+            LogData(log_id=self.log.id, sys_date=sys_date, direction=direction_,
                     dev_time_ms=timestamp_ms, engine_id=engine_id,
                     pb_tag_id=pb_tag_id, pb_message=msg.SerializeToString()))
-        self.session.commit()
+        s.commit()
 
 
 class LoggingWrapper(object):
     def __init__(self, pbstx, logger):
         self.pbstx = pbstx
         self.logger = logger
+
+    def __getattr__(self, attr):
+        return getattr(self.pbstx, attr)
 
     def send(self, msg):
         self.pbstx.send(msg)
