@@ -60,7 +60,7 @@ void on_change_flow_params(struct param_entry *p ATTR_UNUSED)
 bool flow_get_flow(uint32_t *out)
 {
 	/* out in 0.1 mL/min */
-	*out = m_flow_mlsec * 600.0;
+	*out = m_flow_mlsec * 1000000.0;
 	return gp_flow_enable;
 }
 

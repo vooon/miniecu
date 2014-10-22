@@ -192,7 +192,7 @@ parameters:
   DEBUG_ADC_RAW: !ptbool
     desc: Enable sending Status.adc_raw data
     var: gp_debug_enable_adc_raw
-    dont_save: true
+    dont_save: false # XXX: for FLOW testing only
   DEBUG_MEMDUMP: !ptbool
     desc: Enable memdump subsystem (used for debugging)
     var: gp_debug_enable_memdump
