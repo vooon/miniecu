@@ -82,6 +82,8 @@ class CCGuiApplication(object):
         # store ref to some widgets
         self.param_listbox = builder.get_object('param_listbox')
         self.status_bar = builder.get_object('status_bar')
+        self.ignition_switch = builder.get_object('ignition_switch')
+        self.starter_switch = builder.get_object('starter_switch')
 
         # param widgets
         self.param_rows = {}
@@ -138,6 +140,22 @@ class CCGuiApplication(object):
 
         ParamManager().sync()
         CommandManger().save_config()
+
+    def on_ignition_switch_active_notify(self, switch, *args):
+        logging.debug("onIgnitionActivate")
+
+        if switch.get_active():
+            CommandManger().ignition_enable()
+        else:
+            CommandManger().ignition_disable()
+
+    def on_starter_switch_active_notify(self, switch, *args):
+        logging.debug("onStarterActivete")
+
+        if switch.get_active():
+            CommandManger().starter_enable()
+        else:
+            CommandManger().starter_disable()
 
     def update_params(self, **kvargs):
         """Param update slot"""

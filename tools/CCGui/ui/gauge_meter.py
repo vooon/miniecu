@@ -491,7 +491,7 @@ class GtkGauge(Gtk.DrawingArea):
         self._static_surface = None
 
     def on_notify_props(self, obj=None, gparamstring=None):
-        log.debug("%s: property change: %s", self, gparamstring)
+        # log.debug("%s: property change: %s", self, gparamstring)
         self.do_configure_event()
         self._stop_smooth()
         if self.smooth_interval > 0:

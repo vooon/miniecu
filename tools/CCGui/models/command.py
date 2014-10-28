@@ -52,3 +52,15 @@ class CommandManger(object):
 
     def save_config(self):
         return self.command(msgs.Command.SAVE_CONFIG)
+
+    def ignition_enable(self):
+        return self.command(msgs.Command.IGNITION_ENABLE)
+
+    def ignition_disable(self):
+        return self.command(msgs.Command.IGNITION_DISABLE)
+
+    def starter_enable(self):
+        return self.command(msgs.Command.STARTER_ENABLE)
+
+    def starter_disable(self):
+        return self.command(msgs.Command.STARTER_DISABLE)
