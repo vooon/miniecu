@@ -28,7 +28,7 @@
  */
 int32_t cpu_get_temperature(void)
 {
-	return adc_getll_int_temp() * 1000;
+	return adc_getflt_int_temp() * 1000;
 }
 
 /**
@@ -38,6 +38,6 @@ int32_t cpu_get_temperature(void)
  */
 bool cpu_get_rtc_voltage(uint32_t *out)
 {
-	*out = adc_getll_vrtc() * 1000;
+	*out = adc_getflt_vrtc() * 1000;
 	return *out > 1000;
 }

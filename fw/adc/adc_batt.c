@@ -37,7 +37,7 @@ float gp_batt_voltage_trimm;
  */
 static float get_vbat(void)
 {
-	return gp_batt_voltage_trimm + adc_getll_vbat();
+	return gp_batt_voltage_trimm + adc_getflt_vbat();
 }
 
 /* -*- battery types -*- */

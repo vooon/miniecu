@@ -118,7 +118,7 @@ void adc_handle_flow(void)
 	 * http://en.wikipedia.org/wiki/Orifice_plate
 	 */
 
-	float dP = arduino_map(adc_getll_flow(), gp_flow_v0, FLOW_MAXV, MP3V5004DP_MINP, MP3V5004DP_MAXP);
+	float dP = arduino_map(adc_getflt_flow(), gp_flow_v0, FLOW_MAXV, MP3V5004DP_MINP, MP3V5004DP_MAXP);
 	float Q = m_C * m_A2 * sqrtf(2.0 * dP / gp_flow_ro);
 
 	m_flow_mlsec = Q * 1e6;

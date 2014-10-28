@@ -48,9 +48,9 @@ static void oilp_handle_ntc10k(void)
 	float ntc_r;
 
 	if (gp_oilp_r == OILP_R__R1)
-		ntc_r = ntc_get_R1(adc_getll_oilp(), OILP_AVCC, OILP_NTC_R);
+		ntc_r = ntc_get_R1(adc_getflt_oilp(), OILP_AVCC, OILP_NTC_R);
 	else
-		ntc_r = ntc_get_R2(adc_getll_oilp(), OILP_AVCC, OILP_NTC_R);
+		ntc_r = ntc_get_R2(adc_getflt_oilp(), OILP_AVCC, OILP_NTC_R);
 
 	m_oilp_temp = ntc_K_to_C(ntc_get_K(ntc_r, gp_oilp_sh_a, gp_oilp_sh_b, gp_oilp_sh_c));
 }

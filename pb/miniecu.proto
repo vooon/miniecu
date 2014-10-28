@@ -52,11 +52,17 @@ message CPUStatus {
 
 // Debugging ADC (hw_v2)
 message ADCRawVoltages {
-	required float temp = 1;
-	required float oilp = 2;
-	required float flow = 3;
-	required float battv = 4;
-	required float rtc_batt = 5;
+	required float flt_temp = 1;
+	required float flt_oilp = 2;
+	required float flt_flow = 3;
+	required float flt_vbat = 4;
+	required float flt_vrtc = 5;
+
+	required float raw_temp = 11;
+	required float raw_oilp = 12;
+	required float raw_flow = 13;
+	required float raw_vbat = 14;
+	required float raw_vrtc = 15;
 }
 
 message Status {

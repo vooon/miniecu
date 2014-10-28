@@ -47,12 +47,20 @@ uint32_t flow_get_used_ml(void);
 bool flow_check_fuel(void);
 bool flow_get_remaining(uint32_t *out);
 
+// get raw adc values
+float adc_getraw_temp(void);
+float adc_getraw_oilp(void);
+float adc_getraw_flow(void);
+float adc_getraw_vbat(void);
+float adc_getraw_vrtc(void);
+float adc_getraw_int_temp(void);
+
 // get filtered adc values
-float adc_getll_temp(void);
-float adc_getll_oilp(void);
-float adc_getll_flow(void);
-float adc_getll_vbat(void);
-float adc_getll_vrtc(void);
-float adc_getll_int_temp(void);
+float adc_getflt_temp(void);
+float adc_getflt_oilp(void);
+float adc_getflt_flow(void);
+float adc_getflt_vbat(void);
+float adc_getflt_vrtc(void);
+float adc_getflt_int_temp(void);
 
 #endif /* TH_ADC_H */

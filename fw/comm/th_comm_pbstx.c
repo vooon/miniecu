@@ -337,11 +337,18 @@ static void send_status(PBStxComm *self)
 
 	if (gp_debug_enable_adc_raw) {
 		status.has_adc_raw = true;
-		status.adc_raw.temp = adc_getll_temp();
-		status.adc_raw.oilp = adc_getll_oilp();
-		status.adc_raw.flow = adc_getll_flow();
-		status.adc_raw.battv = adc_getll_vbat();
-		status.adc_raw.rtc_batt = adc_getll_vrtc();
+
+		status.adc_raw.flt_temp = adc_getflt_temp();
+		status.adc_raw.flt_oilp = adc_getflt_oilp();
+		status.adc_raw.flt_flow = adc_getflt_flow();
+		status.adc_raw.flt_vbat = adc_getflt_vbat();
+		status.adc_raw.flt_vrtc = adc_getflt_vrtc();
+
+		status.adc_raw.raw_temp = adc_getraw_temp();
+		status.adc_raw.raw_oilp = adc_getraw_oilp();
+		status.adc_raw.raw_flow = adc_getraw_flow();
+		status.adc_raw.raw_vbat = adc_getraw_vbat();
+		status.adc_raw.raw_vrtc = adc_getraw_vrtc();
 	}
 
 	/* TODO: Fill status */

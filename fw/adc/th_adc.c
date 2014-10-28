@@ -46,21 +46,29 @@ static adcsample_t p_int_temp_vrtc_samples[2];
 static adcsample_t p_temp_oilp_vbat_samples[3];
 static adcsample_t p_flow_samples[1];
 
+// raw values
+static float r_int_temp;	// [C°]
+static float r_vrtc;		// [V]
+static float r_temp_volt;	// [V] before conversion to temp
+static float r_oilp_volt;	// [V] raw voltage on OIL_P
+static float r_vbat;		// [V] on ADC input (VD1 drop added later)
+static float r_flow_volt;	// [V] before conversion to FLOW
+
 // filtered values
-static float m_int_temp;	// [C°]
-static float m_vrtc;		// [V]
-static float m_temp_volt;	// [V] before conversion to temp
-static float m_oilp_volt;	// [V] raw voltage on OIL_P
-static float m_vbat;		// [V] on ADC input (VD1 drop added later)
-static float m_flow_volt;	// [V] before conversion to FLOW
+static float f_int_temp;
+static float f_vrtc;
+static float f_temp_volt;
+static float f_oilp_volt;
+static float f_vbat;
+static float f_flow_volt;
 
 // filters
-static LowPassFilter2p mf_int_temp;
-static LowPassFilter2p mf_vrtc;
-static LowPassFilter2p mf_temp_volt;
-static LowPassFilter2p mf_oilp_volt;
-static LowPassFilter2p mf_vbat;
-static LowPassFilter2p mf_flow_volt;
+static LowPassFilter2p fo_int_temp;
+static LowPassFilter2p fo_vrtc;
+static LowPassFilter2p fo_temp_volt;
+static LowPassFilter2p fo_oilp_volt;
+static LowPassFilter2p fo_vbat;
+static LowPassFilter2p fo_flow_volt;
 
 // thread
 static THD_WORKING_AREA(wa_adc, ADC_WASZ);
@@ -101,8 +109,11 @@ static float sdadc_sez_to_voltage(adcsample_t adc)
 static void adc_int_temp_vrtc_cb(ADCDriver *adcp ATTR_UNUSED,
 		adcsample_t *buffer, size_t n ATTR_UNUSED)
 {
-	m_int_temp = lpf2pApply(&mf_int_temp, adc_to_int_temp(buffer[0]));
-	m_vrtc = lpf2pApply(&mf_vrtc, 2 * adc_to_voltage(buffer[1]));
+	r_int_temp = adc_to_int_temp(buffer[0]);
+	r_vrtc = 2 * adc_to_voltage(buffer[1]);
+
+	f_int_temp = lpf2pApply(&fo_int_temp, r_int_temp);
+	f_vrtc = lpf2pApply(&fo_vrtc, r_vrtc);
 
 #if DEBUG_ADC_FREQ
 	palTogglePad(GPIOC, GPIOC_XP2_PC13);
@@ -112,9 +123,13 @@ static void adc_int_temp_vrtc_cb(ADCDriver *adcp ATTR_UNUSED,
 static void adc_temp_oilp_vbat_cb(ADCDriver *adcp ATTR_UNUSED,
 		adcsample_t *buffer, size_t n ATTR_UNUSED)
 {
-	m_vbat = lpf2pApply(&mf_vbat, 3 * sdadc_sez_to_voltage(buffer[0]));		// AIN4P
-	m_oilp_volt = lpf2pApply(&mf_oilp_volt, sdadc_sez_to_voltage(buffer[1]));	// AIN5P
-	m_temp_volt = lpf2pApply(&mf_temp_volt, sdadc_sez_to_voltage(buffer[2]));	// AIN6P
+	r_vbat = 3 * sdadc_sez_to_voltage(buffer[0]);	// AIN4P
+	r_oilp_volt = sdadc_sez_to_voltage(buffer[1]);	// AIN5P
+	r_temp_volt = sdadc_sez_to_voltage(buffer[2]);	// AIN6P
+
+	f_vbat = lpf2pApply(&fo_vbat, r_vbat);
+	f_oilp_volt = lpf2pApply(&fo_oilp_volt, r_oilp_volt);
+	f_temp_volt = lpf2pApply(&fo_temp_volt, r_temp_volt);
 
 #if DEBUG_ADC_FREQ
 	palTogglePad(GPIOA, GPIOA_XP2_PA1);
@@ -124,7 +139,9 @@ static void adc_temp_oilp_vbat_cb(ADCDriver *adcp ATTR_UNUSED,
 static void adc_flow_cb(ADCDriver *adcp ATTR_UNUSED,
 		adcsample_t *buffer, size_t n ATTR_UNUSED)
 {
-	m_flow_volt = lpf2pApply(&mf_flow_volt, sdadc_sez_to_voltage(buffer[0]));	// AIN6P
+	r_flow_volt = sdadc_sez_to_voltage(buffer[0]);	// AIN6P
+
+	f_flow_volt = lpf2pApply(&fo_flow_volt, r_flow_volt);
 
 #if DEBUG_ADC_FREQ
 	palTogglePad(GPIOA, GPIOA_XP2_PA2);
@@ -220,36 +237,22 @@ static const ADCConversionGroup sdadc3group = {
 
 /* -*- low-level getters -*- */
 
-float adc_getll_temp(void)
-{
-	return m_temp_volt;
-}
+#define MAKE_GETTER(name, var)			\
+	float adc_getflt_ ## name (void) {	\
+		return f_ ## var;		\
+	}					\
+	float adc_getraw_ ## name (void) {	\
+		return r_ ## var;		\
+	}
 
-float adc_getll_oilp(void)
-{
-	return m_oilp_volt;
-}
+MAKE_GETTER(temp, temp_volt);
+MAKE_GETTER(oilp, oilp_volt);
+MAKE_GETTER(flow, flow_volt);
+MAKE_GETTER(vbat, vbat);
+MAKE_GETTER(vrtc, vrtc);
+MAKE_GETTER(int_temp, int_temp);
 
-float adc_getll_flow(void)
-{
-	return m_flow_volt;
-}
-
-float adc_getll_vbat(void)
-{
-	return m_vbat;
-}
-
-float adc_getll_vrtc(void)
-{
-	return m_vrtc;
-}
-
-float adc_getll_int_temp(void)
-{
-	return m_int_temp;
-}
-
+#undef MAKE_GETTER
 
 /* -*- module thread -*- */
 
@@ -271,29 +274,34 @@ static THD_FUNCTION(th_adc, arg ATTR_UNUSED)
 #endif
 
 	/* Init low pass filters */
-	lpf2pObjectInit(&mf_int_temp);
-	lpf2pObjectInit(&mf_vrtc);
-	lpf2pObjectInit(&mf_temp_volt);
-	lpf2pObjectInit(&mf_oilp_volt);
-	lpf2pObjectInit(&mf_vbat);
-	lpf2pObjectInit(&mf_flow_volt);
+	lpf2pObjectInit(&fo_int_temp);
+	lpf2pObjectInit(&fo_vrtc);
+	lpf2pObjectInit(&fo_temp_volt);
+	lpf2pObjectInit(&fo_oilp_volt);
+	lpf2pObjectInit(&fo_vbat);
+	lpf2pObjectInit(&fo_flow_volt);
 
-	/* XXX TODO: need to  check actual sample freq.
-	 * e.g. by calculation ADC1 should get ~30 kHz but measured by VT is only 2.4 Hz
-	 * (period = 429397 us)
+	/* Experimental freq's:
+	 * PC13:	8.935 kHz	111 uS
+	 * PA1:		2.78 kHz	350 uS
+	 * PA2:		8.34 kHz	120 uS
 	 *
-	 * So for now i disable filter by setting cutoff_freq = 0
+	 * So actual sampling freq's:
+	 * 		(measured)	(calced)
+	 * ADC1:	17.78 kHz	2 * 17.1 us => 29.24 kHz
+	 * SDADC1:	5.56 kHz	16600 / 3 => 5.5(3) kHz
+	 * SDADC3:	16.68 kHz	16600 / 1 => 16.6 kHz
 	 */
 
-	/* SAR ADC1: 2 * 17.1 us (239P5) == 29239.766 Hz */
-	lpf2pSetCutoffFrequency(&mf_int_temp, 29240.0, 0.0);
-	lpf2pSetCutoffFrequency(&mf_vrtc, 29240.0, 0.0);
-	/* SD ADC1: 3 * (1 / 16600) == 5533.(3) Hz */
-	lpf2pSetCutoffFrequency(&mf_temp_volt, 5533.4, 0.0);
-	lpf2pSetCutoffFrequency(&mf_oilp_volt, 5533.4, 0.0);
-	lpf2pSetCutoffFrequency(&mf_vbat, 5533.4, 0.0);
-	/* SD ADC3: 16.6 ksample == 16600 Hz */
-	lpf2pSetCutoffFrequency(&mf_flow_volt, 16600.0, 0.0);
+	/* SAR ADC1 */
+	lpf2pSetCutoffFrequency(&fo_int_temp, 17780.0, 50.0);
+	lpf2pSetCutoffFrequency(&fo_vrtc, 17780.0, 50.0);
+	/* SD ADC1 */
+	lpf2pSetCutoffFrequency(&fo_temp_volt, 5560.0, 10.0);
+	lpf2pSetCutoffFrequency(&fo_oilp_volt, 5560.0, 10.0);
+	lpf2pSetCutoffFrequency(&fo_vbat, 5560.0, 10.0);
+	/* SD ADC3 */
+	lpf2pSetCutoffFrequency(&fo_flow_volt, 16680.0, 50.0);
 
 	/* ADC1 */
 	adcStart(&ADCD1, NULL);

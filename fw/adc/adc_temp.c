@@ -53,7 +53,7 @@ int32_t temp_get_temperature(void)
  */
 bool temp_check_temperature(void)
 {
-	return m_temp > gp_temp_overheat || adc_getll_int_temp() > 90.0;
+	return m_temp > gp_temp_overheat || adc_getflt_int_temp() > 90.0;
 }
 
 void adc_handle_temperature(void)
@@ -61,9 +61,9 @@ void adc_handle_temperature(void)
 	float ntc_r;
 
 	if (gp_temp_r == TEMP_R__R1)
-		ntc_r = ntc_get_R1(adc_getll_temp(), TEMP_AVCC, TEMP_NTC_R);
+		ntc_r = ntc_get_R1(adc_getflt_temp(), TEMP_AVCC, TEMP_NTC_R);
 	else
-		ntc_r = ntc_get_R2(adc_getll_temp(), TEMP_AVCC, TEMP_NTC_R);
+		ntc_r = ntc_get_R2(adc_getflt_temp(), TEMP_AVCC, TEMP_NTC_R);
 
 	m_temp = ntc_K_to_C(ntc_get_K(ntc_r, gp_temp_sh_a, gp_temp_sh_b, gp_temp_sh_c));
 
