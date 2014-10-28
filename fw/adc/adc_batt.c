@@ -28,7 +28,7 @@
 /* -*- parameters -*-  */
 int32_t gp_batt_cells;
 char gp_batt_type[PT_STRING_SIZE];
-float gp_batt_vd1_voltage_drop;
+float gp_batt_voltage_trimm;
 
 
 /**
@@ -37,7 +37,7 @@ float gp_batt_vd1_voltage_drop;
  */
 static float get_vbat(void)
 {
-	return gp_batt_vd1_voltage_drop + adc_getll_vbat();
+	return gp_batt_voltage_trimm + adc_getll_vbat();
 }
 
 /* -*- battery types -*- */
