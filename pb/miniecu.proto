@@ -63,14 +63,14 @@ message Status {
 	enum Flags {
 		UNKNOWN = 0;
 		ARMED = 1;
-		TIME_KNOWN = 2;
+		TIME_KNOWN = 2;		// not needed since #23
 		IGNITION_ENABLED = 4;
 		STARTER_ENABLED = 8;
 		ENGINE_RUNNING = 16;
 
 		ERROR = 128;
 		UNDERVOLTAGE = 256;
-		OVERCURRENT = 512; // not implemented in hw_v2
+		OVERCURRENT = 512;	// not implemented in hw_v2
 		OVERHEAT = 1024;
 		LOW_FUEL = 2048;
 		LOW_OIL_PRESSURE = 4096;
@@ -78,18 +78,16 @@ message Status {
 	};
 
 	required uint32 engine_id = 1;
-	// Timestamp since unix epoch in milliseconds OR millis since startup
-	required uint64 timestamp_ms = 2;
-	// Bit flags from Flags
-	required uint32 status = 3;
-	// Current RPM
-	required uint32 rpm = 4;
-	required BatteryStatus battery = 5;
-	required TemperatureStatus temperature = 6;
-	required EngineTimerStatus time = 7;
-	required CPUStatus cpu = 8;
+	required uint32 system_time = 2;	// system time in milliseconds
+	optional uint64 timestamp_ms = 3;	// UNIX time in millis
+	required uint32 status = 4;		// Bit flags @see Flags
+	required uint32 rpm = 5;		// RPM
+	required BatteryStatus battery = 6;
+	required TemperatureStatus temperature = 7;
+	required EngineTimerStatus time = 8;
+	required CPUStatus cpu = 9;
 	// Current OIL pressure [TODO]
-	optional FuelFlowStatus fuel = 9;
+	optional FuelFlowStatus fuel = 10;
 	optional ADCRawVoltages adc_raw = 40;
 }
 
@@ -241,7 +239,7 @@ message MemoryDumpRequest {
 	required uint32 size = 5;
 };
 
-// Ansver to MemoryDumpRequest
+// Response to MemoryDumpRequest
 message MemoryDumpPage {
 	required uint32 engine_id = 1;
 	required uint32 stream_id = 2;
@@ -252,7 +250,7 @@ message MemoryDumpPage {
 // @}
 
 //! This union-like message used to transfer data
-// Only one filed must be set.
+// Only one field must be set.
 message Message {
 	optional Status status = 1;
 	optional TimeReference time_reference = 2;

@@ -27,6 +27,7 @@
 
 void rtc_time_init(void);
 bool time_is_known(void);
+uint32_t time_get_systime(void);
 uint64_t time_get_timestamp(void);
 int32_t time_set_timestamp(uint64_t ts);
 

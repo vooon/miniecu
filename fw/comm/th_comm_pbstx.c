@@ -303,7 +303,13 @@ static void send_status(PBStxComm *self)
 
 	status.engine_id = gp_engine_id;
 	status.status = flags;
+
+	/* time */
+	status.system_time = time_get_systime();
+	status.has_timestamp_ms = time_is_known();
 	status.timestamp_ms = time_get_timestamp();
+
+	/* RPM */
 	status.rpm = rpm_get_filtered();
 
 	/* battery */
@@ -363,7 +369,7 @@ static void recv_time_reference(PBStxComm *self, pb_istream_t *instream)
 
 	time_ref.engine_id = gp_engine_id;
 	time_ref.has_system_time = true;
-	time_ref.system_time = ST2MS(osalOsGetSystemTimeX());
+	time_ref.system_time = time_get_systime();
 	time_ref.has_timediff = true;
 	time_ref.timediff = time_set_timestamp(time_ref.timestamp_ms);
 

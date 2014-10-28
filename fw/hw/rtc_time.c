@@ -92,13 +92,20 @@ bool time_is_known(void)
 	return m_time_is_known;
 }
 
+/** Get OS system time in millis
+ */
+uint32_t time_get_systime(void)
+{
+	return ST2MS(osalOsGetSystemTimeX());
+}
+
 /** Get timestamp for comm and log
  * @return sys time or RTC time
  */
 uint64_t time_get_timestamp(void)
 {
 	if (!m_time_is_known)
-		return ST2MS(osalOsGetSystemTimeX());
+		return 0;
 	else
 		return rtc_get_unix_msec();
 }

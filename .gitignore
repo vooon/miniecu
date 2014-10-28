@@ -8,6 +8,7 @@
 *.elf
 *.o
 *.d
+core
 
 build/*
 ext/chibios/*
