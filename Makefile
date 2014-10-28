@@ -3,7 +3,7 @@
 
 TARGETS = miniecu_v2
 SERIAL = /dev/ttyUSB0
-CHIBIOS_REV = 7418
+CHIBIOS_REV = 7434
 
 all: $(TARGETS)
 
